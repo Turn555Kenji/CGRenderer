@@ -21,30 +21,32 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-/*void MainWindow::on_myDrawButton_clicked()
+void MainWindow::on_drawLineButton_clicked()
 {
-    int w = ui->drawArea->width();
-    int h = ui->drawArea->height();
-    QPoint randPoint(qrand() % w, qrand() % h);
-    QLine randLine(QPoint(qrand() % w, qrand() % h), QPoint(qrand() % w, qrand() % h));
+    float X1 = ui->X1Value->value();
+    float Y1 = ui->Y1Value->value();
+    float X2 = ui->X2Value->value();
+    float Y2 = ui->Y2Value->value();
 
-    ui->drawArea->addPoint(randPoint);
-    ui->drawArea->addLine(randLine);
+    QPoint Lp1(X1, Y1);
+    QPoint Lp2(X2, Y2);
+    QLine line1(Lp1, Lp2);
+
+    ui->drawArea->addLine(line1);
 }
 
-void MainWindow::on_myClearButton_clicked()
+void MainWindow::on_drawPointButton_clicked()
+{
+    float X1 = ui->X1Value->value();
+    float Y1 = ui->Y1Value->value();
+
+    QPoint p1(X1, Y1);
+
+    ui->drawArea->addPoint(p1);
+}
+
+void MainWindow::on_clearButton_clicked()
 {
     ui->drawArea->clearShapes();
-}*/
-
-void MainWindow::on_pushButton_clicked()
-{
-    QPoint p1(50, 50);
-    QPoint p2(200, 150);
-    QLine line1(p1, p2);
-
-    ui->drawArea->addPoint(QPoint(30, 30));
-    ui->drawArea->addLine(line1);
-    ui->drawArea->addLine(QLine(50, 200, 250, 20));
 }
 
