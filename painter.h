@@ -19,10 +19,14 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     QVector<QPoint> m_points;
     QVector<QLine> m_lines;
+
+signals:
+    void mouseClick(int x, int y);
 };
 
 #endif // PAINTER_H

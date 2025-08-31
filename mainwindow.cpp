@@ -14,6 +14,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->drawArea->setPalette(pal);
     ui->drawArea->show();
 
+    connect(ui->drawArea, &PainterWidget::mouseClick, this, &MainWindow::on_PainterMouseClicked);
+
 }
 
 MainWindow::~MainWindow()
@@ -50,3 +52,27 @@ void MainWindow::on_clearButton_clicked()
     ui->drawArea->clearShapes();
 }
 
+
+//Criado apenas para testar funcionalidades do mouse! Nada concreto!
+/*
+bool i = false;
+QPoint previous;
+
+
+void MainWindow::on_PainterMouseClicked(int x, int y)
+{
+    ui->X1Label->setText(QString::number(x));
+    ui->Y1Label->setText(QString::number(y));
+
+    if(i == true){
+        QPoint next(x, y);
+        QLine line(previous, next);
+        ui->drawArea->addLine(line);
+        previous = next;
+    }
+    else{
+        previous = QPoint(x, y);
+        i = true;
+    }
+}
+*/

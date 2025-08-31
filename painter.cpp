@@ -44,3 +44,11 @@ void PainterWidget::paintEvent(QPaintEvent *event)
         painter.drawPoint(point);
     }
 }
+
+void PainterWidget::mousePressEvent(QMouseEvent *event){
+    if(event->button() == Qt::LeftButton){
+        emit mouseClick(event->pos().x(), event->pos().y());
+    }
+
+    QWidget::mousePressEvent(event);
+}
