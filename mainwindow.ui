@@ -40,7 +40,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="objectList">
+   <widget class="QListWidget" name="objectListWidget">
     <property name="geometry">
      <rect>
       <x>620</x>
