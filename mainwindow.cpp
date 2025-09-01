@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -67,7 +68,7 @@ void MainWindow::on_PainterMouseClicked(int x, int y)
     if(i == true){
         QPoint next(x, y);
         QLine line(previous, next);
-        ui->drawArea->addLine(line);
+        //ui->drawArea->addLine(line);
         previous = next;
     }
     else{
@@ -82,7 +83,7 @@ void MainWindow::on_newObjectButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Object", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->paintArea->beginNewObject(name);
+        ui->drawArea->beginNewObject(name);
         // Optional: Update status bar to guide the user
         statusBar()->showMessage("Drawing new object: '" + name + "'. Click 'Finish Object' when done.");
     }
