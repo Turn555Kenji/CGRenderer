@@ -30,6 +30,12 @@ private slots:
 
     void on_newObjectButton_clicked();
 
+    void on_lineButton_clicked();
+
+    void on_polygonButton_clicked();
+
+    void on_pointButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

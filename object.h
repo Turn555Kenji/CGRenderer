@@ -20,7 +20,7 @@ public:
     const QVector<QLine>& lines() const;
     const QVector<QPoint>& points() const;
 
-private:
+private:    //Display File
     int m_id;
     QString m_name;
     QList<QLine> m_lines;
