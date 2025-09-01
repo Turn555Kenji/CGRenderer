@@ -5,6 +5,7 @@
 #include <QVector>
 #include <QPoint>
 #include <QLine>
+#include <object.h>
 
 class PainterWidget : public QWidget
 {

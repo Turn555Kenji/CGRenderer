@@ -25,7 +25,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_drawLineButton_clicked()
 {
-    float X1 = ui->X1Value->value();
+    /*float X1 = ui->X1Value->value();
     float Y1 = ui->Y1Value->value();
     float X2 = ui->X2Value->value();
     float Y2 = ui->Y2Value->value();
@@ -34,22 +34,22 @@ void MainWindow::on_drawLineButton_clicked()
     QPoint Lp2(X2, Y2);
     QLine line1(Lp1, Lp2);
 
-    ui->drawArea->addLine(line1);
+    ui->drawArea->addLine(line1);*/
 }
 
 void MainWindow::on_drawPointButton_clicked()
 {
-    float X1 = ui->X1Value->value();
+    /*float X1 = ui->X1Value->value();
     float Y1 = ui->Y1Value->value();
 
     QPoint p1(X1, Y1);
 
-    ui->drawArea->addPoint(p1);
+    ui->drawArea->addPoint(p1);*/
 }
 
 void MainWindow::on_clearButton_clicked()
 {
-    ui->drawArea->clearShapes();
+    //ui->drawArea->clearShapes();
 }
 
 
@@ -76,9 +76,19 @@ void MainWindow::on_PainterMouseClicked(int x, int y)
     }
 }
 
+void MainWindow::on_newObjectButton_clicked()
+{
+    bool ok;
+    QString name = QInputDialog::getText(this, "Add New Object", "Object Name:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !name.isEmpty()) {
+        ui->paintArea->beginNewObject(name);
+        // Optional: Update status bar to guide the user
+        statusBar()->showMessage("Drawing new object: '" + name + "'. Click 'Finish Object' when done.");
+    }
+}
 
 void MainWindow::on_finishButton_clicked()
 {
     i = false;
 }
-

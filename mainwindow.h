@@ -28,6 +28,8 @@ private slots:
 
     void on_finishButton_clicked();
 
+    void on_newObjectButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
