@@ -25,8 +25,8 @@ protected:
     //Implement MoveEvent for preview!!
 
 private:
-    QList<SceneObject> m_objects;        // All finalized objects
-    SceneObject* m_currentObject = nullptr; // The object being drawn right now
+    QList<SceneObject> m_objects;        // Display File
+    SceneObject* m_currentObject = nullptr; // Current object
 
     int m_nextObjectId = 0;
 

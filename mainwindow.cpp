@@ -20,7 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->polygonButton->setDisabled(true);
 
     connect(ui->drawArea, &PainterWidget::mouseClick, this, &MainWindow::on_PainterMouseClicked);
-
 }
 
 MainWindow::~MainWindow()
