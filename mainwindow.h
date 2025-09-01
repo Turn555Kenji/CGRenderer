@@ -26,6 +26,8 @@ private slots:
 
     void on_PainterMouseClicked(int x, int y);
 
+    void on_finishButton_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

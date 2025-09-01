@@ -13,20 +13,28 @@ class PainterWidget : public QWidget
 public:
     explicit PainterWidget(QWidget *parent = nullptr);
 
-    void addPoint(const QPoint &point);
-    void addLine(const QLine &line);
-    void clearShapes();
+    void beginNewObject(const QString &name);
+    void addLineToCurrentObject(const QLine &line);
+    void addPointToCurrentObject(const QPoint &point);
+    void endNewObject();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    //Implement MoveEvent for preview!!
 
 private:
-    QVector<QPoint> m_points;
-    QVector<QLine> m_lines;
+    QList<SceneObject> m_objects;        // All finalized objects
+    SceneObject* m_currentObject = nullptr; // The object being drawn right now
+
+    int m_nextObjectId = 0;
+
+public slots:
+    void removeObject(int id);
 
 signals:
     void mouseClick(int x, int y);
+    void objectAdded(const QString &name, int id);
 };
 
 #endif // PAINTER_H

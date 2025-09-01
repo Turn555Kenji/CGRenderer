@@ -54,7 +54,7 @@ void MainWindow::on_clearButton_clicked()
 
 
 //Criado apenas para testar funcionalidades do mouse! Nada concreto!
-/*
+
 bool i = false;
 QPoint previous;
 
@@ -75,4 +75,10 @@ void MainWindow::on_PainterMouseClicked(int x, int y)
         i = true;
     }
 }
-*/
+
+
+void MainWindow::on_finishButton_clicked()
+{
+    i = false;
+}
+
