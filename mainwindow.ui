@@ -40,7 +40,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="objectList">
+   <widget class="QListWidget" name="objectListWidget">
     <property name="geometry">
      <rect>
       <x>620</x>
@@ -278,6 +278,19 @@
     </property>
     <property name="text">
      <string>Point</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="openPolygonButton">
+    <property name="geometry">
+     <rect>
+      <x>840</x>
+      <y>320</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Finish polygon</string>
     </property>
    </widget>
   </widget>
