@@ -48,7 +48,7 @@ int pointDistance(QPoint next, QPoint first)
 {
     return abs(next.x() - first.x()) + abs(next.y() - first.y());
 }
-
+//
 void finishObject(Ui::MainWindow *ui){
     ui->drawArea->endNewObject();
     i = false;
