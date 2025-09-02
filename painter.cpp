@@ -5,32 +5,12 @@
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
 {
-    // Has to do with windows screen focus...?
+    // Window Screen focus
     setFocusPolicy(Qt::StrongFocus);
 }
 
-/*void PainterWidget::addPoint(const QPoint &point)
-{
-    m_points.append(point);
-    update();
-}
-
-void PainterWidget::addLine(const QLine &line)
-{
-    m_lines.append(line);
-    update();
-}
-
-void PainterWidget::clearShapes()
-{
-    m_points.clear();
-    m_lines.clear();
-    update();
-}*/
-
 void PainterWidget::beginNewObject(const QString &name)
 {
-    // Finalize any previous object that wasn't completed
     if (m_currentObject) {
         endNewObject();
     }
@@ -38,12 +18,11 @@ void PainterWidget::beginNewObject(const QString &name)
     update();
 }
 
-// Step 2 of creation: Called by your mouse events
 void PainterWidget::addLineToCurrentObject(const QLine &line)
 {
     if (m_currentObject) {
         m_currentObject->addLine(line);
-        update(); // Redraw to show the new line in real-time
+        update();
     }
 }
 
@@ -55,12 +34,11 @@ void PainterWidget::addPointToCurrentObject(const QPoint &point)
     }
 }
 
-// Step 3 of creation: Called by MainWindow when the user is done
 void PainterWidget::endNewObject()
 {
     if (m_currentObject) {
         m_objects.append(*m_currentObject);
-        emit objectAdded(m_currentObject->name(), m_currentObject->id());
+        emit objectAdded(m_currentObject->name(), m_currentObject->id(), m_currentObject->points().size(), m_currentObject->lines().size());
         delete m_currentObject;
         m_currentObject = nullptr;
         update();
@@ -69,13 +47,21 @@ void PainterWidget::endNewObject()
 
 void PainterWidget::removeObject(int id)
 {
-    auto it = std::remove_if(m_objects.begin(), m_objects.end(),
-                             [id](const SceneObject &obj) { return obj.id() == id; });
+    auto it = m_objects.begin();
+    for (; it != m_objects.end(); ) {
+        if (it->id() == id) {
+            it = m_objects.erase(it);
+        } else {
+            ++it;
+        }
+    }
 
     if (it != m_objects.end()) {
         m_objects.erase(it, m_objects.end());
         update();
     }
+
+    update();
 }
 
 void PainterWidget::paintEvent(QPaintEvent *event)

@@ -35,7 +35,7 @@ public slots:
 
 signals:
     void mouseClick(int x, int y);
-    void objectAdded(const QString &name, int id);
+    void objectAdded(const QString &name, int id, int pointNum, int lineNum);
 };
 
 #endif // PAINTER_H

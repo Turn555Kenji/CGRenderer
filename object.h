@@ -23,8 +23,8 @@ public:
 private:    //Display File
     int m_id;
     QString m_name;
-    QList<QLine> m_lines;
-    QList<QPoint> m_points;
+    QVector<QLine> m_lines;
+    QVector<QPoint> m_points;
 };
 
 #endif // OBJECT_H
