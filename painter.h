@@ -18,6 +18,7 @@ public:
     void addLineToCurrentObject(const QLine &line);
     void addPointToCurrentObject(const QPoint &point);
     void endNewObject();
+    SceneObject* getObject(int id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

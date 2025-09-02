@@ -1,6 +1,6 @@
 #include "object.h"
 
-SceneObject::SceneObject(int id, const QString &name, const QString &type) : m_id(id), m_name(name)
+SceneObject::SceneObject(int id, const QString &name, const QString &type) : m_id(id), m_name(name), m_type(type)
 {
 }
 
@@ -22,6 +22,11 @@ int SceneObject::id() const
 const QString &SceneObject::name() const
 {
     return m_name;
+}
+
+const QString &SceneObject::type() const
+{
+    return m_type;
 }
 
 const QVector<QLine> &SceneObject::lines() const

@@ -107,3 +107,13 @@ void PainterWidget::mousePressEvent(QMouseEvent *event){
 
     QWidget::mousePressEvent(event);
 }
+
+SceneObject* PainterWidget::getObject(int id)
+{
+    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
+        if (it->id() == id) {
+            return &(*it); // return pointer to the object
+        }
+    }
+    return nullptr; // not found
+}

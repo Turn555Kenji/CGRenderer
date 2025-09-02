@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->clearLastPositionButton->setDisabled(true);
     ui->deleteObjectButton->setDisabled(true);
 
-    ui->objectTableWidget->setColumnCount(4);
+    ui->objectTableWidget->setColumnCount(5);
     ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Type", "Points", "Lines"});
     ui->objectTableWidget->setColumnWidth(0, 30);
     ui->objectTableWidget->setColumnWidth(1, 100);
@@ -110,22 +110,6 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
             else{
                 previous = QPoint(x, y);
                 first = previous;
-                i = true;
-            }
-            break;
-        }
-
-        case 3:{
-            if(i == true){
-                QPoint next(x, y);
-                QLine line(previous, next);
-                ui->drawArea->addLineToCurrentObject(line);
-                previous = next;
-                i = false;
-                finishObject(ui);
-            }
-            else{
-                previous = QPoint(x, y);
                 i = true;
             }
             break;
@@ -259,20 +243,33 @@ void MainWindow::on_objectTableWidget_itemClicked()
 }
 
 
-void MainWindow::on_squareButton_clicked()
+void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
 {
-    option = 3;
-    bool ok;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
-    ui->clearLastPositionButton->setDisabled(true);
+    ui->pointListWidget->clear();
+    if (!item) {
+        return;
+    }
+    int row = item->row();
+    QTableWidgetItem *idItem = ui->objectTableWidget->item(row, 0);
 
-    QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
-
-    if (ok && !name.isEmpty()) {
-        //ui->drawArea->beginNewObject(name);
-        statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
+    if (idItem) {
+        int objectId = idItem->text().toInt();
+        SceneObject *obj = ui->drawArea->getObject(objectId);
+        QString objType = obj->type();
+        if(objType == "Point"){
+            const QPoint& pt = obj->points()[0];
+            QString pointStr = QString("(%1, %2)").arg(pt.x()).arg(pt.y());
+            ui->pointListWidget->addItem(pointStr);
+        } else if (objType == "Line"){
+            const QLine& pt = obj->lines()[0];
+            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt.p1().x()).arg(pt.p1().y()).arg(pt.p2().x()).arg(pt.p2().y());
+            ui->pointListWidget->addItem(lineStr);
+        } else if (objType == "Polygon"){
+            for (const QLine& pt : obj->lines()) {
+                QString polygonStr = QString("(%1, %2)").arg(pt.p1().x()).arg(pt.p1().y());
+                ui->pointListWidget->addItem(polygonStr);
+            }
+        }
     }
 }
 

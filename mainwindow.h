@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QTableWidgetItem>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -38,7 +39,7 @@ private slots:
 
     void on_objectTableWidget_itemClicked();
 
-    void on_squareButton_clicked();
+    void on_objectTableWidget_itemClicked(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;

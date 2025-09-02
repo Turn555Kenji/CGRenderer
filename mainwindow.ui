@@ -132,7 +132,7 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>140</y>
+      <y>100</y>
       <width>101</width>
       <height>24</height>
      </rect>
@@ -145,9 +145,19 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>180</y>
+      <y>140</y>
       <width>301</width>
-      <height>201</height>
+      <height>221</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QListWidget" name="pointListWidget">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>411</y>
+      <width>301</width>
+      <height>141</height>
      </rect>
     </property>
    </widget>
