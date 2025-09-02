@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QPoint>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,12 +18,6 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_drawLineButton_clicked();
-
-    void on_drawPointButton_clicked();
-
-    void on_clearButton_clicked();
-
     void on_PainterMouseClicked(int x, int y);
 
     void on_finishButton_clicked();
@@ -37,12 +30,15 @@ private slots:
 
     void on_pointButton_clicked();
 
-    void on_objectAdded_to_list(const QString &name, int id);
+    void on_objectAdded(const QString &name, int id, int pointNum, int lineNum);
+
+    void on_clearLastPositionButton_clicked();
+
+    void on_deleteObjectButton_clicked();
+
+    void on_objectTableWidget_itemClicked();
 
 private:
     Ui::MainWindow *ui;
-    bool m_isDrawingPolygon = false;
-    QPoint m_firstPoint;
-    QPoint m_previousPoint;
 };
 #endif // MAINWINDOW_H

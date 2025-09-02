@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QInputDialog>
+#include <cmath>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,9 +19,19 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lineButton->setDisabled(true);
     ui->pointButton->setDisabled(true);
     ui->polygonButton->setDisabled(true);
+    ui->clearLastPositionButton->setDisabled(true);
+    ui->deleteObjectButton->setDisabled(true);
+
+    ui->objectTableWidget->setColumnCount(4);
+    ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Points", "Lines"});
+    ui->objectTableWidget->setColumnWidth(0, 30);
+    ui->objectTableWidget->setColumnWidth(1, 165);
+    ui->objectTableWidget->setColumnWidth(2, 45);
+    ui->objectTableWidget->setColumnWidth(3, 45);
+    ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->drawArea, &PainterWidget::mouseClick, this, &MainWindow::on_PainterMouseClicked);
-    connect(ui->drawArea, &PainterWidget::objectAdded, this, &MainWindow::on_objectAdded_to_list);
+    connect(ui->drawArea, &PainterWidget::objectAdded, this, &MainWindow::on_objectAdded);
 }
 
 MainWindow::~MainWindow()
@@ -28,79 +39,78 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_drawLineButton_clicked()
-{
-    /*float X1 = ui->X1Value->value();
-    float Y1 = ui->Y1Value->value();
-    float X2 = ui->X2Value->value();
-    float Y2 = ui->Y2Value->value();
-
-    QPoint Lp1(X1, Y1);
-    QPoint Lp2(X2, Y2);
-    QLine line1(Lp1, Lp2);
-
-    ui->drawArea->addLine(line1);*/
-}
-
-void MainWindow::on_drawPointButton_clicked()
-{
-    /*float X1 = ui->X1Value->value();
-    float Y1 = ui->Y1Value->value();
-
-    QPoint p1(X1, Y1);
-
-    ui->drawArea->addPoint(p1);*/
-}
-
-void MainWindow::on_clearButton_clicked()
-{
-    //ui->drawArea->clearShapes();
-}
-
-
-//Criado apenas para testar funcionalidades do mouse! Nada concreto!
-
 bool i = false;
 QPoint previous;
+QPoint first;
 unsigned char option = 0;
 
-
-void MainWindow::on_PainterMouseClicked(int x, int y)
+int pointDistance(QPoint next, QPoint first)
 {
+    return abs(next.x() - first.x()) + abs(next.y() - first.y());
+}
+
+void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
+{
+
     ui->X1Label->setText(QString::number(x));
     ui->Y1Label->setText(QString::number(y));
 
-    switch (option) {
-    case 0: { // Drawing polygon
-        if (!m_isDrawingPolygon) {
-            m_firstPoint = QPoint(x, y);
-            m_previousPoint = m_firstPoint;
-            m_isDrawingPolygon = true;
-        } else {
-            QPoint currentPoint(x, y);
-            QLine line(m_previousPoint, currentPoint);
-            ui->drawArea->addLineToCurrentObject(line);
-            m_previousPoint = currentPoint;
+    switch (option){
+
+        case 0:{    //Drawing point
+            QPoint p(x, y);
+            ui->drawArea->addPointToCurrentObject(p);
+            break;
         }
-        break;
-    }
-    case 1: {
-        break;
-    }
-    case 2: {
-        break;
-    }
+
+        case 1:{    //Drawing line
+            if(i == true){
+                QPoint next(x, y);
+                QLine line(previous, next);
+                ui->drawArea->addLineToCurrentObject(line);
+                previous = next;
+                i = false;
+            }
+            else{
+                previous = QPoint(x, y);
+                i = true;
+            }
+            break;
+        }
+
+        case 2:{    //Drawing polygon
+            if(i == true){
+                QPoint next(x, y);
+                if(pointDistance(next, first) < 10){
+                    QLine line(previous, first);
+                    ui->drawArea->addLineToCurrentObject(line);
+                    i = false;
+                    break;
+                }
+                QLine line(previous, next);
+                ui->drawArea->addLineToCurrentObject(line);
+                previous = next;
+            }
+            else{
+                previous = QPoint(x, y);
+                first = previous;
+                i = true;
+            }
+            break;
+        }
     }
 }
+
 void MainWindow::on_newObjectButton_clicked()
 {
     i = false;
-    m_isDrawingPolygon = false;
+    option = 0;
     bool ok;
 
     ui->lineButton->setDisabled(false);
-    ui->pointButton->setDisabled(false);
+    ui->pointButton->setDisabled(true);
     ui->polygonButton->setDisabled(false);
+    ui->clearLastPositionButton->setDisabled(true);
 
     QString name = QInputDialog::getText(this, "Add New Object", "Object Name:", QLineEdit::Normal, "", &ok);
 
@@ -112,50 +122,79 @@ void MainWindow::on_newObjectButton_clicked()
 
 void MainWindow::on_finishButton_clicked()
 {
-    if (m_isDrawingPolygon) {
-        if (m_previousPoint != m_firstPoint) {
-            QLine closingLine(m_previousPoint, m_firstPoint);
-            ui->drawArea->addLineToCurrentObject(closingLine);
-        }
-    }
-
     ui->drawArea->endNewObject();
-    m_isDrawingPolygon = false;
     i = false;
-
+    option = 0;
     ui->lineButton->setDisabled(true);
     ui->pointButton->setDisabled(true);
     ui->polygonButton->setDisabled(true);
+    ui->clearLastPositionButton->setDisabled(true);
+
+    statusBar()->showMessage("");
 }
 
-void MainWindow::on_lineButton_clicked()
+void MainWindow::on_pointButton_clicked()
 {
+    option = 0;
+    ui->lineButton->setDisabled(false);
+    ui->pointButton->setDisabled(true);
+    ui->polygonButton->setDisabled(false);
+    ui->clearLastPositionButton->setDisabled(true);
+}
+
+
+void MainWindow::on_lineButton_clicked()
+{   option = 1;
     ui->lineButton->setDisabled(true);
     ui->pointButton->setDisabled(false);
     ui->polygonButton->setDisabled(false);
+    ui->clearLastPositionButton->setDisabled(false);
 }
 
 
 void MainWindow::on_polygonButton_clicked()
 {
+    option = 2;
     ui->lineButton->setDisabled(false);
     ui->pointButton->setDisabled(false);
     ui->polygonButton->setDisabled(true);
-    m_isDrawingPolygon = true;
-    option = 0;
+    ui->clearLastPositionButton->setDisabled(false);
+}
+
+void MainWindow::on_objectAdded(const QString &name, int id, int pointNum, int lineNum)
+{
+    int row = ui->objectTableWidget->rowCount();
+    ui->objectTableWidget->insertRow(row);
+    ui->objectTableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
+    ui->objectTableWidget->setItem(row, 1, new QTableWidgetItem(name));
+    ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(QString::number(pointNum)));
+    ui->objectTableWidget->setItem(row, 3, new QTableWidgetItem(QString::number(lineNum)));
+}
+
+void MainWindow::on_clearLastPositionButton_clicked()
+{
+    i = false;
+}
+
+void MainWindow::on_deleteObjectButton_clicked()
+{
+    QTableWidgetItem *selectedItem = ui->objectTableWidget->currentItem();
+    if (!selectedItem) {
+        return;
+    }
+    int row = selectedItem->row();
+    QTableWidgetItem *idItem = ui->objectTableWidget->item(row, 0);
+
+    if (idItem) {
+        int objectId = idItem->text().toInt();
+        ui->drawArea->removeObject(objectId);
+        ui->objectTableWidget->removeRow(row);
+    }
 }
 
 
-void MainWindow::on_pointButton_clicked()
+void MainWindow::on_objectTableWidget_itemClicked()
 {
-    ui->lineButton->setDisabled(false);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(false);
-}
-
-void MainWindow::on_objectAdded_to_list(const QString &name, int id)
-{
-    QString itemText = QString("%1 (ID: %2)").arg(name).arg(id);
-    ui->objectListWidget->addItem(itemText);
+    ui->deleteObjectButton->setDisabled(false);
 }
 

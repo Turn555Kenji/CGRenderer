@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>931</width>
+    <width>958</width>
     <height>600</height>
    </rect>
   </property>
@@ -14,22 +14,6 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QDoubleSpinBox" name="X1Value">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>40</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>9999999.990000000223517</double>
-    </property>
-    <property name="singleStep">
-     <double>50.000000000000000</double>
-    </property>
-   </widget>
    <widget class="PainterWidget" name="drawArea" native="true">
     <property name="geometry">
      <rect>
@@ -40,22 +24,12 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="objectListWidget">
-    <property name="geometry">
-     <rect>
-      <x>620</x>
-      <y>360</y>
-      <width>301</width>
-      <height>201</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="X1Label">
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>660</x>
       <y>20</y>
-      <width>49</width>
+      <width>21</width>
       <height>16</height>
      </rect>
     </property>
@@ -63,28 +37,12 @@
      <string>X1</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="Y1Value">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>40</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>9999999.990000000223517</double>
-    </property>
-    <property name="singleStep">
-     <double>50.000000000000000</double>
-    </property>
-   </widget>
    <widget class="QLabel" name="Y1Label">
     <property name="geometry">
      <rect>
-      <x>740</x>
+      <x>700</x>
       <y>20</y>
-      <width>49</width>
+      <width>21</width>
       <height>16</height>
      </rect>
     </property>
@@ -92,127 +50,105 @@
      <string>Y1</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="X2Value">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>100</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>9999999.990000000223517</double>
-    </property>
-    <property name="singleStep">
-     <double>50.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="Y2Value">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>100</y>
-      <width>81</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <property name="maximum">
-     <double>9999999.990000000223517</double>
-    </property>
-    <property name="singleStep">
-     <double>50.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="X2Label">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>80</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>X2</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="Y2Label">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>80</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Y2</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="drawLineButton">
+   <widget class="QPushButton" name="finishButton">
     <property name="geometry">
      <rect>
       <x>840</x>
-      <y>100</y>
+      <y>20</y>
       <width>80</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>Draw Line</string>
+     <string>Finish</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="drawPointButton">
+   <widget class="QPushButton" name="newObjectButton">
     <property name="geometry">
      <rect>
-      <x>840</x>
-      <y>40</y>
+      <x>740</x>
+      <y>20</y>
       <width>80</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
-     <string>Draw Point</string>
+     <string>Create</string>
     </property>
    </widget>
-   <widget class="QLabel" name="PointText">
+   <widget class="QPushButton" name="lineButton">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>60</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Line</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="polygonButton">
+    <property name="geometry">
+     <rect>
+      <x>840</x>
+      <y>60</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Polygon</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pointButton">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>60</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Point</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="clearLastPositionButton">
+    <property name="geometry">
+     <rect>
+      <x>820</x>
+      <y>100</y>
+      <width>101</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Clear Last Position</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="deleteObjectButton">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>140</y>
+      <width>101</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Delete Selected</string>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="objectTableWidget">
     <property name="geometry">
      <rect>
       <x>640</x>
       <y>180</y>
-      <width>281</width>
-      <height>21</height>
+      <width>301</width>
+      <height>201</height>
      </rect>
-    </property>
-    <property name="text">
-     <string>Use only X1 and Y1 for Points.</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="LineText">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>200</y>
-      <width>281</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Use X2 and Y2 along with X1 and Y1 for Lines.</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="clearButton">
-    <property name="geometry">
-     <rect>
-      <x>840</x>
-      <y>140</y>
-      <width>80</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Clear</string>
     </property>
    </widget>
   </widget>
@@ -221,7 +157,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>931</width>
+     <width>958</width>
      <height>21</height>
     </rect>
    </property>

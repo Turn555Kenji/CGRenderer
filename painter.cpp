@@ -5,26 +5,62 @@
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
 {
-    // Has to do with windows screen focus...?
+    // Window Screen focus
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void PainterWidget::addPoint(const QPoint &point)
+void PainterWidget::beginNewObject(const QString &name)
 {
-    m_points.append(point);
+    if (m_currentObject) {
+        endNewObject();
+    }
+    m_currentObject = new SceneObject(m_nextObjectId++, name);
     update();
 }
 
-void PainterWidget::addLine(const QLine &line)
+void PainterWidget::addLineToCurrentObject(const QLine &line)
 {
-    m_lines.append(line);
-    update();
+    if (m_currentObject) {
+        m_currentObject->addLine(line);
+        update();
+    }
 }
 
-void PainterWidget::clearShapes()
+void PainterWidget::addPointToCurrentObject(const QPoint &point)
 {
-    m_points.clear();
-    m_lines.clear();
+    if (m_currentObject) {
+        m_currentObject->addPoint(point);
+        update();
+    }
+}
+
+void PainterWidget::endNewObject()
+{
+    if (m_currentObject) {
+        m_objects.append(*m_currentObject);
+        emit objectAdded(m_currentObject->name(), m_currentObject->id(), m_currentObject->points().size(), m_currentObject->lines().size());
+        delete m_currentObject;
+        m_currentObject = nullptr;
+        update();
+    }
+}
+
+void PainterWidget::removeObject(int id)
+{
+    auto it = m_objects.begin();
+    for (; it != m_objects.end(); ) {
+        if (it->id() == id) {
+            it = m_objects.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    if (it != m_objects.end()) {
+        m_objects.erase(it, m_objects.end());
+        update();
+    }
+
     update();
 }
 
@@ -34,14 +70,25 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 
     //painter.setRenderHint(QPainter::Antialiasing);
 
-    painter.setPen(QPen(Qt::blue, 2));
-    for (const QLine &line : m_lines) {
-        painter.drawLine(line);
+    for (const SceneObject &obj : m_objects) {
+        painter.setPen(QPen(Qt::blue, 2));
+        for (const QLine &line : obj.lines()) {
+            painter.drawLine(line);
+        }
+        painter.setPen(QPen(Qt::red, 5));
+        for (const QPoint &point : obj.points()) {
+            painter.drawPoint(point);
+        }
     }
 
-    painter.setPen(QPen(Qt::red, 5));
-    for (const QPoint &point : m_points) {
-        painter.drawPoint(point);
+    if (m_currentObject) {
+        painter.setPen(QPen(Qt::green, 2, Qt::DashLine)); // Draw with a different style
+        for (const QLine &line : m_currentObject->lines()) {
+            painter.drawLine(line);
+        }
+        for (const QPoint &point : m_currentObject->points()) {
+            painter.drawPoint(point);
+        }
     }
 }
 

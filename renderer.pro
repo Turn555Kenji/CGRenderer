@@ -11,10 +11,12 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    object.cpp \
     painter.cpp
 
 HEADERS += \
     mainwindow.h \
+    object.h \
     painter.h
 
 FORMS += \
