@@ -118,8 +118,8 @@
    <widget class="QPushButton" name="clearLastPositionButton">
     <property name="geometry">
      <rect>
-      <x>820</x>
-      <y>100</y>
+      <x>760</x>
+      <y>0</y>
       <width>101</width>
       <height>24</height>
      </rect>

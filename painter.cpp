@@ -9,12 +9,12 @@ PainterWidget::PainterWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void PainterWidget::beginNewObject(const QString &name)
+void PainterWidget::beginNewObject(const QString &name, const QString &type)
 {
     if (m_currentObject) {
         endNewObject();
     }
-    m_currentObject = new SceneObject(m_nextObjectId++, name);
+    m_currentObject = new SceneObject(m_nextObjectId++, name, type);
     update();
 }
 
@@ -34,11 +34,19 @@ void PainterWidget::addPointToCurrentObject(const QPoint &point)
     }
 }
 
+/*void PainterWidget::addSquareToCurrentObject(const QPoint &point)
+{
+    if (m_currentObject) {
+        m_currentObject->addPoint(point);
+        update();
+    }
+}*/
+
 void PainterWidget::endNewObject()
 {
     if (m_currentObject) {
         m_objects.append(*m_currentObject);
-        emit objectAdded(m_currentObject->name(), m_currentObject->id(), m_currentObject->points().size(), m_currentObject->lines().size());
+        emit objectAdded(m_currentObject->name(), m_currentObject->type(), m_currentObject->id(), m_currentObject->points().size(), m_currentObject->lines().size());
         delete m_currentObject;
         m_currentObject = nullptr;
         update();

@@ -23,11 +23,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->deleteObjectButton->setDisabled(true);
 
     ui->objectTableWidget->setColumnCount(4);
-    ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Points", "Lines"});
+    ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Type", "Points", "Lines"});
     ui->objectTableWidget->setColumnWidth(0, 30);
-    ui->objectTableWidget->setColumnWidth(1, 165);
-    ui->objectTableWidget->setColumnWidth(2, 45);
+    ui->objectTableWidget->setColumnWidth(1, 100);
+    ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setColumnWidth(3, 45);
+    ui->objectTableWidget->setColumnWidth(4, 45);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->drawArea, &PainterWidget::mouseClick, this, &MainWindow::on_PainterMouseClicked);
@@ -48,7 +49,7 @@ int pointDistance(QPoint next, QPoint first)
 {
     return abs(next.x() - first.x()) + abs(next.y() - first.y());
 }
-//
+
 void finishObject(Ui::MainWindow *ui){
     ui->drawArea->endNewObject();
     i = false;
@@ -113,6 +114,22 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
             }
             break;
         }
+
+        case 3:{
+            if(i == true){
+                QPoint next(x, y);
+                QLine line(previous, next);
+                ui->drawArea->addLineToCurrentObject(line);
+                previous = next;
+                i = false;
+                finishObject(ui);
+            }
+            else{
+                previous = QPoint(x, y);
+                i = true;
+            }
+            break;
+        }
     }
 }
 
@@ -130,7 +147,7 @@ void MainWindow::on_newObjectButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Object", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name);
+        //ui->drawArea->beginNewObject(name);
         statusBar()->showMessage("Drawing new object: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -160,7 +177,7 @@ void MainWindow::on_pointButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name);
+        ui->drawArea->beginNewObject(name, "Point");
         statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -179,7 +196,7 @@ void MainWindow::on_lineButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name);
+        ui->drawArea->beginNewObject(name, "Line");
         statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -198,19 +215,20 @@ void MainWindow::on_polygonButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name);
+        ui->drawArea->beginNewObject(name, "Polygon");
         statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
 
-void MainWindow::on_objectAdded(const QString &name, int id, int pointNum, int lineNum)
+void MainWindow::on_objectAdded(const QString &name, const QString &type, int id, int pointNum, int lineNum)
 {
     int row = ui->objectTableWidget->rowCount();
     ui->objectTableWidget->insertRow(row);
     ui->objectTableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
     ui->objectTableWidget->setItem(row, 1, new QTableWidgetItem(name));
-    ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(QString::number(pointNum)));
-    ui->objectTableWidget->setItem(row, 3, new QTableWidgetItem(QString::number(lineNum)));
+    ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(type));
+    ui->objectTableWidget->setItem(row, 3, new QTableWidgetItem(QString::number(pointNum)));
+    ui->objectTableWidget->setItem(row, 4, new QTableWidgetItem(QString::number(lineNum)));
 }
 
 void MainWindow::on_clearLastPositionButton_clicked()
@@ -238,5 +256,23 @@ void MainWindow::on_deleteObjectButton_clicked()
 void MainWindow::on_objectTableWidget_itemClicked()
 {
     ui->deleteObjectButton->setDisabled(false);
+}
+
+
+void MainWindow::on_squareButton_clicked()
+{
+    option = 3;
+    bool ok;
+    ui->lineButton->setDisabled(true);
+    ui->pointButton->setDisabled(true);
+    ui->polygonButton->setDisabled(true);
+    ui->clearLastPositionButton->setDisabled(true);
+
+    QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
+
+    if (ok && !name.isEmpty()) {
+        //ui->drawArea->beginNewObject(name);
+        statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
+    }
 }
 

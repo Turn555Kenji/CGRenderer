@@ -30,13 +30,15 @@ private slots:
 
     void on_pointButton_clicked();
 
-    void on_objectAdded(const QString &name, int id, int pointNum, int lineNum);
+    void on_objectAdded(const QString &name, const QString &type, int id, int pointNum, int lineNum);
 
     void on_clearLastPositionButton_clicked();
 
     void on_deleteObjectButton_clicked();
 
     void on_objectTableWidget_itemClicked();
+
+    void on_squareButton_clicked();
 
 private:
     Ui::MainWindow *ui;

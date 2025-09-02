@@ -14,7 +14,7 @@ class PainterWidget : public QWidget
 public:
     explicit PainterWidget(QWidget *parent = nullptr);
 
-    void beginNewObject(const QString &name);
+    void beginNewObject(const QString &name, const QString &type);
     void addLineToCurrentObject(const QLine &line);
     void addPointToCurrentObject(const QPoint &point);
     void endNewObject();
@@ -35,7 +35,7 @@ public slots:
 
 signals:
     void mouseClick(int x, int y);
-    void objectAdded(const QString &name, int id, int pointNum, int lineNum);
+    void objectAdded(const QString &name, const QString &type, int id, int pointNum, int lineNum);
 };
 
 #endif // PAINTER_H

@@ -1,6 +1,6 @@
 #include "object.h"
 
-SceneObject::SceneObject(int id, const QString &name) : m_id(id), m_name(name)
+SceneObject::SceneObject(int id, const QString &name, const QString &type) : m_id(id), m_name(name)
 {
 }
 
