@@ -19,16 +19,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->lineButton->setDisabled(false);
     ui->pointButton->setDisabled(false);
     ui->polygonButton->setDisabled(false);
-    ui->clearLastPositionButton->setDisabled(true);
     ui->deleteObjectButton->setDisabled(true);
 
-    ui->objectTableWidget->setColumnCount(5);
-    ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Type", "Points", "Lines"});
+    ui->objectTableWidget->setColumnCount(3);
+    ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Type"});
     ui->objectTableWidget->setColumnWidth(0, 30);
-    ui->objectTableWidget->setColumnWidth(1, 100);
+    ui->objectTableWidget->setColumnWidth(1, 180);
     ui->objectTableWidget->setColumnWidth(2, 65);
-    ui->objectTableWidget->setColumnWidth(3, 45);
-    ui->objectTableWidget->setColumnWidth(4, 45);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(ui->drawArea, &PainterWidget::mouseClick, this, &MainWindow::on_PainterMouseClicked);
@@ -57,7 +54,6 @@ void finishObject(Ui::MainWindow *ui){
     ui->lineButton->setDisabled(false);
     ui->pointButton->setDisabled(false);
     ui->polygonButton->setDisabled(false);
-    ui->clearLastPositionButton->setDisabled(true);
 
     //statusBar()->showMessage("");
 }
@@ -117,38 +113,6 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     }
 }
 
-void MainWindow::on_newObjectButton_clicked()
-{
-    i = false;
-    option = 0;
-    bool ok;
-
-    ui->lineButton->setDisabled(false);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(false);
-    ui->clearLastPositionButton->setDisabled(true);
-
-    QString name = QInputDialog::getText(this, "Add New Object", "Object Name:", QLineEdit::Normal, "", &ok);
-
-    if (ok && !name.isEmpty()) {
-        //ui->drawArea->beginNewObject(name);
-        statusBar()->showMessage("Drawing new object: '" + name + "'. Click 'Finish Object' when done.");
-    }
-}
-
-void MainWindow::on_finishButton_clicked()
-{
-    ui->drawArea->endNewObject();
-    i = false;
-    option = 0;
-    ui->lineButton->setDisabled(false);
-    ui->pointButton->setDisabled(false);
-    ui->polygonButton->setDisabled(false);
-    ui->clearLastPositionButton->setDisabled(true);
-
-    statusBar()->showMessage("");
-}
-
 void MainWindow::on_pointButton_clicked()
 {
     option = 0;
@@ -156,7 +120,6 @@ void MainWindow::on_pointButton_clicked()
     ui->lineButton->setDisabled(true);
     ui->pointButton->setDisabled(true);
     ui->polygonButton->setDisabled(true);
-    ui->clearLastPositionButton->setDisabled(true);
 
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
 
@@ -175,13 +138,12 @@ void MainWindow::on_lineButton_clicked()
     ui->lineButton->setDisabled(true);
     ui->pointButton->setDisabled(true);
     ui->polygonButton->setDisabled(true);
-    ui->clearLastPositionButton->setDisabled(true);
 
-    QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
+    QString name = QInputDialog::getText(this, "Add New Line", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
         ui->drawArea->beginNewObject(name, "Line");
-        statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
+        statusBar()->showMessage("Drawing new line: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
 
@@ -194,30 +156,22 @@ void MainWindow::on_polygonButton_clicked()
     ui->lineButton->setDisabled(true);
     ui->pointButton->setDisabled(true);
     ui->polygonButton->setDisabled(true);
-    ui->clearLastPositionButton->setDisabled(true);
 
-    QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
+    QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
         ui->drawArea->beginNewObject(name, "Polygon");
-        statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
+        statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
 
-void MainWindow::on_objectAdded(const QString &name, const QString &type, int id, int pointNum, int lineNum)
+void MainWindow::on_objectAdded(const QString &name, const QString &type, int id)
 {
     int row = ui->objectTableWidget->rowCount();
     ui->objectTableWidget->insertRow(row);
     ui->objectTableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
     ui->objectTableWidget->setItem(row, 1, new QTableWidgetItem(name));
     ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(type));
-    ui->objectTableWidget->setItem(row, 3, new QTableWidgetItem(QString::number(pointNum)));
-    ui->objectTableWidget->setItem(row, 4, new QTableWidgetItem(QString::number(lineNum)));
-}
-
-void MainWindow::on_clearLastPositionButton_clicked()
-{
-    i = false;
 }
 
 void MainWindow::on_deleteObjectButton_clicked()

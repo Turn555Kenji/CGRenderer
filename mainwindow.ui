@@ -50,32 +50,6 @@
      <string>Y1</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="finishButton">
-    <property name="geometry">
-     <rect>
-      <x>840</x>
-      <y>20</y>
-      <width>80</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Finish</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="newObjectButton">
-    <property name="geometry">
-     <rect>
-      <x>740</x>
-      <y>20</y>
-      <width>80</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Create</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="lineButton">
     <property name="geometry">
      <rect>
@@ -115,19 +89,6 @@
      <string>Point</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="clearLastPositionButton">
-    <property name="geometry">
-     <rect>
-      <x>760</x>
-      <y>0</y>
-      <width>101</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Clear Last Position</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="deleteObjectButton">
     <property name="geometry">
      <rect>
@@ -155,10 +116,23 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>411</y>
+      <y>400</y>
       <width>301</width>
-      <height>141</height>
+      <height>121</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>640</x>
+      <y>380</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Points</string>
     </property>
    </widget>
   </widget>

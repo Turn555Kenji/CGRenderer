@@ -21,19 +21,13 @@ public:
 private slots:
     void on_PainterMouseClicked(int x, int y);
 
-    void on_finishButton_clicked();
-
-    void on_newObjectButton_clicked();
-
     void on_lineButton_clicked();
 
     void on_polygonButton_clicked();
 
     void on_pointButton_clicked();
 
-    void on_objectAdded(const QString &name, const QString &type, int id, int pointNum, int lineNum);
-
-    void on_clearLastPositionButton_clicked();
+    void on_objectAdded(const QString &name, const QString &type, int id);
 
     void on_deleteObjectButton_clicked();
 

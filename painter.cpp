@@ -34,19 +34,11 @@ void PainterWidget::addPointToCurrentObject(const QPoint &point)
     }
 }
 
-/*void PainterWidget::addSquareToCurrentObject(const QPoint &point)
-{
-    if (m_currentObject) {
-        m_currentObject->addPoint(point);
-        update();
-    }
-}*/
-
 void PainterWidget::endNewObject()
 {
     if (m_currentObject) {
         m_objects.append(*m_currentObject);
-        emit objectAdded(m_currentObject->name(), m_currentObject->type(), m_currentObject->id(), m_currentObject->points().size(), m_currentObject->lines().size());
+        emit objectAdded(m_currentObject->name(), m_currentObject->type(), m_currentObject->id());
         delete m_currentObject;
         m_currentObject = nullptr;
         update();
@@ -90,7 +82,7 @@ void PainterWidget::paintEvent(QPaintEvent *event)
     }
 
     if (m_currentObject) {
-        painter.setPen(QPen(Qt::green, 2, Qt::DashLine)); // Draw with a different style
+        painter.setPen(QPen(Qt::green, 2, Qt::DashLine));
         for (const QLine &line : m_currentObject->lines()) {
             painter.drawLine(line);
         }
@@ -112,8 +104,8 @@ SceneObject* PainterWidget::getObject(int id)
 {
     for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
         if (it->id() == id) {
-            return &(*it); // return pointer to the object
+            return &(*it);
         }
     }
-    return nullptr; // not found
+    return nullptr;
 }
