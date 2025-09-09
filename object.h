@@ -2,6 +2,7 @@
 #define OBJECT_H
 
 #include <QPainter>
+#include <matrix.h>
 
 class Obj
 {
@@ -12,9 +13,9 @@ public:
 
     // Getters
 
-    int getId() const {return rows; }
-    String getName() const {return columns; }
-    String getType() const {return type; }
+    int getId() const {return id; }
+    QString getName() const {return name; }
+    QString getType() const {return type; }
 
 private:
     int id;
