@@ -20,3 +20,11 @@ Point::Point(Point *p )
     : Matrix(3, 1) {
     *this = p;
 }
+
+void draw(QPainter *painter) {
+
+}
+
+Obj* transform(Matrix m) {
+
+}

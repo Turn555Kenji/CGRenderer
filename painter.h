@@ -26,7 +26,7 @@ protected:
     //Implement MoveEvent for preview!!
 
 private:
-    QList<Obj> m_objects;        // Display File
+    QList<Obj*> m_objects;        // Display File
     Obj* m_currentObject = nullptr; // Current object
 
     int m_nextObjectId = 0;
