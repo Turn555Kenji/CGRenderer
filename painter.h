@@ -27,7 +27,7 @@ protected:
 
 private:
     QList<SceneObject> m_objects;        // Display File
-    SceneObject* m_currentObject = nullptr; // Current object
+    Obj* m_currentObject = nullptr; // Current object
 
     int m_nextObjectId = 0;
 
