@@ -7,6 +7,11 @@ class Point : public Obj, public Matrix
 {
 public:
     Point(double x, double y, int id, QString name, QString type);
+    Point(double x, double y);
+    Point(Point *p);
+
+    void draw(QPainter *painter) override;
+    Obj* transform(Matrix m) override;
 };
 
 #endif // POINT_H

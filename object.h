@@ -8,6 +8,7 @@ class Obj
 {
 public:
     Obj(int initId, const QString &initName, const QString &initType);
+    Obj();
     virtual void draw(QPainter *painter) = 0;
     virtual Obj* transform(Matrix m) = 0;
 
