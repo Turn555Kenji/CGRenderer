@@ -3,7 +3,7 @@
 #include <matrix.h>
 #include <object.h>
 
-class Polygon : public Obj, public Matrix
+class Polygon : public Obj
 {
 public:
     Polygon();
