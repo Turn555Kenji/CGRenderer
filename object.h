@@ -7,7 +7,7 @@
 class Obj
 {
 public:
-    enum class Type {   //Point = 0, Line = 1, Polygon =
+    enum class Type {   //Point = 0, Line = 1, Polygon = 2
         Point = 0,
         Line,
         Polygon

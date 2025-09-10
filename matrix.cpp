@@ -1,7 +1,7 @@
 #include "matrix.h"
 
 Matrix::Matrix(int initRows, int initColumns)
-    : std::vector<std::vector<double>>(rows, std::vector<double>(columns, 0.0)), //int to first vector, then vector object to second, thus building a matrix.
+    : std::vector<std::vector<double>>(initRows, std::vector<double>(initColumns, 0.0)), //int to first vector, then vector object to second, thus building a matrix.
     rows(initRows),
     columns(initColumns)
 {}
