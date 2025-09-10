@@ -14,14 +14,14 @@ void PainterWidget::beginNewObject(const QString &name, const QString &type)
     if (m_currentObject) {
         endNewObject();
     }
-    //m_currentObject = new SceneObject(m_nextObjectId++, name, type);
+    m_currentObject = new SceneObject(m_nextObjectId++, name, type);
     update();
 }
 
 void PainterWidget::addLineToCurrentObject(const QLine &line)
 {
     if (m_currentObject) {
-        //m_currentObject->addLine(line);
+        m_currentObject->addLine(line);
         update();
     }
 }
@@ -29,24 +29,24 @@ void PainterWidget::addLineToCurrentObject(const QLine &line)
 void PainterWidget::addPointToCurrentObject(const QPoint &point)
 {
     if (m_currentObject) {
-        //m_currentObject->addPoint(point);
+        m_currentObject->addPoint(point);
         update();
     }
 }
 
 void PainterWidget::endNewObject()
-{/*
+{
     if (m_currentObject) {
         m_objects.append(*m_currentObject);
         emit objectAdded(m_currentObject->name(), m_currentObject->type(), m_currentObject->id());
         delete m_currentObject;
         m_currentObject = nullptr;
         update();
-    }*/
+    }
 }
 
 void PainterWidget::removeObject(int id)
-{/*
+{
     auto it = m_objects.begin();
     for (; it != m_objects.end(); ) {
         if (it->id() == id) {
@@ -61,11 +61,11 @@ void PainterWidget::removeObject(int id)
         update();
     }
 
-    update();*/
+    update();
 }
 
 void PainterWidget::paintEvent(QPaintEvent *event)
-{/*
+{
     QPainter painter(this);
 
     //painter.setRenderHint(QPainter::Antialiasing);
@@ -89,7 +89,7 @@ void PainterWidget::paintEvent(QPaintEvent *event)
         for (const QPoint &point : m_currentObject->points()) {
             painter.drawPoint(point);
         }
-    }*/
+    }
 }
 
 void PainterWidget::mousePressEvent(QMouseEvent *event){
@@ -100,7 +100,7 @@ void PainterWidget::mousePressEvent(QMouseEvent *event){
     QWidget::mousePressEvent(event);
 }
 
-/*SceneObject* PainterWidget::getObject(int id)
+SceneObject* PainterWidget::getObject(int id)
 {
     for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
         if (it->id() == id) {
@@ -108,4 +108,4 @@ void PainterWidget::mousePressEvent(QMouseEvent *event){
         }
     }
     return nullptr;
-}*/
+}

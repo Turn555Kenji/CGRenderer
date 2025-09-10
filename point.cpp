@@ -21,10 +21,10 @@ Point::Point(Point *p )
     *this = p;
 }
 
-void draw(QPainter *painter) {
-
+void Point::draw(QPainter *painter) {
+    //Aguardando implementacao do painter
 }
 
-Obj* transform(Matrix m) {
+Obj* Point::transform(Matrix m) {
 
 }
