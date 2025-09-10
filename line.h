@@ -7,7 +7,7 @@
 class Line : public Obj
 {
 public:
-    Line(Point initP1, Point initP2, int id, const QString &name, const QString &type);
+    Line(Point initP1, Point initP2, int id, const QString &name, Type type);
 
     void draw(QPainter *painter) override;
     Obj* transform(Matrix m) override;

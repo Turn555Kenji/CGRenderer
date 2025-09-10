@@ -7,8 +7,15 @@
 class Obj
 {
 public:
-    Obj(int initId, const QString &initName, const QString &initType);
+    enum class Type {   //Point = 0, Line = 1, Polygon =
+        Point = 0,
+        Line,
+        Polygon
+    };
+
+    Obj(int initId, const QString &initName, Type initType);
     Obj();
+
     virtual void draw(QPainter *painter) = 0;
     virtual Obj* transform(Matrix m) = 0;
 
@@ -16,12 +23,12 @@ public:
 
     int getId() const {return id; }
     QString getName() const {return name; }
-    QString getType() const {return type; }
+    Type getType() const {return type; }
 
 private:
     int id;
     QString name;
-    QString type;
+    Type type;
 };
 
 #endif // OBJECT_H
