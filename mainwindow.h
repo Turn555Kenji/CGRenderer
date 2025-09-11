@@ -18,6 +18,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void configureButtons(bool linB, bool poiB, bool polB);
+    void finishObject();
+
 private slots:
     void on_PainterMouseClicked(int x, int y);
 
@@ -29,11 +32,11 @@ private slots:
 
     void on_objectAdded(const QString &name, const QString &type, int id);
 
-    void on_deleteObjectButton_clicked();
+    /*void on_deleteObjectButton_clicked();
 
     void on_objectTableWidget_itemClicked();
 
-    void on_objectTableWidget_itemClicked(QTableWidgetItem *item);
+    void on_objectTableWidget_itemClicked(QTableWidgetItem *item);*/
 
 private:
     Ui::MainWindow *ui;
