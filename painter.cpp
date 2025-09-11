@@ -21,6 +21,7 @@ void PainterWidget::addLineToPolygon(Point* p1, Point* p2)//criei pois antes o p
         m_currentObject=nullptr;
     }
     m_currentObject= new Line(*p1, *p2);
+    emit
     update();    //(p1, p2, m_nextObjectId++, name);
 
 }
@@ -115,13 +116,15 @@ void PainterWidget::addPoint(const Point &point)
     m_points.append(point);
 }
 
-/*SceneObject* PainterWidget::getObject(int id){}
+Obj* PainterWidget::getObject(int id)
 {
     for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
-        if (it->id() == id) {
-            return &(*it);
+        Obj* currentObject = *it;
+
+        if (currentObject->getId() == id) {
+            return (currentObject);
         }
     }
     return nullptr;
 }
-*/
+

@@ -20,7 +20,7 @@ public:
     void addLineToPolygon(Point* p1, Point* p2);
     void endNewObject();
     void addPoint(const Point &point);
-    //Obj* getObject(int id);
+    Obj* getObject(int id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

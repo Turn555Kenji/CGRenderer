@@ -177,7 +177,6 @@ void MainWindow::on_polygonButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
     lastObj=name;
     if (ok && !name.isEmpty()) {
-        //ui->drawArea->beginNewObject(name, "Polygon");
         statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -191,7 +190,7 @@ void MainWindow::on_objectAdded(const QString &name,  int id)
     //ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(QString(type)));
 }
 
-/*void MainWindow::on_deleteObjectButton_clicked()
+void MainWindow::on_deleteObjectButton_clicked()
 {
     QTableWidgetItem *selectedItem = ui->objectTableWidget->currentItem();
     if (!selectedItem) {
@@ -207,7 +206,7 @@ void MainWindow::on_objectAdded(const QString &name,  int id)
     }
 }
 
-
+/*
 void MainWindow::on_objectTableWidget_itemClicked()
 {
     ui->deleteObjectButton->setDisabled(false);
@@ -225,7 +224,7 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
 
     if (idItem) {
         int objectId = idItem->text().toInt();
-        SceneObject *obj = ui->drawArea->getObject(objectId);
+        Obj *obj = ui->drawArea->getObject(objectId);
         QString objType = obj->type();
         if(objType == "Point"){
             const QPoint& pt = obj->points()[0];
@@ -242,5 +241,5 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
             }
         }
     }
-}*/
-
+}
+*/
