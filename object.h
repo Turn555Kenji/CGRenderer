@@ -1,27 +1,32 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <QPainter>
-#include <matrix.h>
+#include <QString>
+#include <QVector>
+#include <QLine>
+#include <QPoint>
 
-class Obj
+class SceneObject
 {
 public:
-    Obj(int initId, const QString &initName, const QString &initType);
-    Obj();
-    virtual void draw(QPainter *painter) = 0;
-    virtual Obj* transform(Matrix m) = 0;
+    SceneObject(int id, const QString &name, const QString &type);
+
+    void addLine(const QLine &line);
+    void addPoint(const QPoint &point);
 
     // Getters
+    int id() const;
+    const QString& name() const;
+    const QString& type() const;
+    const QVector<QLine>& lines() const;
+    const QVector<QPoint>& points() const;
 
-    int getId() const {return id; }
-    QString getName() const {return name; }
-    QString getType() const {return type; }
-
-private:
-    int id;
-    QString name;
-    QString type;
+private:    //Display File
+    int m_id;
+    QString m_name;
+    QString m_type;
+    QVector<QLine> m_lines;
+    QVector<QPoint> m_points;
 };
 
 #endif // OBJECT_H
