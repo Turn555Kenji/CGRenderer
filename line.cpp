@@ -7,6 +7,9 @@ Line::Line(const Point& p1, const Point& p2, int id, QString name)
     : Obj(id, name, Type::Line), p1(p1), p2(p2) {
     // A inicialização é feita na lista acima, o corpo pode ser vazio
 }
+Line::Line(const Point& p1, const Point& p2):p1(p1),p2(p2){//used by polygons
+
+}
 
 // Método para desenhar a linha na tela
 void Line::draw(QPainter *painter) {

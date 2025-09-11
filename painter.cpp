@@ -13,6 +13,17 @@ PainterWidget::PainterWidget(QWidget *parent)
     // Window Screen focus
     setFocusPolicy(Qt::StrongFocus);
 }
+void PainterWidget::addLineToPolygon(Point* p1, Point* p2)//criei pois antes o polygono era varias linhas
+{
+    if (m_currentObject) {
+        //delete m_currentPoint;
+        m_objects.append(m_currentObject);
+        m_currentObject=nullptr;
+    }
+    m_currentObject= new Line(*p1, *p2);
+    update();    //(p1, p2, m_nextObjectId++, name);
+
+}
 
 
 
@@ -26,6 +37,7 @@ void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2,const QString na
     update();    //(p1, p2, m_nextObjectId++, name);
 
 }
+
 
 void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//anteriormente qpoint
 {

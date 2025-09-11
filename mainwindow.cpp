@@ -46,13 +46,13 @@ MainWindow::~MainWindow()
 
 bool i = false;
 Point* previous=nullptr;
-QPoint first;
+Point* first;
 unsigned char option = 9;
 QString lastObj;
 
-int pointDistance(QPoint next, QPoint first)
+int Distance(Point* next, Point* first)
 {
-    return abs(next.x() - first.x()) + abs(next.y() - first.y());
+    return abs(static_cast<int>(next->getX()) - static_cast<int>(first->getX())) + static_cast<int>(abs(next->getY()) - static_cast<int>(first->getY()));
 }
 
 void MainWindow::configureButtons(bool linB, bool poiB, bool polB){ //Could just set to reset later
@@ -109,28 +109,28 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
             }
         break;
     }
-        /*
+
         case 2:{    //Drawing polygon
             if(i == true){
-                QPoint next(x, y);
-                if(pointDistance(next, first) < 30){
-                    QLine line(previous, first);
-                    ui->drawArea->addLineToCurrentObject(line);
+                Point* next= new Point(x, y);
+                if(Distance(next, first) < 30){
+                    //Line line(previous, first);
+                    ui->drawArea->addLineToCurrentObject(previous, first,lastObj);
                     i = false;
                     finishObject();
                     break;
                 }
-                QLine line(previous, next);
-                ui->drawArea->addLineToCurrentObject(line);
+                //Line line(previous, next, 212," ");
+                ui->drawArea->addLineToPolygon(previous, next);
                 previous = next;
             }
             else{
-                previous = QPoint(x, y);
+                previous =new Point(x, y);
                 first = previous;
                 i = true;
             }
             break;
-        }*/
+        }
         //default :
         //break;
     }
@@ -166,7 +166,7 @@ void MainWindow::on_lineButton_clicked()
     }
 }
 
-/*
+
 void MainWindow::on_polygonButton_clicked()
 {
     option = 2;
@@ -175,13 +175,13 @@ void MainWindow::on_polygonButton_clicked()
     configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
-
+    lastObj=name;
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Polygon");
+        //ui->drawArea->beginNewObject(name, "Polygon");
         statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
-*/
+
 void MainWindow::on_objectAdded(const QString &name,  int id)
 {
     int row = ui->objectTableWidget->rowCount();

@@ -12,6 +12,12 @@ public:
 
     void draw(QPainter *painter) override;
     Obj* transform(Matrix m) override;
+
+    double getY() const {return (*this)[0][0]; }
+    double getX() const {return (*this)[1][0]; }
+
+
+
 };
 
 #endif // POINT_H

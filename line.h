@@ -9,6 +9,7 @@ class Line : public Obj {
 public:
     // Construtor que recebe os dois pontos que definem a linha
     Line(const Point& p1, const Point& p2, int id, QString name);
+    Line(const Point& p1, const Point& p2);//criei metodo apenas para polygonos
 
     // Métodos virtuais da classe Obj que precisam ser implementados
 
