@@ -15,7 +15,7 @@ public:
     explicit PainterWidget(QWidget *parent = nullptr);
 
     //void beginNewObject();
-    void addLineToCurrentObject(const QLine &line);
+    void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
     void addPointToCurrentObject( int x,  int y ,const QString &name);//anteriormente qpoint
     void endNewObject();
     void addPoint(const Point &point);

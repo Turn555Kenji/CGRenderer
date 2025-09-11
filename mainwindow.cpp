@@ -45,7 +45,7 @@ MainWindow::~MainWindow()
 }
 
 bool i = false;
-QPoint previous;
+Point* previous=nullptr;
 QPoint first;
 unsigned char option = 9;
 QString lastObj;
@@ -95,19 +95,18 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
         break;
     }
 
-    case 1:{   /* //Drawing line
+    case 1:{
             if(i == true){
-                QPoint next(x, y);
-                QLine line(previous, next);
-                ui->drawArea->addLineToCurrentObject(line);
+                Point* next= new Point(x, y);
+                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
                 previous = next;
                 i = false;
                 finishObject();
             }
             else{
-                previous = QPoint(x, y);
+                previous = new Point(x, y);
                 i = true;
-            }*/
+            }
         break;
     }
         /*
@@ -160,9 +159,9 @@ void MainWindow::on_lineButton_clicked()
     configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Line", "Object Name:", QLineEdit::Normal, "", &ok);
+    lastObj=name;
 
     if (ok && !name.isEmpty()) {
-        //ui->drawArea->beginNewObject(name, "Line");
         statusBar()->showMessage("Drawing new line: '" + name + "'. Click 'Finish Object' when done.");
     }
 }

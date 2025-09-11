@@ -20,13 +20,13 @@ void Line::draw(QPainter *painter) {
 }
 
 // Método para aplicar uma transformação matricial aos dois pontos da linha
-/*Obj Line::transform(const Matrix& m) {
+Obj* Line::transform(const Matrix m){
     /*Matrix result_p1 = m * p1;
     Matrix result_p2 = m * p2;
 
     this->p1 = Point(result_p1[0][0], result_p1[1][0]);
     this->p2 = Point(result_p2[0][0], result_p2[1][0]);
 
-    return this;
+    return this;*/
 }
-*/
+

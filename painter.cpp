@@ -2,6 +2,9 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include "point.h"
+#include "line.h"
+
+
 //#include <iostream>
 
 PainterWidget::PainterWidget(QWidget *parent)
@@ -13,13 +16,16 @@ PainterWidget::PainterWidget(QWidget *parent)
 
 
 
-void PainterWidget::addLineToCurrentObject(const QLine &line){}/*
+void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2,const QString name)
 {
     if (m_currentObject) {
-        m_currentObject->addLine(line);
-        update();
+        //delete m_currentPoint;
+        endNewObject();
     }
-}*/
+    m_currentObject= new Line(*p1, *p2, m_nextObjectId++, name);
+    update();    //(p1, p2, m_nextObjectId++, name);
+
+}
 
 void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//anteriormente qpoint
 {

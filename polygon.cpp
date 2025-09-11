@@ -24,7 +24,7 @@ void Polygon::draw(QPainter *painter) {
 }
 
 // Método para aplicar uma transformação matricial a todos os vértices
-/*Obj* Polygon::transform(const Matrix& m) {
+Obj* Polygon::transform(const Matrix m) {/*
 
     QList<Point> transformedVertices;
     for (const Point& p : vertices) {
@@ -36,5 +36,5 @@ void Polygon::draw(QPainter *painter) {
     // Atualiza os vértices do polígono com os novos pontos transformados
     this->vertices = transformedVertices;
 
-    return this;
-}*/
+    return this;*/
+}

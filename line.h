@@ -13,7 +13,7 @@ public:
     // Métodos virtuais da classe Obj que precisam ser implementados
 
     void draw(QPainter *painter) override;
-    //Obj transform(const Matrix& m) override;
+    Obj* transform(const Matrix m) override;
 
 private:
     // Pontos inicial e final da linha
