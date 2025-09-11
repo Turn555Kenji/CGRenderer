@@ -4,7 +4,7 @@
 
 // Construtor: inicializa o objeto e copia a lista de vértices recebida
 Polygon::Polygon(const QList<Point>& vertices, int id, QString name)
-    : Obj(id, name, Type::POLYGON), vertices(vertices) {
+    : Obj(id, name, Type::Polygon), vertices(vertices) {
 }
 
 // Método para desenhar o polígono na tela
@@ -24,8 +24,8 @@ void Polygon::draw(QPainter *painter) {
 }
 
 // Método para aplicar uma transformação matricial a todos os vértices
-Obj* Polygon::transform(const Matrix& m) {
-    /*
+/*Obj* Polygon::transform(const Matrix& m) {
+
     QList<Point> transformedVertices;
     for (const Point& p : vertices) {
         // Multiplica a matriz de transformação (m) por cada ponto (p)
@@ -35,6 +35,6 @@ Obj* Polygon::transform(const Matrix& m) {
     }
     // Atualiza os vértices do polígono com os novos pontos transformados
     this->vertices = transformedVertices;
-    */
+
     return this;
-}
+}*/

@@ -3,6 +3,13 @@
 #include <QInputDialog>
 #include <cmath>
 
+/*
+Kenji Henrique Ueyama Yashinishi
+Luiz Felipe Fuzeto
+João Vitor Pereira Cantadori
+Marcos Vinicius Santos Passos
+*/
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -40,23 +47,37 @@ MainWindow::~MainWindow()
 bool i = false;
 QPoint previous;
 QPoint first;
-unsigned char option = 0;
+unsigned char option = 9;
+QString lastObj;
 
 int pointDistance(QPoint next, QPoint first)
 {
     return abs(next.x() - first.x()) + abs(next.y() - first.y());
 }
 
-void finishObject(Ui::MainWindow *ui){
+void MainWindow::configureButtons(bool linB, bool poiB, bool polB){ //Could just set to reset later
+    ui->lineButton->setDisabled(linB);
+    ui->pointButton->setDisabled(poiB);
+    ui->polygonButton->setDisabled(polB);
+}
+
+void MainWindow::finishObject(){
     ui->drawArea->endNewObject();
     i = false;
-    option = 0;
-    ui->lineButton->setDisabled(false);
-    ui->pointButton->setDisabled(false);
-    ui->polygonButton->setDisabled(false);
+    option = 9;
+    configureButtons(false, false, false);
+    ui->statusbar->showMessage("finished deu certo");
 
-    //statusBar()->showMessage("");
-}
+    ui->statusbar->showMessage("");
+}/*
+void MainWindow::finishPoint(){
+    ui->drawArea->endNewPoint();
+    i = false;
+    option = 9;
+    configureButtons(false, false, false);
+
+    ui->statusbar->showMessage("finished");
+}*/
 
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
@@ -66,29 +87,30 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
 
     switch (option){
 
-        case 0:{    //Drawing point
-            QPoint p(x, y);
-            ui->drawArea->addPointToCurrentObject(p);
-            finishObject(ui);
-            break;
-        }
+    case 0:{    //Drawing point
+        //remover getters de point se este método funcionar
+        statusBar()->showMessage("has enter in case 0");
+        ui->drawArea->addPointToCurrentObject(x, y, lastObj);
+        finishObject();
+        break;
+    }
 
-        case 1:{    //Drawing line
+    case 1:{   /* //Drawing line
             if(i == true){
                 QPoint next(x, y);
                 QLine line(previous, next);
                 ui->drawArea->addLineToCurrentObject(line);
                 previous = next;
                 i = false;
-                finishObject(ui);
+                finishObject();
             }
             else{
                 previous = QPoint(x, y);
                 i = true;
-            }
-            break;
-        }
-
+            }*/
+        break;
+    }
+        /*
         case 2:{    //Drawing polygon
             if(i == true){
                 QPoint next(x, y);
@@ -96,7 +118,7 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
                     QLine line(previous, first);
                     ui->drawArea->addLineToCurrentObject(line);
                     i = false;
-                    finishObject(ui);
+                    finishObject();
                     break;
                 }
                 QLine line(previous, next);
@@ -109,7 +131,9 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
                 i = true;
             }
             break;
-        }
+        }*/
+        //default :
+        //break;
     }
 }
 
@@ -117,14 +141,12 @@ void MainWindow::on_pointButton_clicked()
 {
     option = 0;
     bool ok;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
+    configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
-
+    lastObj=name;
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Point");
+        //ui->drawArea->beginNewObject();
         statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -135,27 +157,23 @@ void MainWindow::on_lineButton_clicked()
     option = 1;
     bool ok;
     i = false;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
+    configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Line", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Line");
+        //ui->drawArea->beginNewObject(name, "Line");
         statusBar()->showMessage("Drawing new line: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
 
-
+/*
 void MainWindow::on_polygonButton_clicked()
 {
     option = 2;
     bool ok;
     i = false;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
+    configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
 
@@ -164,17 +182,17 @@ void MainWindow::on_polygonButton_clicked()
         statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
-
-void MainWindow::on_objectAdded(const QString &name, const QString &type, int id)
+*/
+void MainWindow::on_objectAdded(const QString &name,  int id)
 {
     int row = ui->objectTableWidget->rowCount();
     ui->objectTableWidget->insertRow(row);
     ui->objectTableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
     ui->objectTableWidget->setItem(row, 1, new QTableWidgetItem(name));
-    ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(type));
+    //ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(QString(type)));
 }
 
-void MainWindow::on_deleteObjectButton_clicked()
+/*void MainWindow::on_deleteObjectButton_clicked()
 {
     QTableWidgetItem *selectedItem = ui->objectTableWidget->currentItem();
     if (!selectedItem) {
@@ -225,5 +243,5 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
             }
         }
     }
-}
+}*/
 

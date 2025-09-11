@@ -6,7 +6,7 @@
 class Point : public Obj, public Matrix
 {
 public:
-    Point(double x, double y, int id, QString name, Type type);
+    Point(double x, double y, int id, QString name);
     Point(double x, double y);
     Point(Point *p);
 

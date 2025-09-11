@@ -12,7 +12,7 @@ public:
 
     void draw(QPainter *painter) override;
 
-    Obj* transform(const Matrix& m) override;
+    //Obj* transform(const Matrix& m) override;
 
 private:
     QList<Point> vertices;

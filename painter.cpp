@@ -1,6 +1,8 @@
 #include "painter.h"
 #include <QPainter>
 #include <QPaintEvent>
+#include "point.h"
+//#include <iostream>
 
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
@@ -9,47 +11,48 @@ PainterWidget::PainterWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void PainterWidget::beginNewObject(const QString &name, const QString &type)
-{
-    if (m_currentObject) {
-        endNewObject();
-    }
-    m_currentObject = new SceneObject(m_nextObjectId++, name, type);
-    update();
-}
 
-void PainterWidget::addLineToCurrentObject(const QLine &line)
+
+void PainterWidget::addLineToCurrentObject(const QLine &line){}/*
 {
     if (m_currentObject) {
         m_currentObject->addLine(line);
         update();
     }
-}
+}*/
 
-void PainterWidget::addPointToCurrentObject(const QPoint &point)
+void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//anteriormente qpoint
 {
+
     if (m_currentObject) {
-        m_currentObject->addPoint(point);
-        update();
+        //delete m_currentPoint;
+        endNewObject();
     }
+    m_currentObject = new Point(x, y, m_nextObjectId++, name);
+
+    update();
+
+
 }
 
 void PainterWidget::endNewObject()
 {
     if (m_currentObject) {
-        m_objects.append(*m_currentObject);
-        emit objectAdded(m_currentObject->name(), m_currentObject->type(), m_currentObject->id());
-        delete m_currentObject;
+        m_objects.append(m_currentObject);
+        emit objectAdded(m_currentObject->getName(), m_currentObject->getId());
+        //delete m_currentObject;
         m_currentObject = nullptr;
         update();
     }
 }
 
-void PainterWidget::removeObject(int id)
-{
+void PainterWidget::removeObject(int id){
+
     auto it = m_objects.begin();
     for (; it != m_objects.end(); ) {
-        if (it->id() == id) {
+        Obj* currentObject = *it;
+
+        if (currentObject->getId() == id) {
             it = m_objects.erase(it);
         } else {
             ++it;
@@ -70,26 +73,16 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 
     //painter.setRenderHint(QPainter::Antialiasing);
 
-    for (const SceneObject &obj : m_objects) {
-        painter.setPen(QPen(Qt::blue, 2));
-        for (const QLine &line : obj.lines()) {
-            painter.drawLine(line);
-        }
+    for (Obj *obj : m_objects) {
         painter.setPen(QPen(Qt::red, 5));
-        for (const QPoint &point : obj.points()) {
-            painter.drawPoint(point);
-        }
+        obj->draw(&painter);
+    }
+    if (m_currentObject) {
+        painter.setPen(QPen(Qt::cyan, 5));
+        m_currentObject->draw(&painter);
+        endNewObject();
     }
 
-    if (m_currentObject) {
-        painter.setPen(QPen(Qt::green, 2, Qt::DashLine));
-        for (const QLine &line : m_currentObject->lines()) {
-            painter.drawLine(line);
-        }
-        for (const QPoint &point : m_currentObject->points()) {
-            painter.drawPoint(point);
-        }
-    }
 }
 
 void PainterWidget::mousePressEvent(QMouseEvent *event){
@@ -99,8 +92,12 @@ void PainterWidget::mousePressEvent(QMouseEvent *event){
 
     QWidget::mousePressEvent(event);
 }
+void PainterWidget::addPoint(const Point &point)
+{
+    m_points.append(point);
+}
 
-SceneObject* PainterWidget::getObject(int id)
+/*SceneObject* PainterWidget::getObject(int id){}
 {
     for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
         if (it->id() == id) {
@@ -109,3 +106,4 @@ SceneObject* PainterWidget::getObject(int id)
     }
     return nullptr;
 }
+*/
