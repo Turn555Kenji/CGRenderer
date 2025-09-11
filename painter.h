@@ -18,7 +18,7 @@ public:
     void addLineToCurrentObject(const QLine &line);
     void addPointToCurrentObject(const QPoint &point);
     void endNewObject();
-    SceneObject* getObject(int id);
+    //Obj* getObject(int id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -26,8 +26,8 @@ protected:
     //Implement MoveEvent for preview!!
 
 private:
-    QList<SceneObject> m_objects;        // Display File
-    SceneObject* m_currentObject = nullptr; // Current object
+    QList<Obj> m_objects;        // Display File
+    Obj* m_currentObject = nullptr; // Current object
 
     int m_nextObjectId = 0;
 
