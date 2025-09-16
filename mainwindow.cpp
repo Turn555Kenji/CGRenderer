@@ -2,10 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QInputDialog>
 #include <cmath>
-#include "point.h"
-#include "line.h"
-#include "polygon.h"
-#include "matrixmath.h"
 
 /*
 Kenji Henrique Ueyama Yashinishi
@@ -54,7 +50,7 @@ Point *first = nullptr;
 unsigned char option = 9;
 QString lastObj;
 
-int pointDistance(Point next, Point first)
+int MainWindow::pointDistance(Point next, Point first)
 {
     return abs(next[0][0] - first[0][0]) + abs(next[1][0] - first[1][0]);
 }
@@ -70,7 +66,6 @@ void MainWindow::finishObject(){
     i = false;
     option = 9;
     configureButtons(false, false, false);
-    ui->statusbar->showMessage("finished deu certo");
 
     ui->statusbar->showMessage("");
 }
@@ -84,8 +79,6 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     switch (option){
 
         case 0:{    //Drawing point
-            //remover getters de point se este método funcionar
-            statusBar()->showMessage("has enter in case 0");
             ui->drawArea->addPointToCurrentObject(x, y, lastObj);
             finishObject();
             break;
@@ -111,7 +104,6 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
                 Point *next = new Point(x, y);
                 if(pointDistance(*next, *first) < 30){
                     ui->drawArea->closePolygonObject();
-                    //ui->drawArea->addVertexToCurrentObject(previous, first, lastObj);
                     i = false;
                     finishObject();
                     break;
@@ -253,11 +245,14 @@ Obj *MainWindow::getTableObject(){
             return target;
         return nullptr;
     }
+    return nullptr;
 }
 
 void MainWindow::on_translateButton_clicked()
 {
     Obj *target = getTableObject();
+    if(!target)
+        return;
     MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
     ui->drawArea->update();
 }
@@ -266,6 +261,8 @@ void MainWindow::on_translateButton_clicked()
 void MainWindow::on_rotateButton_clicked()
 {
     Obj *target = getTableObject();
+    if(!target)
+        return;
     MatrixMath::rotateObject(target, ui->rotateValue->value());
     ui->drawArea->update();
 }
@@ -274,6 +271,8 @@ void MainWindow::on_rotateButton_clicked()
 void MainWindow::on_scaleButton_clicked()
 {
     Obj *target = getTableObject();
+    if(!target)
+        return;
     MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
     ui->drawArea->update();
 }

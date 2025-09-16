@@ -11,15 +11,13 @@ public:
     Polygon(const QList<Point>& vertices, int id, QString name);
 
     void draw(QPainter *painter) override;
-
     Obj* transform(Matrix m) override;
 
     void addPoint(Point p);
+    void setClosed() { closed = true; }
 
     QList<Point> getVertices() const { return vertices; }
     Point getP1() const { return vertices.first(); }
-
-    void setClosed() { closed = true; }
 
 private:
     QList<Point> vertices;
