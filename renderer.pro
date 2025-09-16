@@ -13,6 +13,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     matrix.cpp \
+    matrixmath.cpp \
     object.cpp \
     painter.cpp \
     point.cpp \
@@ -22,6 +23,7 @@ HEADERS += \
     line.h \
     mainwindow.h \
     matrix.h \
+    matrixmath.h \
     object.h \
     painter.h \
     point.h \

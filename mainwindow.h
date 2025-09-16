@@ -21,7 +21,9 @@ public:
 
     void configureButtons(bool linB, bool poiB, bool polB);
     void finishObject();
-    //void finishPoint();
+
+    Obj *getTableObject();
+
 private slots:
     void on_PainterMouseClicked(int x, int y);
 
@@ -38,6 +40,12 @@ private slots:
     void on_objectTableWidget_itemClicked();
 
     void on_objectTableWidget_itemClicked(QTableWidgetItem *item);
+
+    void on_translateButton_clicked();
+
+    void on_rotateButton_clicked();
+
+    void on_scaleButton_clicked();
 
 private:
     Ui::MainWindow *ui;

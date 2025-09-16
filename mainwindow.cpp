@@ -2,9 +2,10 @@
 #include "ui_mainwindow.h"
 #include <QInputDialog>
 #include <cmath>
-#include <point.h>
-#include <line.h>
-#include <polygon.h>
+#include "point.h"
+#include "line.h"
+#include "polygon.h"
+#include "matrixmath.h"
 
 /*
 Kenji Henrique Ueyama Yashinishi
@@ -236,5 +237,44 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
             }
         }
     }
+}
+
+Obj *MainWindow::getTableObject(){
+    QTableWidgetItem *selectedItem = ui->objectTableWidget->currentItem();
+    if (!selectedItem) {
+        return nullptr;
+    }
+    int row = selectedItem->row();
+    QTableWidgetItem *idItem = ui->objectTableWidget->item(row, 0);
+
+    if (idItem) {
+        Obj *target = ui->drawArea->getObject(idItem->text().toInt());
+        if (target)
+            return target;
+        return nullptr;
+    }
+}
+
+void MainWindow::on_translateButton_clicked()
+{
+    Obj *target = getTableObject();
+    MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
+    ui->drawArea->update();
+}
+
+
+void MainWindow::on_rotateButton_clicked()
+{
+    Obj *target = getTableObject();
+    MatrixMath::rotateObject(target, ui->rotateValue->value());
+    ui->drawArea->update();
+}
+
+
+void MainWindow::on_scaleButton_clicked()
+{
+    Obj *target = getTableObject();
+    MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
+    ui->drawArea->update();
 }
 

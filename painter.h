@@ -20,7 +20,6 @@ public:
     void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
     void closePolygonObject();
     void endNewObject();
-    void addPoint(const Point &point);
     Obj* getObject(int id);
 
 protected:

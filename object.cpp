@@ -6,7 +6,7 @@ Obj::Obj(int initId, const QString &initName, Type initType) : id(initId), name(
 Obj::Obj() : id(0), name(""), type(Type::Point)
 {}
 
-QString Obj::getType(){
+QString Obj::getType() const{
     switch (this->type) {
     case Obj::Type::Point:   return "Point";
     case Obj::Type::Line:    return "Line";

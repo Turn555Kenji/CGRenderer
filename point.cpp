@@ -31,5 +31,8 @@ void Point::draw(QPainter *painter) {
 }
 
 Obj* Point::transform(Matrix m) {
-
+    Matrix result = m * (*this);
+    (*this)[0][0] = result[0][0];
+    (*this)[1][0] = result[1][0];
+    return this;
 }

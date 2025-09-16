@@ -12,11 +12,12 @@ public:
 
     void draw(QPainter *painter) override;
 
-    Obj* transform(const Matrix m) override;
+    Obj* transform(Matrix m) override;
 
     void addPoint(Point p);
 
     QList<Point> getVertices() const { return vertices; }
+    Point getP1() const { return vertices.first(); }
 
     void setClosed() { closed = true; }
 
