@@ -14,6 +14,8 @@ public:
 
     Obj* transform(const Matrix m) override;
 
+    void addPoint(Point p);
+
 private:
     QList<Point> vertices;
 };

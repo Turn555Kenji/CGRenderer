@@ -10,16 +10,18 @@ Polygon::Polygon(const QList<Point>& vertices, int id, QString name)
 // Método para desenhar o polígono na tela
 void Polygon::draw(QPainter *painter) {
     // O painter do Qt não entende nossa classe "Point", então precisamos converter
-    QVector<QPoint> qtPoints;
+    QVector<QPoint> Points;
 
     for (const Point &p : vertices) {
         int x = static_cast<int>(p[0][0]);
         int y = static_cast<int>(p[1][0]);
-        qtPoints.append(QPoint(x, y));
+        Points.append(QPoint(x, y));
     }
 
-    if (qtPoints.size() > 1) {
-        painter->drawPolygon(qtPoints);
+    if (Points.size() > 1) {
+        for (int i = 0; i < Points.size() - 1; ++i) {
+            painter->drawLine(Points[i], Points[i + 1]);
+        }
     }
 }
 
@@ -37,4 +39,8 @@ Obj* Polygon::transform(const Matrix m) {/*
     this->vertices = transformedVertices;
 
     return this;*/
+}
+
+void Polygon::addPoint(Point p){
+    this->vertices.append(p);
 }

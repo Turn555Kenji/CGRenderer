@@ -17,6 +17,7 @@ public:
     //void beginNewObject();
     void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
     void addPointToCurrentObject( int x,  int y ,const QString &name);//anteriormente qpoint
+    void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
     void endNewObject();
     void addPoint(const Point &point);
     //Obj* getObject(int id);
@@ -38,7 +39,7 @@ public slots:
 
 signals:
     void mouseClick(int x, int y);
-    void objectAdded(const QString &name, int id);
+    void objectAdded(const QString &name, int id, const QString &type);
 };
 
 #endif // PAINTER_H

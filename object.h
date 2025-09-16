@@ -23,7 +23,7 @@ public:
 
     int getId() const {return id; }
     QString getName() const {return name; }
-    Type getType() const {return type; }
+    QString getType();
 
 private:
     int id;

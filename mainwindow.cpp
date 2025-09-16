@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QInputDialog>
 #include <cmath>
+#include <point.h>
+#include <line.h>
+#include <polygon.h>
 
 /*
 Kenji Henrique Ueyama Yashinishi
@@ -69,15 +72,7 @@ void MainWindow::finishObject(){
     ui->statusbar->showMessage("finished deu certo");
 
     ui->statusbar->showMessage("");
-}/*
-void MainWindow::finishPoint(){
-    ui->drawArea->endNewPoint();
-    i = false;
-    option = 9;
-    configureButtons(false, false, false);
-
-    ui->statusbar->showMessage("finished");
-}*/
+}
 
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
@@ -96,17 +91,17 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
         }
 
         case 1:{
-                if(i == true){
-                    Point *next = new Point(x, y);
-                    ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
-                    previous = next;
-                    i = false;
-                    finishObject();
-                }
-                else{
-                    previous = new Point(x, y);
-                    i = true;
-                }
+            if(i == true){
+                Point *next = new Point(x, y);
+                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
+                previous = next;
+                i = false;
+                finishObject();
+            }
+            else{
+                previous = new Point(x, y);
+                i = true;
+            }
             break;
         }
 
@@ -114,12 +109,12 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
             if(i == true){
                 Point *next = new Point(x, y);
                 if(pointDistance(*next, *first) < 30){
-                    ui->drawArea->addLineToCurrentObject(previous, first, lastObj);
+                    ui->drawArea->addVertexToCurrentObject(previous, first, lastObj);
                     i = false;
                     finishObject();
                     break;
                 }
-                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
+                ui->drawArea->addVertexToCurrentObject(previous, next, lastObj);
                 previous = next;
             }
             else{
@@ -173,6 +168,7 @@ void MainWindow::on_polygonButton_clicked()
     configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
+    lastObj=name;
 
     if (ok && !name.isEmpty()) {
         statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
@@ -180,13 +176,13 @@ void MainWindow::on_polygonButton_clicked()
 }
 
 
-void MainWindow::on_objectAdded(const QString &name,  int id)
+void MainWindow::on_objectAdded(const QString &name, int id, const QString &type)
 {
     int row = ui->objectTableWidget->rowCount();
     ui->objectTableWidget->insertRow(row);
     ui->objectTableWidget->setItem(row, 0, new QTableWidgetItem(QString::number(id)));
     ui->objectTableWidget->setItem(row, 1, new QTableWidgetItem(name));
-    //ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(QString(type)));
+    ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(type));
 }
 
 /*void MainWindow::on_deleteObjectButton_clicked()

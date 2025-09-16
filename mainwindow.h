@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTableWidgetItem>
+#include "object.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,7 +31,7 @@ private slots:
 
     void on_pointButton_clicked();
 
-    void on_objectAdded(const QString &name, int id);
+    void on_objectAdded(const QString &name, int id, const QString &type);
 
     /*void on_deleteObjectButton_clicked();
 

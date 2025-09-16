@@ -3,6 +3,7 @@
 #include <QPaintEvent>
 #include "point.h"
 #include "line.h"
+#include "polygon.h"
 
 
 //#include <iostream>
@@ -14,7 +15,7 @@ PainterWidget::PainterWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//anteriormente qpoint
+void PainterWidget::addPointToCurrentObject(int x, int y, const QString &name)//anteriormente qpoint
 {
 
     if (m_currentObject) {
@@ -26,14 +27,30 @@ void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//a
     update();
 }
 
-void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2,const QString name)
+void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2, const QString name)
 {
     if (m_currentObject) {
         //delete m_currentPoint;
-        endNewObject();
+        //endNewObject();
     }
-    m_currentObject= new Line(*p1, *p2, m_nextObjectId++, name);
+    m_currentObject = new Line(*p1, *p2, m_nextObjectId++, name);
     update();    //(p1, p2, m_nextObjectId++, name);
+
+}
+
+void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString name)
+{
+    if (m_currentObject) {
+        Polygon *iter = dynamic_cast<Polygon*>(m_currentObject);
+        iter->addPoint(*p2);
+        update();
+        return;
+    }
+    QList<Point> p;
+    p.append(*p1);
+    p.append(*p2);
+    m_currentObject= new Polygon(p, m_nextObjectId++, name);
+    update();
 
 }
 
@@ -42,7 +59,7 @@ void PainterWidget::endNewObject()
 {
     if (m_currentObject) {
         m_objects.append(m_currentObject);
-        emit objectAdded(m_currentObject->getName(), m_currentObject->getId());
+        emit objectAdded(m_currentObject->getName(), m_currentObject->getId(), m_currentObject->getType());
         //delete m_currentObject;
         m_currentObject = nullptr;
         update();

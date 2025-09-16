@@ -16,8 +16,7 @@ SOURCES += \
     object.cpp \
     painter.cpp \
     point.cpp \
-    polygon.cpp \
-    sceneobject.cpp
+    polygon.cpp
 
 HEADERS += \
     line.h \
@@ -26,8 +25,7 @@ HEADERS += \
     object.h \
     painter.h \
     point.h \
-    polygon.h \
-    sceneobject.h
+    polygon.h
 
 FORMS += \
     mainwindow.ui
