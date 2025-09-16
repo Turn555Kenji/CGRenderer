@@ -45,14 +45,14 @@ MainWindow::~MainWindow()
 }
 
 bool i = false;
-Point* previous=nullptr;
-QPoint first;
+Point *previous = nullptr;
+Point *first = nullptr;
 unsigned char option = 9;
 QString lastObj;
 
-int pointDistance(QPoint next, QPoint first)
+int pointDistance(Point next, Point first)
 {
-    return abs(next.x() - first.x()) + abs(next.y() - first.y());
+    return abs(next[0][0] - first[0][0]) + abs(next[1][0] - first[1][0]);
 }
 
 void MainWindow::configureButtons(bool linB, bool poiB, bool polB){ //Could just set to reset later
@@ -87,50 +87,48 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
 
     switch (option){
 
-    case 0:{    //Drawing point
-        //remover getters de point se este método funcionar
-        statusBar()->showMessage("has enter in case 0");
-        ui->drawArea->addPointToCurrentObject(x, y, lastObj);
-        finishObject();
-        break;
-    }
+        case 0:{    //Drawing point
+            //remover getters de point se este método funcionar
+            statusBar()->showMessage("has enter in case 0");
+            ui->drawArea->addPointToCurrentObject(x, y, lastObj);
+            finishObject();
+            break;
+        }
 
-    case 1:{
-            if(i == true){
-                Point* next= new Point(x, y);
-                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
-                previous = next;
-                i = false;
-                finishObject();
-            }
-            else{
-                previous = new Point(x, y);
-                i = true;
-            }
-        break;
-    }
-        /*
+        case 1:{
+                if(i == true){
+                    Point *next = new Point(x, y);
+                    ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
+                    previous = next;
+                    i = false;
+                    finishObject();
+                }
+                else{
+                    previous = new Point(x, y);
+                    i = true;
+                }
+            break;
+        }
+
         case 2:{    //Drawing polygon
             if(i == true){
-                QPoint next(x, y);
-                if(pointDistance(next, first) < 30){
-                    QLine line(previous, first);
-                    ui->drawArea->addLineToCurrentObject(line);
+                Point *next = new Point(x, y);
+                if(pointDistance(*next, *first) < 30){
+                    ui->drawArea->addLineToCurrentObject(previous, first, lastObj);
                     i = false;
                     finishObject();
                     break;
                 }
-                QLine line(previous, next);
-                ui->drawArea->addLineToCurrentObject(line);
+                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
                 previous = next;
             }
             else{
-                previous = QPoint(x, y);
+                previous = new Point(x, y);
                 first = previous;
                 i = true;
             }
             break;
-        }*/
+        }
         //default :
         //break;
     }
@@ -166,7 +164,7 @@ void MainWindow::on_lineButton_clicked()
     }
 }
 
-/*
+
 void MainWindow::on_polygonButton_clicked()
 {
     option = 2;
@@ -177,11 +175,11 @@ void MainWindow::on_polygonButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Polygon");
         statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
-*/
+
+
 void MainWindow::on_objectAdded(const QString &name,  int id)
 {
     int row = ui->objectTableWidget->rowCount();

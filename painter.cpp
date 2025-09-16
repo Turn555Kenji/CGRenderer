@@ -14,7 +14,17 @@ PainterWidget::PainterWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
+void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//anteriormente qpoint
+{
 
+    if (m_currentObject) {
+        //delete m_currentPoint;
+        endNewObject();
+    }
+    m_currentObject = new Point(x, y, m_nextObjectId++, name);
+
+    update();
+}
 
 void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2,const QString name)
 {
@@ -27,19 +37,6 @@ void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2,const QString na
 
 }
 
-void PainterWidget::addPointToCurrentObject(int x, int y,const QString &name)//anteriormente qpoint
-{
-
-    if (m_currentObject) {
-        //delete m_currentPoint;
-        endNewObject();
-    }
-    m_currentObject = new Point(x, y, m_nextObjectId++, name);
-
-    update();
-
-
-}
 
 void PainterWidget::endNewObject()
 {
@@ -86,7 +83,7 @@ void PainterWidget::paintEvent(QPaintEvent *event)
     if (m_currentObject) {
         painter.setPen(QPen(Qt::cyan, 5));
         m_currentObject->draw(&painter);
-        endNewObject();
+        //endNewObject();
     }
 
 }
