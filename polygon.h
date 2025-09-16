@@ -16,8 +16,13 @@ public:
 
     void addPoint(Point p);
 
+    QList<Point> getVertices() const { return vertices; }
+
+    void setClosed() { closed = true; }
+
 private:
     QList<Point> vertices;
+    bool closed = false;
 };
 
 #endif // POLYGON_H

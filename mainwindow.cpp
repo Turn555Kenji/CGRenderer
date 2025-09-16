@@ -109,7 +109,8 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
             if(i == true){
                 Point *next = new Point(x, y);
                 if(pointDistance(*next, *first) < 30){
-                    ui->drawArea->addVertexToCurrentObject(previous, first, lastObj);
+                    ui->drawArea->closePolygonObject();
+                    //ui->drawArea->addVertexToCurrentObject(previous, first, lastObj);
                     i = false;
                     finishObject();
                     break;
@@ -185,7 +186,7 @@ void MainWindow::on_objectAdded(const QString &name, int id, const QString &type
     ui->objectTableWidget->setItem(row, 2, new QTableWidgetItem(type));
 }
 
-/*void MainWindow::on_deleteObjectButton_clicked()
+void MainWindow::on_deleteObjectButton_clicked()
 {
     QTableWidgetItem *selectedItem = ui->objectTableWidget->currentItem();
     if (!selectedItem) {
@@ -201,12 +202,10 @@ void MainWindow::on_objectAdded(const QString &name, int id, const QString &type
     }
 }
 
-
 void MainWindow::on_objectTableWidget_itemClicked()
 {
     ui->deleteObjectButton->setDisabled(false);
 }
-
 
 void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
 {
@@ -219,22 +218,23 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
 
     if (idItem) {
         int objectId = idItem->text().toInt();
-        SceneObject *obj = ui->drawArea->getObject(objectId);
-        QString objType = obj->type();
+        Obj *obj = ui->drawArea->getObject(objectId);
+        QString objType = obj->getType();
         if(objType == "Point"){
-            const QPoint& pt = obj->points()[0];
-            QString pointStr = QString("(%1, %2)").arg(pt.x()).arg(pt.y());
+            Point *pt = dynamic_cast<Point*>(obj);
+            QString pointStr = QString("(%1, %2)").arg((*pt)[0][0]).arg((*pt)[1][0]);
             ui->pointListWidget->addItem(pointStr);
         } else if (objType == "Line"){
-            const QLine& pt = obj->lines()[0];
-            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt.p1().x()).arg(pt.p1().y()).arg(pt.p2().x()).arg(pt.p2().y());
+            Line *pt = dynamic_cast<Line*>(obj);
+            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt->getP1()[0][0]).arg(pt->getP1()[1][0]).arg(pt->getP2()[0][0]).arg(pt->getP2()[1][0]);
             ui->pointListWidget->addItem(lineStr);
         } else if (objType == "Polygon"){
-            for (const QLine& pt : obj->lines()) {
-                QString polygonStr = QString("(%1, %2)").arg(pt.p1().x()).arg(pt.p1().y());
+            Polygon *pt = dynamic_cast<Polygon*>(obj);
+            for (const Point& it : pt->getVertices()) {
+                QString polygonStr = QString("(%1, %2)").arg(it[0][0]).arg(it[1][0]);
                 ui->pointListWidget->addItem(polygonStr);
             }
         }
     }
-}*/
+}
 

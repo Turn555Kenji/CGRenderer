@@ -22,7 +22,10 @@ void Polygon::draw(QPainter *painter) {
         for (int i = 0; i < Points.size() - 1; ++i) {
             painter->drawLine(Points[i], Points[i + 1]);
         }
+        if(this->closed == true)
+            painter->drawLine(Points.last(), Points.first());
     }
+
 }
 
 // Método para aplicar uma transformação matricial a todos os vértices

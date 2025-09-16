@@ -54,6 +54,11 @@ void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString
 
 }
 
+void PainterWidget::closePolygonObject(){
+    Polygon *iter = dynamic_cast<Polygon*>(m_currentObject);
+    iter->setClosed();
+}
+
 
 void PainterWidget::endNewObject()
 {
@@ -112,18 +117,13 @@ void PainterWidget::mousePressEvent(QMouseEvent *event){
 
     QWidget::mousePressEvent(event);
 }
-void PainterWidget::addPoint(const Point &point)
-{
-    m_points.append(point);
-}
 
-/*SceneObject* PainterWidget::getObject(int id){}
+Obj* PainterWidget::getObject(int id)
 {
-    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
-        if (it->id() == id) {
-            return &(*it);
+    for (auto* obj : m_objects) {
+        if (obj->getId() == id) {
+            return obj;
         }
     }
-    return nullptr;
+    return nullptr; // not found
 }
-*/

@@ -15,6 +15,9 @@ public:
     void draw(QPainter *painter) override;
     Obj* transform(const Matrix m) override;
 
+    Point getP1() const {return p1; }
+    Point getP2() const {return p2; }
+
 private:
     // Pontos inicial e final da linha
     Point p1;

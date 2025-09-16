@@ -18,9 +18,10 @@ public:
     void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
     void addPointToCurrentObject( int x,  int y ,const QString &name);//anteriormente qpoint
     void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
+    void closePolygonObject();
     void endNewObject();
     void addPoint(const Point &point);
-    //Obj* getObject(int id);
+    Obj* getObject(int id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

@@ -33,11 +33,11 @@ private slots:
 
     void on_objectAdded(const QString &name, int id, const QString &type);
 
-    /*void on_deleteObjectButton_clicked();
+    void on_deleteObjectButton_clicked();
 
     void on_objectTableWidget_itemClicked();
 
-    void on_objectTableWidget_itemClicked(QTableWidgetItem *item);*/
+    void on_objectTableWidget_itemClicked(QTableWidgetItem *item);
 
 private:
     Ui::MainWindow *ui;
