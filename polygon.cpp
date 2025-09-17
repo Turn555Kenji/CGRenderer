@@ -9,23 +9,27 @@ Polygon::Polygon(const QList<Point>& vertices, int id, QString name)
 
 // Método para desenhar o polígono na tela
 void Polygon::draw(QPainter *painter) {
-    // O painter do Qt não entende nossa classe "Point", então precisamos converter
-    QVector<QPoint> Points;
+    if (vertices.size() > 1) {
+        for (int i = 0; i < vertices.size() - 1; ++i) {
+            // Extrai as coordenadas dos pontos consecutivos
+            int x1 = static_cast<int>(vertices[i][0][0]);
+            int y1 = static_cast<int>(vertices[i][1][0]);
+            int x2 = static_cast<int>(vertices[i + 1][0][0]);
+            int y2 = static_cast<int>(vertices[i + 1][1][0]);
 
-    for (const Point &p : vertices) {
-        int x = static_cast<int>(p[0][0]);
-        int y = static_cast<int>(p[1][0]);
-        Points.append(QPoint(x, y));
-    }
-
-    if (Points.size() > 1) {
-        for (int i = 0; i < Points.size() - 1; ++i) {
-            painter->drawLine(Points[i], Points[i + 1]);
+            // Desenha a linha entre eles
+            painter->drawLine(x1, y1, x2, y2);
         }
-        if(this->closed == true)
-            painter->drawLine(Points.last(), Points.first());
-    }
+        // Se o polígono for fechado, desenha a linha do último ao primeiro ponto
+        if(this->closed) {
+            int x1 = static_cast<int>(vertices.last()[0][0]);
+            int y1 = static_cast<int>(vertices.last()[1][0]);
+            int x2 = static_cast<int>(vertices.first()[0][0]);
+            int y2 = static_cast<int>(vertices.first()[1][0]);
 
+            painter->drawLine(x1, y1, x2, y2);
+        }
+    }
 }
 
 // Método para aplicar uma transformação matricial a todos os vértices
