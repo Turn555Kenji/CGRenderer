@@ -263,7 +263,7 @@ void MainWindow::on_rotateButton_clicked()
     Obj *target = getTableObject();
     if(!target)
         return;
-    MatrixMath::rotateObject(target, ui->rotateValue->value());
+    MatrixMath::rotateObject(target, ui->rotateValue->value(), ui->rotateXValue->value(), ui->rotateYValue->value());
     ui->drawArea->update();
 }
 

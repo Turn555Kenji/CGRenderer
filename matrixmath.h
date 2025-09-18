@@ -13,7 +13,7 @@ public:
     MatrixMath();
 
     static void translateObject(Obj *target, int dx, int dy);
-    static void rotateObject(Obj *target, int angle);
+    static void rotateObject(Obj *target, int angle, int xpivot, int ypivot);
     static void scaleObject(Obj *target, double sx, double sy);
     static Point getObjectPivot(Obj* obj);
 };

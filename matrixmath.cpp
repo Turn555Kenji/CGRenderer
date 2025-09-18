@@ -1,4 +1,5 @@
 #include "matrixmath.h"
+#include <QDebug>
 
 MatrixMath::MatrixMath() {}
 
@@ -11,12 +12,13 @@ void MatrixMath::translateObject(Obj *target, int dx, int dy){
     target->transform(t);
 }
 
-void MatrixMath::rotateObject(Obj *target, int angle){
+void MatrixMath::rotateObject(Obj *target, int angle, int xpivot, int ypivot){
     if (!target || target->getType() == "Point") {
         return;
     }
 
-    Point pivot = getObjectPivot(target);
+    Point pivot = Point(xpivot, ypivot);
+    qDebug() << pivot;
 
     double rad = angle * M_PI / 180.0;
     double c = std::cos(rad);

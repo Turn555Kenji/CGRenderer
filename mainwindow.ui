@@ -274,7 +274,7 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>180</y>
+      <y>200</y>
       <width>81</width>
       <height>25</height>
      </rect>
@@ -292,9 +292,9 @@
    <widget class="QPushButton" name="rotateButton">
     <property name="geometry">
      <rect>
-      <x>740</x>
-      <y>180</y>
-      <width>61</width>
+      <x>720</x>
+      <y>200</y>
+      <width>41</width>
       <height>24</height>
      </rect>
     </property>
@@ -394,6 +394,76 @@
     </property>
     <property name="text">
      <string>Rotation (Degrees)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="rotateXLabel">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>180</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>X pivot</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="rotateYValue">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>200</y>
+      <width>61</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>-99999</number>
+    </property>
+    <property name="maximum">
+     <number>99999</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="rotateYLabel">
+    <property name="geometry">
+     <rect>
+      <x>860</x>
+      <y>180</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Y pivot</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="rotateXValue">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>200</y>
+      <width>61</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>-99999</number>
+    </property>
+    <property name="maximum">
+     <number>99999</number>
+    </property>
+    <property name="singleStep">
+     <number>10</number>
+    </property>
+    <property name="value">
+     <number>0</number>
     </property>
    </widget>
   </widget>
