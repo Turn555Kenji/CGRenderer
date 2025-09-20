@@ -48,7 +48,7 @@ void MatrixMath::scaleObject(Obj *target, double sx, double sy){
         return;
     }
 
-    Point pivot = getObjectPivot(target);
+    Point pivot = getObjectCenter(target);
 
     Matrix toOrigin(3, 3), scale(3, 3), fromOrigin(3, 3);
     toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = -pivot[0][0];
@@ -68,7 +68,7 @@ void MatrixMath::scaleObject(Obj *target, double sx, double sy){
     target->transform(compositeTransform);
 }
 
-Point MatrixMath::getObjectPivot(Obj* obj) {
+Point MatrixMath::getObjectPivot(Obj* obj) {    //Legacy code
     if (!obj) return Point(0, 0);
 
     if (obj->getType() == "Point") {
@@ -80,6 +80,38 @@ Point MatrixMath::getObjectPivot(Obj* obj) {
     } else if (obj->getType() == "Polygon") {
         Polygon *pt = dynamic_cast<Polygon*>(obj);
         return pt->getP1();
+    }
+
+    return Point(0, 0);
+}
+
+Point MatrixMath::getObjectCenter(Obj* obj) {
+    if (!obj) return Point(0, 0);
+
+    if (obj->getType() == "Point") {
+        return *(dynamic_cast<Point*>(obj));
+    }
+    else if (obj->getType() == "Line") {
+        Line* ln = dynamic_cast<Line*>(obj);
+        Point p1 = ln->getP1();
+        Point p2 = ln->getP2();
+        return Point((p1[0][0] + p2[0][0]) / 2.0, (p1[1][0] + p2[1][0]) / 2.0);
+    }
+    else if (obj->getType() == "Polygon") {
+        Polygon* poly = dynamic_cast<Polygon*>(obj);
+        const QList<Point>& pts = poly->getVertices();
+
+        if (pts.empty()) return Point(0, 0);
+
+        double cx = 0, cy = 0;
+        for (const auto& p : pts) {
+            cx += p[0][0];
+            cy += p[1][0];
+        }
+        cx /= pts.size();
+        cy /= pts.size();
+
+        return Point(cx, cy); // <-- centroid (average of vertices)
     }
 
     return Point(0, 0);
