@@ -6,7 +6,7 @@
 #include <QPoint>
 #include <QLine>
 #include <object.h>
-
+#include "point.h"
 class PainterWidget : public QWidget
 {
     Q_OBJECT
@@ -14,11 +14,13 @@ class PainterWidget : public QWidget
 public:
     explicit PainterWidget(QWidget *parent = nullptr);
 
-    void beginNewObject(const QString &name, const QString &type);
-    void addLineToCurrentObject(const QLine &line);
-    void addPointToCurrentObject(const QPoint &point);
+    //void beginNewObject();
+    void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
+    void addPointToCurrentObject( int x,  int y ,const QString &name);//anteriormente qpoint
+    void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
+    void closePolygonObject();
     void endNewObject();
-    SceneObject* getObject(int id);
+    Obj* getObject(int id);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -26,9 +28,10 @@ protected:
     //Implement MoveEvent for preview!!
 
 private:
-    QList<SceneObject> m_objects;        // Display File
-    SceneObject* m_currentObject = nullptr; // Current object
-
+    QList<Obj*> m_objects;        // Display File
+    Obj* m_currentObject = nullptr; // Current object
+    QVector<Point>m_points;
+    //Point* m_currentPoint = nullptr;
     int m_nextObjectId = 0;
 
 public slots:
@@ -36,7 +39,7 @@ public slots:
 
 signals:
     void mouseClick(int x, int y);
-    void objectAdded(const QString &name, const QString &type, int id);
+    void objectAdded(const QString &name, int id, const QString &type);
 };
 
 #endif // PAINTER_H

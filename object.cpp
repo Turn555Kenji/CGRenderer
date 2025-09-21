@@ -1,40 +1,16 @@
 #include "object.h"
 
-SceneObject::SceneObject(int id, const QString &name, const QString &type) : m_id(id), m_name(name), m_type(type)
-{
-}
+Obj::Obj(int initId, const QString &initName, Type initType) : id(initId), name(initName), type(initType)
+{}
 
-void SceneObject::addLine(const QLine &line)
-{
-    m_lines.append(line);
-}
+Obj::Obj() : id(0), name(""), type(Type::Point)
+{}
 
-void SceneObject::addPoint(const QPoint &point)
-{
-    m_points.append(point);
-}
-
-int SceneObject::id() const
-{
-    return m_id;
-}
-
-const QString &SceneObject::name() const
-{
-    return m_name;
-}
-
-const QString &SceneObject::type() const
-{
-    return m_type;
-}
-
-const QVector<QLine> &SceneObject::lines() const
-{
-    return m_lines;
-}
-
-const QVector<QPoint> &SceneObject::points() const
-{
-    return m_points;
+QString Obj::getType() const{
+    switch (this->type) {
+    case Obj::Type::Point:   return "Point";
+    case Obj::Type::Line:    return "Line";
+    case Obj::Type::Polygon: return "Polygon";
+    default:                 return "Unknown";
+    }
 }

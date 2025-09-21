@@ -3,6 +3,13 @@
 #include <QInputDialog>
 #include <cmath>
 
+/*
+Kenji Henrique Ueyama Yashinishi
+Luiz Felipe Fuzeto
+João Vitor Pereira Cantadori
+Marcos Vinicius Santos Passos
+*/
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -38,24 +45,29 @@ MainWindow::~MainWindow()
 }
 
 bool i = false;
-QPoint previous;
-QPoint first;
-unsigned char option = 0;
+Point *previous = nullptr;
+Point *first = nullptr;
+unsigned char option = 9;
+QString lastObj;
 
-int pointDistance(QPoint next, QPoint first)
+int MainWindow::pointDistance(Point next, Point first)
 {
-    return abs(next.x() - first.x()) + abs(next.y() - first.y());
+    return abs(next[0][0] - first[0][0]) + abs(next[1][0] - first[1][0]);
 }
 
-void finishObject(Ui::MainWindow *ui){
+void MainWindow::configureButtons(bool linB, bool poiB, bool polB){ //Could just set to reset later
+    ui->lineButton->setDisabled(linB);
+    ui->pointButton->setDisabled(poiB);
+    ui->polygonButton->setDisabled(polB);
+}
+
+void MainWindow::finishObject(){
     ui->drawArea->endNewObject();
     i = false;
-    option = 0;
-    ui->lineButton->setDisabled(false);
-    ui->pointButton->setDisabled(false);
-    ui->polygonButton->setDisabled(false);
+    option = 9;
+    configureButtons(false, false, false);
 
-    //statusBar()->showMessage("");
+    ui->statusbar->showMessage("");
 }
 
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
@@ -67,23 +79,21 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     switch (option){
 
         case 0:{    //Drawing point
-            QPoint p(x, y);
-            ui->drawArea->addPointToCurrentObject(p);
-            finishObject(ui);
+            ui->drawArea->addPointToCurrentObject(x, y, lastObj);
+            finishObject();
             break;
         }
 
-        case 1:{    //Drawing line
+        case 1:{
             if(i == true){
-                QPoint next(x, y);
-                QLine line(previous, next);
-                ui->drawArea->addLineToCurrentObject(line);
+                Point *next = new Point(x, y);
+                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
                 previous = next;
                 i = false;
-                finishObject(ui);
+                finishObject();
             }
             else{
-                previous = QPoint(x, y);
+                previous = new Point(x, y);
                 i = true;
             }
             break;
@@ -91,25 +101,25 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
 
         case 2:{    //Drawing polygon
             if(i == true){
-                QPoint next(x, y);
-                if(pointDistance(next, first) < 30){
-                    QLine line(previous, first);
-                    ui->drawArea->addLineToCurrentObject(line);
+                Point *next = new Point(x, y);
+                if(pointDistance(*next, *first) < 30){
+                    ui->drawArea->closePolygonObject();
                     i = false;
-                    finishObject(ui);
+                    finishObject();
                     break;
                 }
-                QLine line(previous, next);
-                ui->drawArea->addLineToCurrentObject(line);
+                ui->drawArea->addVertexToCurrentObject(previous, next, lastObj);
                 previous = next;
             }
             else{
-                previous = QPoint(x, y);
+                previous = new Point(x, y);
                 first = previous;
                 i = true;
             }
             break;
         }
+        //default :
+        //break;
     }
 }
 
@@ -117,14 +127,12 @@ void MainWindow::on_pointButton_clicked()
 {
     option = 0;
     bool ok;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
+    configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
-
+    lastObj=name;
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Point");
+        //ui->drawArea->beginNewObject();
         statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -135,14 +143,12 @@ void MainWindow::on_lineButton_clicked()
     option = 1;
     bool ok;
     i = false;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
+    configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Line", "Object Name:", QLineEdit::Normal, "", &ok);
+    lastObj=name;
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Line");
         statusBar()->showMessage("Drawing new line: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
@@ -153,19 +159,18 @@ void MainWindow::on_polygonButton_clicked()
     option = 2;
     bool ok;
     i = false;
-    ui->lineButton->setDisabled(true);
-    ui->pointButton->setDisabled(true);
-    ui->polygonButton->setDisabled(true);
+    configureButtons(true, true, true);
 
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
+    lastObj=name;
 
     if (ok && !name.isEmpty()) {
-        ui->drawArea->beginNewObject(name, "Polygon");
         statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
     }
 }
 
-void MainWindow::on_objectAdded(const QString &name, const QString &type, int id)
+
+void MainWindow::on_objectAdded(const QString &name, int id, const QString &type)
 {
     int row = ui->objectTableWidget->rowCount();
     ui->objectTableWidget->insertRow(row);
@@ -190,12 +195,10 @@ void MainWindow::on_deleteObjectButton_clicked()
     }
 }
 
-
 void MainWindow::on_objectTableWidget_itemClicked()
 {
     ui->deleteObjectButton->setDisabled(false);
 }
-
 
 void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
 {
@@ -208,22 +211,69 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
 
     if (idItem) {
         int objectId = idItem->text().toInt();
-        SceneObject *obj = ui->drawArea->getObject(objectId);
-        QString objType = obj->type();
+        Obj *obj = ui->drawArea->getObject(objectId);
+        QString objType = obj->getType();
         if(objType == "Point"){
-            const QPoint& pt = obj->points()[0];
-            QString pointStr = QString("(%1, %2)").arg(pt.x()).arg(pt.y());
+            Point *pt = dynamic_cast<Point*>(obj);
+            QString pointStr = QString("(%1, %2)").arg((*pt)[0][0]).arg((*pt)[1][0]);
             ui->pointListWidget->addItem(pointStr);
         } else if (objType == "Line"){
-            const QLine& pt = obj->lines()[0];
-            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt.p1().x()).arg(pt.p1().y()).arg(pt.p2().x()).arg(pt.p2().y());
+            Line *pt = dynamic_cast<Line*>(obj);
+            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt->getP1()[0][0]).arg(pt->getP1()[1][0]).arg(pt->getP2()[0][0]).arg(pt->getP2()[1][0]);
             ui->pointListWidget->addItem(lineStr);
         } else if (objType == "Polygon"){
-            for (const QLine& pt : obj->lines()) {
-                QString polygonStr = QString("(%1, %2)").arg(pt.p1().x()).arg(pt.p1().y());
+            Polygon *pt = dynamic_cast<Polygon*>(obj);
+            for (const Point& it : pt->getVertices()) {
+                QString polygonStr = QString("(%1, %2)").arg(it[0][0]).arg(it[1][0]);
                 ui->pointListWidget->addItem(polygonStr);
             }
         }
     }
+}
+
+Obj *MainWindow::getTableObject(){
+    QTableWidgetItem *selectedItem = ui->objectTableWidget->currentItem();
+    if (!selectedItem) {
+        return nullptr;
+    }
+    int row = selectedItem->row();
+    QTableWidgetItem *idItem = ui->objectTableWidget->item(row, 0);
+
+    if (idItem) {
+        Obj *target = ui->drawArea->getObject(idItem->text().toInt());
+        if (target)
+            return target;
+        return nullptr;
+    }
+    return nullptr;
+}
+
+void MainWindow::on_translateButton_clicked()
+{
+    Obj *target = getTableObject();
+    if(!target)
+        return;
+    MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
+    ui->drawArea->update();
+}
+
+
+void MainWindow::on_rotateButton_clicked()
+{
+    Obj *target = getTableObject();
+    if(!target)
+        return;
+    MatrixMath::rotateObject(target, ui->rotateValue->value(), ui->rotateXValue->value(), ui->rotateYValue->value());
+    ui->drawArea->update();
+}
+
+
+void MainWindow::on_scaleButton_clicked()
+{
+    Obj *target = getTableObject();
+    if(!target)
+        return;
+    MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
+    ui->drawArea->update();
 }
 

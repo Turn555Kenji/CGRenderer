@@ -1,6 +1,12 @@
 #include "painter.h"
 #include <QPainter>
 #include <QPaintEvent>
+#include "point.h"
+#include "line.h"
+#include "polygon.h"
+
+
+//#include <iostream>
 
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
@@ -9,47 +15,69 @@ PainterWidget::PainterWidget(QWidget *parent)
     setFocusPolicy(Qt::StrongFocus);
 }
 
-void PainterWidget::beginNewObject(const QString &name, const QString &type)
+void PainterWidget::addPointToCurrentObject(int x, int y, const QString &name)//anteriormente qpoint
 {
+
     if (m_currentObject) {
+        //delete m_currentPoint;
         endNewObject();
     }
-    m_currentObject = new SceneObject(m_nextObjectId++, name, type);
+    m_currentObject = new Point(x, y, m_nextObjectId++, name);
+
     update();
 }
 
-void PainterWidget::addLineToCurrentObject(const QLine &line)
+void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2, const QString name)
 {
     if (m_currentObject) {
-        m_currentObject->addLine(line);
-        update();
+        //delete m_currentPoint;
+        //endNewObject();
     }
+    m_currentObject = new Line(*p1, *p2, m_nextObjectId++, name);
+    update();    //(p1, p2, m_nextObjectId++, name);
+
 }
 
-void PainterWidget::addPointToCurrentObject(const QPoint &point)
+void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString name)
 {
     if (m_currentObject) {
-        m_currentObject->addPoint(point);
+        Polygon *iter = dynamic_cast<Polygon*>(m_currentObject);
+        iter->addPoint(*p2);
         update();
+        return;
     }
+    QList<Point> p;
+    p.append(*p1);
+    p.append(*p2);
+    m_currentObject= new Polygon(p, m_nextObjectId++, name);
+    update();
+
 }
+
+void PainterWidget::closePolygonObject(){
+    Polygon *iter = dynamic_cast<Polygon*>(m_currentObject);
+    iter->setClosed();
+}
+
 
 void PainterWidget::endNewObject()
 {
     if (m_currentObject) {
-        m_objects.append(*m_currentObject);
-        emit objectAdded(m_currentObject->name(), m_currentObject->type(), m_currentObject->id());
-        delete m_currentObject;
+        m_objects.append(m_currentObject);
+        emit objectAdded(m_currentObject->getName(), m_currentObject->getId(), m_currentObject->getType());
+        //delete m_currentObject;
         m_currentObject = nullptr;
         update();
     }
 }
 
-void PainterWidget::removeObject(int id)
-{
+void PainterWidget::removeObject(int id){
+
     auto it = m_objects.begin();
     for (; it != m_objects.end(); ) {
-        if (it->id() == id) {
+        Obj* currentObject = *it;
+
+        if (currentObject->getId() == id) {
             it = m_objects.erase(it);
         } else {
             ++it;
@@ -70,26 +98,16 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 
     //painter.setRenderHint(QPainter::Antialiasing);
 
-    for (const SceneObject &obj : m_objects) {
-        painter.setPen(QPen(Qt::blue, 2));
-        for (const QLine &line : obj.lines()) {
-            painter.drawLine(line);
-        }
+    for (Obj *obj : m_objects) {
         painter.setPen(QPen(Qt::red, 5));
-        for (const QPoint &point : obj.points()) {
-            painter.drawPoint(point);
-        }
+        obj->draw(&painter);
+    }
+    if (m_currentObject) {
+        painter.setPen(QPen(Qt::cyan, 5));
+        m_currentObject->draw(&painter);
+        //endNewObject();
     }
 
-    if (m_currentObject) {
-        painter.setPen(QPen(Qt::green, 2, Qt::DashLine));
-        for (const QLine &line : m_currentObject->lines()) {
-            painter.drawLine(line);
-        }
-        for (const QPoint &point : m_currentObject->points()) {
-            painter.drawPoint(point);
-        }
-    }
 }
 
 void PainterWidget::mousePressEvent(QMouseEvent *event){
@@ -100,12 +118,12 @@ void PainterWidget::mousePressEvent(QMouseEvent *event){
     QWidget::mousePressEvent(event);
 }
 
-SceneObject* PainterWidget::getObject(int id)
+Obj* PainterWidget::getObject(int id)
 {
-    for (auto it = m_objects.begin(); it != m_objects.end(); ++it) {
-        if (it->id() == id) {
-            return &(*it);
+    for (auto* obj : m_objects) {
+        if (obj->getId() == id) {
+            return obj;
         }
     }
-    return nullptr;
+    return nullptr; // not found
 }

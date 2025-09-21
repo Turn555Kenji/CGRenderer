@@ -3,6 +3,11 @@
 
 #include <QMainWindow>
 #include <QTableWidgetItem>
+#include "object.h"
+#include "point.h"
+#include "line.h"
+#include "polygon.h"
+#include "matrixmath.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -18,22 +23,28 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    int pointDistance(Point next, Point first);
+    void configureButtons(bool linB, bool poiB, bool polB);
+    void finishObject();
+
+    Obj *getTableObject();
+
 private slots:
     void on_PainterMouseClicked(int x, int y);
 
     void on_lineButton_clicked();
-
     void on_polygonButton_clicked();
-
     void on_pointButton_clicked();
 
-    void on_objectAdded(const QString &name, const QString &type, int id);
+    void on_objectAdded(const QString &name, int id, const QString &type);
 
     void on_deleteObjectButton_clicked();
-
     void on_objectTableWidget_itemClicked();
-
     void on_objectTableWidget_itemClicked(QTableWidgetItem *item);
+
+    void on_translateButton_clicked();
+    void on_rotateButton_clicked();
+    void on_scaleButton_clicked();
 
 private:
     Ui::MainWindow *ui;
