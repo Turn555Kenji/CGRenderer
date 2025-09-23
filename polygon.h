@@ -10,7 +10,9 @@ class Polygon : public Obj {
 public:
     Polygon(const QList<Point>& vertices, int id, QString name);
 
-    void draw(QPainter *painter) override;
+    void draw(QPainter *painter,
+              double Xwmin, double Ywmin, double Xwmax, double Ywmax,
+              double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) override;
     Obj* transform(Matrix m) override;
 
     void addPoint(Point p);

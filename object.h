@@ -16,7 +16,9 @@ public:
     Obj(int initId, const QString &initName, Type initType);
     Obj();
 
-    virtual void draw(QPainter *painter) = 0;
+    virtual void draw(QPainter *painter,
+                      double Xwmin, double Ywmin, double Xwmax, double Ywmax,
+                      double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) = 0;
     virtual Obj* transform(Matrix m) = 0;
 
     // Getters

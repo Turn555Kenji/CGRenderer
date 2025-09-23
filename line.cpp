@@ -9,12 +9,19 @@ Line::Line(const Point& p1, const Point& p2, int id, QString name)
 }
 
 // Método para desenhar a linha na tela
-void Line::draw(QPainter *painter) {
-    int x1 = static_cast<int>(p1[0][0]);
-    int y1 = static_cast<int>(p1[1][0]);
+void Line::draw(QPainter *painter,
+                double Xwmin, double Ywmin, double Xwmax, double Ywmax,
+                double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
+{
 
-    int x2 = static_cast<int>(p2[0][0]);
-    int y2 = static_cast<int>(p2[1][0]);
+    Point Pnorm1 = p1.normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+    Point Pnorm2 = p2.normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+
+    int x1 = static_cast<int>(Pnorm1[0][0]);
+    int y1 = static_cast<int>(Pnorm1[1][0]);
+
+    int x2 = static_cast<int>(Pnorm2[0][0]);
+    int y2 = static_cast<int>(Pnorm2[1][0]);
 
     painter->drawLine(x1, y1, x2, y2);
 }

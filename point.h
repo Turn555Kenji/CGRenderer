@@ -10,7 +10,12 @@ public:
     Point(double x, double y);
     Point(Point *p);
 
-    void draw(QPainter *painter) override;
+    Point normalize(double Xwmin, double Ywmin, double Xwmax, double Ywmax,
+                    double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax);
+
+    void draw(QPainter *painter,
+              double Xwmin, double Ywmin, double Xwmax, double Ywmax,
+              double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) override;
     Obj* transform(Matrix m) override;
 };
 

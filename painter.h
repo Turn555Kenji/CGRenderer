@@ -15,12 +15,16 @@ public:
     explicit PainterWidget(QWidget *parent = nullptr);
 
     //void beginNewObject();
+    void setupCoordinates();
     void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
     void addPointToCurrentObject( int x,  int y ,const QString &name);//anteriormente qpoint
     void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
     void closePolygonObject();
     void endNewObject();
     Obj* getObject(int id);
+    void setWindow(int newXwmax, int newXwmin, int newYwmax, int newYwmin);
+    void setViewPort(int newXvpmax, int newXvpmin, int newYvpmax, int newYvpmin);
+    void  resetWindowViewPort();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -28,11 +32,15 @@ protected:
     //Implement MoveEvent for preview!!
 
 private:
-    QList<Obj*> m_objects;        // Display File
+    QList<Obj*> displayFile;        // Display File
     Obj* m_currentObject = nullptr; // Current object
-    QVector<Point>m_points;
     //Point* m_currentPoint = nullptr;
     int m_nextObjectId = 0;
+    double OGXwmin, OGYwmin, OGXwmax, OGYwmax;
+    double OGXvpmin, OGYvpmin, OGXvpmax, OGYvpmax;
+
+    double Xwmin, Ywmin, Xwmax, Ywmax;
+    double Xvpmin, Yvpmin, Xvpmax, Yvpmax;
 
 public slots:
     void removeObject(int id);

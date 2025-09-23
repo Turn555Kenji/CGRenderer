@@ -19,9 +19,15 @@ MainWindow::MainWindow(QWidget *parent)
     QPalette pal = ui->drawArea->palette();
 
     pal.setColor(QPalette::Window, Qt::black);
+    ui->drawArea->setupCoordinates();
     ui->drawArea->setAutoFillBackground(true);
     ui->drawArea->setPalette(pal);
     ui->drawArea->show();
+
+    ui->w_xmax->setValue(ui->drawArea->width());
+    ui->w_ymax->setValue(ui->drawArea->height());
+    ui->vp_xmax->setValue(ui->drawArea->width());
+    ui->vp_ymax->setValue(ui->drawArea->height());
 
     ui->lineButton->setDisabled(false);
     ui->pointButton->setDisabled(false);
@@ -70,30 +76,45 @@ void MainWindow::finishObject(){
     ui->statusbar->showMessage("");
 }
 
+int MainWindow::normalizeX(int x, double Xwmin, double Xvpmin, double Xwmax, double Xvpmax)
+{
+    return Xwmin + ( (x - Xvpmin) / (Xvpmax - Xvpmin) ) * (Xwmax - Xwmin);
+}
+
+int MainWindow::normalizeY(int y, double Ywmin, double Yvpmin, double Ywmax, double Yvpmax)
+{
+    return Ywmin + ( (Yvpmax - y) / (Yvpmax - Yvpmin) ) * (Ywmax - Ywmin);
+}
+
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
 
     ui->X1Label->setText(QString::number(x));
     ui->Y1Label->setText(QString::number(y));
 
+    int normalizedX = normalizeX( x, ui->w_xmin->value(), ui->vp_xmin->value(), ui->w_xmax->value(), ui->vp_xmax->value() );
+    int normalizedY = normalizeY( y, ui->w_ymin->value(), ui->vp_ymin->value(), ui->w_ymax->value(), ui->vp_ymax->value() );
+    ui->X1Label_Normalized->setText(QString::number(normalizedX));
+    ui->Y1Label_Normalized->setText(QString::number(normalizedY));
+
     switch (option){
 
         case 0:{    //Drawing point
-            ui->drawArea->addPointToCurrentObject(x, y, lastObj);
+            ui->drawArea->addPointToCurrentObject(normalizedX, normalizedY, lastObj);
             finishObject();
             break;
         }
 
         case 1:{
             if(i == true){
-                Point *next = new Point(x, y);
+                Point *next = new Point(normalizedX, normalizedY);
                 ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
                 previous = next;
                 i = false;
                 finishObject();
             }
             else{
-                previous = new Point(x, y);
+                previous = new Point(normalizedX, normalizedY);
                 i = true;
             }
             break;
@@ -101,7 +122,7 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
 
         case 2:{    //Drawing polygon
             if(i == true){
-                Point *next = new Point(x, y);
+                Point *next = new Point(normalizedX, normalizedY);
                 if(pointDistance(*next, *first) < 30){
                     ui->drawArea->closePolygonObject();
                     i = false;
@@ -112,7 +133,7 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
                 previous = next;
             }
             else{
-                previous = new Point(x, y);
+                previous = new Point(normalizedX, normalizedY);
                 first = previous;
                 i = true;
             }
@@ -275,5 +296,33 @@ void MainWindow::on_scaleButton_clicked()
         return;
     MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
     ui->drawArea->update();
+}
+
+
+void MainWindow::on_applyWButton_clicked()
+{
+    ui->drawArea->setWindow(ui->w_xmax->value(), ui->w_xmin->value(), ui->w_ymax->value(), ui->w_ymin->value());
+}
+
+
+void MainWindow::on_applyVpButton_clicked()
+{
+    ui->drawArea->setViewPort(ui->vp_xmax->value(), ui->vp_xmin->value(), ui->vp_ymax->value(), ui->vp_ymin->value());
+}
+
+
+void MainWindow::on_resetButton_clicked()
+{
+    ui->drawArea->resetWindowViewPort();
+
+    ui->w_xmax->setValue(ui->drawArea->width());
+    ui->w_ymax->setValue(ui->drawArea->height());
+    ui->vp_xmax->setValue(ui->drawArea->width());
+    ui->vp_ymax->setValue(ui->drawArea->height());
+
+    ui->w_xmin->setValue(0);
+    ui->w_ymin->setValue(0);
+    ui->vp_xmin->setValue(0);
+    ui->vp_ymin->setValue(0);
 }
 
