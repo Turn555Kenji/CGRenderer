@@ -7,6 +7,8 @@
 #include <QLine>
 #include <object.h>
 #include "point.h"
+#include "polygon.h"
+
 class PainterWidget : public QWidget
 {
     Q_OBJECT
@@ -14,33 +16,43 @@ class PainterWidget : public QWidget
 public:
     explicit PainterWidget(QWidget *parent = nullptr);
 
-    //void beginNewObject();
     void setupCoordinates();
     void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
-    void addPointToCurrentObject( int x,  int y ,const QString &name);//anteriormente qpoint
+    void addPointToCurrentObject( int x,  int y ,const QString &name);
     void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
     void closePolygonObject();
     void endNewObject();
     Obj* getObject(int id);
     void setWindow(int newXwmax, int newXwmin, int newYwmax, int newYwmin);
     void setViewPort(int newXvpmax, int newXvpmin, int newYvpmax, int newYvpmin);
-    void  resetWindowViewPort();
+    void resetWindowViewPort();
+
+    double getXwmin() const { return Xwmin; }
+    double getYwmin() const { return Ywmin; }
+    double getXwmax() const { return Xwmax; }
+    double getYwmax() const { return Ywmax; }
+
+    double getXvpmin() const { return Xvpmin; }
+    double getYvpmin() const { return Yvpmin; }
+    double getXvpmax() const { return Xvpmax; }
+    double getYvpmax() const { return Yvpmax; }
 
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
-    //Implement MoveEvent for preview!!
 
 private:
-    QList<Obj*> displayFile;        // Display File
-    Obj* m_currentObject = nullptr; // Current object
-    //Point* m_currentPoint = nullptr;
+    QList<Obj*> displayFile;
+    Obj* m_currentObject = nullptr;
     int m_nextObjectId = 0;
+    // LINHA ABAIXO CORRIGIDA (OGYmax -> OGYwmax)
     double OGXwmin, OGYwmin, OGXwmax, OGYwmax;
     double OGXvpmin, OGYvpmin, OGXvpmax, OGYvpmax;
 
     double Xwmin, Ywmin, Xwmax, Ywmax;
     double Xvpmin, Yvpmin, Xvpmax, Yvpmax;
+
+    Polygon* m_windowObject = nullptr;
 
 public slots:
     void removeObject(int id);

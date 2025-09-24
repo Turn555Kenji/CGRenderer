@@ -17,6 +17,7 @@ public:
 
     void addPoint(Point p);
     void setClosed() { closed = true; }
+    void setVertices(const QList<Point>& newVertices) { vertices = newVertices; } // <-- ADICIONAR ESTA LINHA
 
     QList<Point> getVertices() const { return vertices; }
     Point getP1() const { return vertices.first(); }

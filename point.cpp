@@ -30,8 +30,15 @@ void Point::draw(QPainter *painter,
     QPen pen (Qt ::blue, 5);
     pen.setCapStyle(Qt::RoundCap); // Crucial para o ponto parecer redondo
     painter->setPen(pen);
-    Point Pnorm = normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
-    painter->drawPoint(static_cast<int>((*this)[0][0]), static_cast<int>((*this)[1][0]));
+
+    // 1. Converte as coordenadas do Mundo para NDC [-1, 1]
+    Point P_ndc = normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+
+    // 2. Converte as coordenadas NDC para o Viewport (tela)
+    double screenX = Xvpmin + (P_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+    double screenY = Yvpmin + (1.0 - P_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin); // Eixo Y invertido
+
+    painter->drawPoint(static_cast<int>(screenX), static_cast<int>(screenY));
 }
 
 Obj* Point::transform(Matrix m) {
@@ -41,12 +48,11 @@ Obj* Point::transform(Matrix m) {
     return this;
 }
 
-Point Point::normalize(double Xwmin, double Ywmin, double Xwmax, double Ywmax,
-                       double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
+Point Point::normalize(double Xwmin, double Ywmin, double Xwmax, double Ywmax)
 {
-    qDebug() << Xwmin << Ywmin << Xwmax << Ywmax << Xvpmin << Yvpmin << Xvpmax << Yvpmax;
-    double vpx = ( ((*this)[0][0] - Xwmin) / (Xwmax - Xwmin) ) * (Xvpmax - Xvpmin);
-    double vpy = ( 1 - ( ((*this)[1][0] - Ywmin) / (Ywmax - Ywmin) ) ) * (Yvpmax - Yvpmin);
+    // Mapeia as coordenadas do mundo para o intervalo [-1, 1] (NDC)
+    double ndcX = -1.0 + 2.0 * ((*this)[0][0] - Xwmin) / (Xwmax - Xwmin);
+    double ndcY = -1.0 + 2.0 * ((*this)[1][0] - Ywmin) / (Ywmax - Ywmin);
 
-    return Point(vpx, vpy);
+    return Point(ndcX, ndcY);
 }

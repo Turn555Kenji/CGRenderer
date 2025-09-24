@@ -48,8 +48,6 @@ private slots:
     void on_rotateButton_clicked();
     void on_scaleButton_clicked();
 
-    void on_applyWButton_clicked();
-
     void on_applyVpButton_clicked();
 
     void on_resetButton_clicked();

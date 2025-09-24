@@ -14,16 +14,17 @@ void Line::draw(QPainter *painter,
                 double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
 
-    Point Pnorm1 = p1.normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
-    Point Pnorm2 = p2.normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+    // Ponto 1: Mundo -> NDC -> Viewport
+    Point P1_ndc = p1.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+    double x1 = Xvpmin + (P1_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+    double y1 = Yvpmin + (1.0 - P1_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-    int x1 = static_cast<int>(Pnorm1[0][0]);
-    int y1 = static_cast<int>(Pnorm1[1][0]);
+    // Ponto 2: Mundo -> NDC -> Viewport
+    Point P2_ndc = p2.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+    double x2 = Xvpmin + (P2_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+    double y2 = Yvpmin + (1.0 - P2_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-    int x2 = static_cast<int>(Pnorm2[0][0]);
-    int y2 = static_cast<int>(Pnorm2[1][0]);
-
-    painter->drawLine(x1, y1, x2, y2);
+    painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
 }
 
 // Método para aplicar uma transformação matricial aos dois pontos da linha
@@ -36,4 +37,3 @@ Obj* Line::transform(Matrix m){
 
     return this;
 }
-

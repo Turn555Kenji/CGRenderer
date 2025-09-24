@@ -19,15 +19,14 @@ MainWindow::MainWindow(QWidget *parent)
     QPalette pal = ui->drawArea->palette();
 
     pal.setColor(QPalette::Window, Qt::black);
+    // Esta chamada agora também cria o objeto "Window"
     ui->drawArea->setupCoordinates();
     ui->drawArea->setAutoFillBackground(true);
     ui->drawArea->setPalette(pal);
     ui->drawArea->show();
 
-    ui->w_xmax->setValue(ui->drawArea->width());
-    ui->w_ymax->setValue(ui->drawArea->height());
-    ui->vp_xmax->setValue(ui->drawArea->width());
-    ui->vp_ymax->setValue(ui->drawArea->height());
+    ui->vp_xmax->setValue(ui->drawArea->width() - 1);
+    ui->vp_ymax->setValue(ui->drawArea->height() - 1);
 
     ui->lineButton->setDisabled(false);
     ui->pointButton->setDisabled(false);
@@ -40,6 +39,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->objectTableWidget->setColumnWidth(1, 180);
     ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    // Adiciona manualmente o objeto Window à tabela da UI
+    Obj* windowObj = ui->drawArea->getObject(-1);
+    if (windowObj) {
+        on_objectAdded(windowObj->getName(), windowObj->getId(), windowObj->getType());
+    }
 
     connect(ui->drawArea, &PainterWidget::mouseClick, this, &MainWindow::on_PainterMouseClicked);
     connect(ui->drawArea, &PainterWidget::objectAdded, this, &MainWindow::on_objectAdded);
@@ -92,53 +97,61 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     ui->X1Label->setText(QString::number(x));
     ui->Y1Label->setText(QString::number(y));
 
-    int normalizedX = normalizeX( x, ui->w_xmin->value(), ui->vp_xmin->value(), ui->w_xmax->value(), ui->vp_xmax->value() );
-    int normalizedY = normalizeY( y, ui->w_ymin->value(), ui->vp_ymin->value(), ui->w_ymax->value(), ui->vp_ymax->value() );
-    ui->X1Label_Normalized->setText(QString::number(normalizedX));
-    ui->Y1Label_Normalized->setText(QString::number(normalizedY));
+    // Calcula as coordenadas de Mundo para a criação de objetos
+    int worldX = normalizeX( x, ui->drawArea->getXwmin(), ui->drawArea->getXvpmin(), ui->drawArea->getXwmax(), ui->drawArea->getXvpmax() );
+    int worldY = normalizeY( y, ui->drawArea->getYwmin(), ui->drawArea->getYvpmin(), ui->drawArea->getYwmax(), ui->drawArea->getYvpmax() );
+    //int worldX = normalizeX( x, ui->w_xmin->value(), ui->vp_xmin->value(), ui->w_xmax->value(), ui->vp_xmax->value() );
+    //int worldY = normalizeY( y, ui->w_ymin->value(), ui->vp_ymin->value(), ui->w_ymax->value(), ui->vp_ymax->value() );
+
+    // Calcula as coordenadas NDC [-1, 1] para exibição na UI
+    double ndcX = -1.0 + 2.0 * (x - ui->vp_xmin->value()) / (ui->vp_xmax->value() - ui->vp_xmin->value());
+    double ndcY = 1.0 - 2.0 * (y - ui->vp_ymin->value()) / (ui->vp_ymax->value() - ui->vp_ymin->value()); // Eixo Y invertido
+
+    ui->X1Label_Normalized->setText(QString::number(ndcX, 'f', 2)); // Exibe como float com 2 casas decimais
+    ui->Y1Label_Normalized->setText(QString::number(ndcY, 'f', 2));
 
     switch (option){
 
-        case 0:{    //Drawing point
-            ui->drawArea->addPointToCurrentObject(normalizedX, normalizedY, lastObj);
-            finishObject();
-            break;
-        }
+    case 0:{    //Drawing point
+        ui->drawArea->addPointToCurrentObject(worldX, worldY, lastObj);
+        finishObject();
+        break;
+    }
 
-        case 1:{
-            if(i == true){
-                Point *next = new Point(normalizedX, normalizedY);
-                ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
-                previous = next;
+    case 1:{
+        if(i == true){
+            Point *next = new Point(worldX, worldY);
+            ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
+            previous = next;
+            i = false;
+            finishObject();
+        }
+        else{
+            previous = new Point(worldX, worldY);
+            i = true;
+        }
+        break;
+    }
+
+    case 2:{    //Drawing polygon
+        if(i == true){
+            Point *next = new Point(worldX, worldY);
+            if(pointDistance(*next, *first) < 30){
+                ui->drawArea->closePolygonObject();
                 i = false;
                 finishObject();
+                break;
             }
-            else{
-                previous = new Point(normalizedX, normalizedY);
-                i = true;
-            }
-            break;
+            ui->drawArea->addVertexToCurrentObject(previous, next, lastObj);
+            previous = next;
         }
-
-        case 2:{    //Drawing polygon
-            if(i == true){
-                Point *next = new Point(normalizedX, normalizedY);
-                if(pointDistance(*next, *first) < 30){
-                    ui->drawArea->closePolygonObject();
-                    i = false;
-                    finishObject();
-                    break;
-                }
-                ui->drawArea->addVertexToCurrentObject(previous, next, lastObj);
-                previous = next;
-            }
-            else{
-                previous = new Point(normalizedX, normalizedY);
-                first = previous;
-                i = true;
-            }
-            break;
+        else{
+            previous = new Point(worldX, worldY);
+            first = previous;
+            i = true;
         }
+        break;
+    }
         //default :
         //break;
     }
@@ -209,6 +222,12 @@ void MainWindow::on_deleteObjectButton_clicked()
     int row = selectedItem->row();
     QTableWidgetItem *idItem = ui->objectTableWidget->item(row, 0);
 
+    // Impede a exclusão do objeto Window
+    if(idItem->text().toInt() == -1){
+        statusBar()->showMessage("The Window object cannot be deleted.");
+        return;
+    }
+
     if (idItem) {
         int objectId = idItem->text().toInt();
         ui->drawArea->removeObject(objectId);
@@ -274,8 +293,22 @@ void MainWindow::on_translateButton_clicked()
     Obj *target = getTableObject();
     if(!target)
         return;
-    MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
-    ui->drawArea->update();
+
+    if (target->getId() == -1) { // Lógica de PAN para o objeto Window
+        int dx = ui->translateXvalue->value();
+        int dy = ui->translateYvalue->value();
+
+        double current_xwmin = ui->drawArea->getXwmin();
+        double current_ywmin = ui->drawArea->getYwmin();
+        double current_xwmax = ui->drawArea->getXwmax();
+        double current_ywmax = ui->drawArea->getYwmax();
+
+        ui->drawArea->setWindow(current_xwmax + dx, current_xwmin + dx, current_ywmax + dy, current_ywmin + dy);
+
+    } else { // Lógica normal para outros objetos
+        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
+        ui->drawArea->update();
+    }
 }
 
 
@@ -284,6 +317,13 @@ void MainWindow::on_rotateButton_clicked()
     Obj *target = getTableObject();
     if(!target)
         return;
+
+    // Desabilita rotação para a Window
+    if (target->getId() == -1) {
+        statusBar()->showMessage("Rotation is not supported for the Window object.");
+        return;
+    }
+
     MatrixMath::rotateObject(target, ui->rotateValue->value(), ui->rotateXValue->value(), ui->rotateYValue->value());
     ui->drawArea->update();
 }
@@ -294,14 +334,38 @@ void MainWindow::on_scaleButton_clicked()
     Obj *target = getTableObject();
     if(!target)
         return;
-    MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
-    ui->drawArea->update();
-}
 
+    if (target->getId() == -1) { // Lógica de ZOOM para o objeto Window
+        double sx = ui->xFactorValue->value();
+        double sy = ui->yFactorValue->value();
 
-void MainWindow::on_applyWButton_clicked()
-{
-    ui->drawArea->setWindow(ui->w_xmax->value(), ui->w_xmin->value(), ui->w_ymax->value(), ui->w_ymin->value());
+        if (sx == 0) sx = 1; // Evita escala por zero
+        if (sy == 0) sy = 1;
+
+        double xwmin = ui->drawArea->getXwmin();
+        double ywmin = ui->drawArea->getYwmin();
+        double xwmax = ui->drawArea->getXwmax();
+        double ywmax = ui->drawArea->getYwmax();
+
+        double cx = (xwmin + xwmax) / 2.0;
+        double cy = (ywmin + ywmax) / 2.0;
+        double width = xwmax - xwmin;
+        double height = ywmax - ywmin;
+
+        double new_width = width * sx; // Divide para efeito de zoom
+        double new_height = height * sy;
+
+        int new_xwmax = static_cast<int>(cx + new_width / 2.0);
+        int new_xwmin = static_cast<int>(cx - new_width / 2.0);
+        int new_ywmax = static_cast<int>(cy + new_height / 2.0);
+        int new_ywmin = static_cast<int>(cy - new_height / 2.0);
+
+        ui->drawArea->setWindow(new_xwmax, new_xwmin, new_ywmax, new_ywmin);
+
+    } else { // Lógica normal para outros objetos
+        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
+        ui->drawArea->update();
+    }
 }
 
 
@@ -315,14 +379,9 @@ void MainWindow::on_resetButton_clicked()
 {
     ui->drawArea->resetWindowViewPort();
 
-    ui->w_xmax->setValue(ui->drawArea->width());
-    ui->w_ymax->setValue(ui->drawArea->height());
-    ui->vp_xmax->setValue(ui->drawArea->width());
-    ui->vp_ymax->setValue(ui->drawArea->height());
+    ui->vp_xmax->setValue(ui->drawArea->width() - 1);
+    ui->vp_ymax->setValue(ui->drawArea->height() - 1);
 
-    ui->w_xmin->setValue(0);
-    ui->w_ymin->setValue(0);
     ui->vp_xmin->setValue(0);
     ui->vp_ymin->setValue(0);
 }
-

@@ -15,29 +15,31 @@ void Polygon::draw(QPainter *painter,
 {
     if (vertices.size() > 1) {
         for (int i = 0; i < vertices.size() - 1; ++i) {
-            Point Pnorm1 = vertices[i].normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
-            Point Pnorm2 = vertices[i+1].normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
-            // Extrai as coordenadas dos pontos consecutivos
-            int x1 = static_cast<int>(Pnorm1[0][0]);
-            int y1 = static_cast<int>(Pnorm1[1][0]);
-            int x2 = static_cast<int>(Pnorm2[0][0]);
-            int y2 = static_cast<int>(Pnorm2[1][0]);
-            //qDebug() << Pnorm1 << "NEW" << Pnorm2;
+            // Ponto 1: Mundo -> NDC -> Viewport
+            Point P1_ndc = vertices[i].normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+            double x1 = Xvpmin + (P1_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+            double y1 = Yvpmin + (1.0 - P1_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-            // Desenha a linha entre eles
-            painter->drawLine(x1, y1, x2, y2);
+            // Ponto 2: Mundo -> NDC -> Viewport
+            Point P2_ndc = vertices[i+1].normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+            double x2 = Xvpmin + (P2_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+            double y2 = Yvpmin + (1.0 - P2_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
+
+            painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
         }
         // Se o polígono for fechado, desenha a linha do último ao primeiro ponto
         if(this->closed) {
-            Point PnormLast = vertices.last().normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
-            Point PnormFirst = vertices.first().normalize(Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+            // Último ponto
+            Point P_last_ndc = vertices.last().normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+            double x1 = Xvpmin + (P_last_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+            double y1 = Yvpmin + (1.0 - P_last_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-            int x1 = static_cast<int>(PnormLast[0][0]);
-            int y1 = static_cast<int>(PnormLast[1][0]);
-            int x2 = static_cast<int>(PnormFirst[0][0]);
-            int y2 = static_cast<int>(PnormFirst[1][0]);
-            //qDebug() << PnormLast << "FINAL" << PnormFirst;
-            painter->drawLine(x1, y1, x2, y2);
+            // Primeiro ponto
+            Point P_first_ndc = vertices.first().normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+            double x2 = Xvpmin + (P_first_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+            double y2 = Yvpmin + (1.0 - P_first_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
+
+            painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
         }
     }
 }

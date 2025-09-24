@@ -6,12 +6,9 @@
 #include "polygon.h"
 
 
-//#include <iostream>
-
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
 {
-    // Window Screen focus
     setFocusPolicy(Qt::StrongFocus);
 }
 
@@ -22,8 +19,8 @@ void PainterWidget::setupCoordinates(){
     OGYwmax = height();
     OGXvpmin = 0;
     OGYvpmin = 0;
-    OGXvpmax = width();
-    OGYvpmax = height();
+    OGXvpmax = width() - 1;
+    OGYvpmax = height() - 1;
 
     Xwmin = OGXwmin;
     Ywmin = OGYwmin;
@@ -33,6 +30,18 @@ void PainterWidget::setupCoordinates(){
     Yvpmin = OGYvpmin;
     Xvpmax = OGXvpmax;
     Yvpmax = OGYvpmax;
+
+    // Cria e adiciona o objeto window se ele não existir
+    if (!m_windowObject) {
+        QList<Point> vertices;
+        vertices.append(Point(Xwmin, Ywmin));
+        vertices.append(Point(Xwmax, Ywmin));
+        vertices.append(Point(Xwmax, Ywmax));
+        vertices.append(Point(Xwmin, Ywmax));
+        m_windowObject = new Polygon(vertices, -1, "Window"); // ID especial -1
+        m_windowObject->setClosed();
+        displayFile.prepend(m_windowObject); // Insere no início da lista
+    }
 }
 
 void PainterWidget::resetWindowViewPort(){
@@ -44,30 +53,35 @@ void PainterWidget::resetWindowViewPort(){
     Yvpmin = OGYvpmin;
     Xvpmax = OGXvpmax;
     Yvpmax = OGYvpmax;
+
+    if (m_windowObject) {
+        QList<Point> originalVertices;
+        originalVertices.append(Point(OGXwmin, OGYwmin));
+        originalVertices.append(Point(OGXwmax, OGYwmin));
+        originalVertices.append(Point(OGXwmax, OGYwmax));
+        originalVertices.append(Point(OGXwmin, OGYwmax));
+        m_windowObject->setVertices(originalVertices);
+    }
+
     update();
 }
 
-void PainterWidget::addPointToCurrentObject(int x, int y, const QString &name)//anteriormente qpoint
+void PainterWidget::addPointToCurrentObject(int x, int y, const QString &name)
 {
-
     if (m_currentObject) {
-        //delete m_currentPoint;
         endNewObject();
     }
     m_currentObject = new Point(x, y, m_nextObjectId++, name);
-
     update();
 }
 
 void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2, const QString name)
 {
     if (m_currentObject) {
-        //delete m_currentPoint;
         //endNewObject();
     }
     m_currentObject = new Line(*p1, *p2, m_nextObjectId++, name);
-    update();    //(p1, p2, m_nextObjectId++, name);
-
+    update();
 }
 
 void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString name)
@@ -83,7 +97,6 @@ void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString
     p.append(*p2);
     m_currentObject= new Polygon(p, m_nextObjectId++, name);
     update();
-
 }
 
 void PainterWidget::closePolygonObject(){
@@ -97,30 +110,21 @@ void PainterWidget::endNewObject()
     if (m_currentObject) {
         displayFile.append(m_currentObject);
         emit objectAdded(m_currentObject->getName(), m_currentObject->getId(), m_currentObject->getType());
-        //delete m_currentObject;
         m_currentObject = nullptr;
         update();
     }
 }
 
 void PainterWidget::removeObject(int id){
-
     auto it = displayFile.begin();
     for (; it != displayFile.end(); ) {
         Obj* currentObject = *it;
-
         if (currentObject->getId() == id) {
             it = displayFile.erase(it);
         } else {
             ++it;
         }
     }
-
-    if (it != displayFile.end()) {
-        displayFile.erase(it, displayFile.end());
-        update();
-    }
-
     update();
 }
 
@@ -128,25 +132,27 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    //painter.setRenderHint(QPainter::Antialiasing);
-
     for (Obj *obj : displayFile) {
-        painter.setPen(QPen(Qt::red, 5));
+        // Lógica para desenhar a window com estilo diferente
+        if (obj->getId() == -1) {
+            QPen windowPen(Qt::white, 1);
+            windowPen.setStyle(Qt::DashLine);
+            painter.setPen(windowPen);
+        } else {
+            painter.setPen(QPen(Qt::red, 5));
+        }
         obj->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
     if (m_currentObject) {
         painter.setPen(QPen(Qt::cyan, 5));
         m_currentObject->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
-        //endNewObject();
     }
-
 }
 
 void PainterWidget::mousePressEvent(QMouseEvent *event){
     if(event->button() == Qt::LeftButton){
         emit mouseClick(event->pos().x(), event->pos().y());
     }
-
     QWidget::mousePressEvent(event);
 }
 
@@ -160,11 +166,23 @@ Obj* PainterWidget::getObject(int id)
     return nullptr; // not found
 }
 
+// ESTA É A ÚNICA DEFINIÇÃO CORRETA DE setWindow
 void PainterWidget::setWindow(int newXwmax, int newXwmin, int newYwmax, int newYwmin){
     Xwmax = newXwmax;
     Xwmin = newXwmin;
     Ywmax = newYwmax;
     Ywmin = newYwmin;
+
+    // Atualiza os vértices do objeto window para refletir as novas coordenadas
+    if (m_windowObject) {
+        QList<Point> newVertices;
+        newVertices.append(Point(Xwmin, Ywmin));
+        newVertices.append(Point(Xwmax, Ywmin));
+        newVertices.append(Point(Xwmax, Ywmax));
+        newVertices.append(Point(Xwmin, Ywmax));
+        m_windowObject->setVertices(newVertices);
+    }
+
     update();
 }
 
