@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1491</width>
+    <width>1369</width>
     <height>858</height>
    </rect>
   </property>
@@ -437,7 +437,7 @@
    <widget class="QGroupBox" name="viewport">
     <property name="geometry">
      <rect>
-      <x>1260</x>
+      <x>1020</x>
       <y>320</y>
       <width>221</width>
       <height>161</height>
@@ -605,8 +605,8 @@
    <widget class="QPushButton" name="resetButton">
     <property name="geometry">
      <rect>
-      <x>1400</x>
-      <y>280</y>
+      <x>1260</x>
+      <y>440</y>
       <width>80</width>
       <height>24</height>
      </rect>
@@ -647,7 +647,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1491</width>
+     <width>1369</width>
      <height>21</height>
     </rect>
    </property>
