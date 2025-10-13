@@ -159,16 +159,19 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
 
 void MainWindow::on_pointButton_clicked()
 {
-    option = 0;
     bool ok;
-    configureButtons(true, true, true);
-
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
-    lastObj=name;
-    if (ok && !name.isEmpty()) {
-        //ui->drawArea->beginNewObject();
-        statusBar()->showMessage("Drawing new point: '" + name + "'. Click 'Finish Object' when done.");
-    }
+
+    //Gotta figure out a way to draw at center ! ! !
+    //int xp = ui->xCoord->value();
+    //int yp = ui->yCoord->value();
+    int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
+    int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
+
+    int worldX = normalizeX( xp, ui->drawArea->getXwmin(), ui->drawArea->getXvpmin(), ui->drawArea->getXwmax(), ui->drawArea->getXvpmax() );
+    int worldY = normalizeY( yp, ui->drawArea->getYwmin(), ui->drawArea->getYvpmin(), ui->drawArea->getYwmax(), ui->drawArea->getYvpmax() );
+    ui->drawArea->addPointToCurrentObject(worldX, worldY, name);
+    finishObject();
 }
 
 

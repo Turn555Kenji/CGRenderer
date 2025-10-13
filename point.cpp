@@ -27,7 +27,7 @@ void Point::draw(QPainter *painter,
                  double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
 
-    QPen pen (Qt ::blue, 5);
+    QPen pen (Qt ::cyan, 5);
     pen.setCapStyle(Qt::RoundCap); // Crucial para o ponto parecer redondo
     painter->setPen(pen);
 
