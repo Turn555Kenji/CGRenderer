@@ -4,7 +4,7 @@
 #include "point.h"
 #include "line.h"
 #include "polygon.h"
-
+#include "matrixmath.h"
 
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
@@ -192,4 +192,14 @@ void PainterWidget::setViewPort(int newXvpmax, int newXvpmin, int newYvpmax, int
     Yvpmax = newYvpmax;
     Yvpmin = newYvpmin;
     update();
+}
+void PainterWidget::rotateScene(int angle, int xpivot, int ypivot) {
+    // Itera sobre todos os objetos no displayFile
+    for (Obj* obj : displayFile) {
+        // Aplica a rotação a todos, exceto à própria window
+        if (obj->getId() != -1) {
+            MatrixMath::rotateObject(obj, angle, xpivot, ypivot);
+        }
+    }
+    update(); // Força o widget a se redesenhar com as novas posições
 }
