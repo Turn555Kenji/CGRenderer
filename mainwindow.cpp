@@ -193,6 +193,51 @@ void MainWindow::on_lineButton_clicked()
 
 void MainWindow::on_polygonButton_clicked()
 {
+    int sides = ui->polygonSides->value();
+    double step = 360 / sides;
+
+    for(int i = 0; i != sides-1; i++){
+        double angle = i * step;
+        double angle_rad = angle * (M_PI/180);
+    }
+
+
+    /*Function DrawPolygon(sides, radius):
+    # Check if the number of sides is valid
+    If sides < 3:
+        Print "Polygon must have at least 3 sides"
+        Return
+
+    # Initialize the angle between each vertex
+    angle_step = 360 / sides
+
+    # Loop through each vertex and calculate its coordinates
+    For i from 0 to sides - 1:
+        # Calculate the angle for the current vertex
+        angle = i * angle_step
+
+        # Convert angle to radians
+        angle_rad = angle * (π / 180)
+
+        # Calculate the (x, y) position of the vertex
+        x = radius * Cos(angle_rad)
+        y = radius * Sin(angle_rad)
+
+        # Draw a line from the previous vertex to the current vertex
+        If i > 0:
+            DrawLine(last_x, last_y, x, y)
+
+        # Save the current vertex as the last vertex
+        last_x = x
+        last_y = y
+
+    # Connect the last vertex to the first vertex to complete the polygon
+    DrawLine(last_x, last_y, 0, radius)
+    */
+
+
+
+
     option = 2;
     bool ok;
     i = false;
