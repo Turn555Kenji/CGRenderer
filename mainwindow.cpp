@@ -163,6 +163,7 @@ void MainWindow::on_pointButton_clicked()
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
 
     //Gotta figure out a way to draw at center ! ! !
+    //Using vmax/vmin instead of wmax/wmin might work?
     //int xp = ui->xCoord->value();
     //int yp = ui->yCoord->value();
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
@@ -177,17 +178,16 @@ void MainWindow::on_pointButton_clicked()
 
 void MainWindow::on_lineButton_clicked()
 {
-    option = 1;
     bool ok;
-    i = false;
-    configureButtons(true, true, true);
-
     QString name = QInputDialog::getText(this, "Add New Line", "Object Name:", QLineEdit::Normal, "", &ok);
-    lastObj=name;
+    int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
+    int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
-    if (ok && !name.isEmpty()) {
-        statusBar()->showMessage("Drawing new line: '" + name + "'. Click 'Finish Object' when done.");
-    }
+    //change to normalized coords!!!
+    Point *p1 = new Point(xp - 50, yp);
+    Point *p2 = new Point(xp + 50, yp);
+    ui->drawArea->addLineToCurrentObject(p1, p2, name);
+    finishObject();
 }
 
 
