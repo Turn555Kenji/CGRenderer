@@ -56,3 +56,9 @@ Point Point::normalize(double Xwmin, double Ywmin, double Xwmax, double Ywmax)
 
     return Point(ndcX, ndcY);
 }
+double Point :: getX()const{
+    return x1;
+}
+double Point :: getY()const{
+    return y1;
+}
