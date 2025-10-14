@@ -23,9 +23,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    int pointDistance(Point next, Point first);
-    int normalizeX(int x, double Xwmin, double Xvpmin, double Xwmax, double Xvpmax);
-    int normalizeY(int y, double Ywmin, double Yvpmin, double Ywmax, double Yvpmax);
     void configureButtons(bool linB, bool poiB, bool polB);
     void finishObject();
 
@@ -51,6 +48,10 @@ private slots:
     void on_applyVpButton_clicked();
 
     void on_resetButton_clicked();
+
+    void drawCustomShape(QList<Obj *> pointList, QString name);
+    void on_treeButton_clicked();
+    void on_houseButton_clicked();
 
 private:
     Ui::MainWindow *ui;

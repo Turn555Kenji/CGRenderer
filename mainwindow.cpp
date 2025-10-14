@@ -55,16 +55,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool i = false;
-Point *previous = nullptr;
-Point *first = nullptr;
-unsigned char option = 9;
-QString lastObj;
-
-int MainWindow::pointDistance(Point next, Point first)
-{
-    return abs(next[0][0] - first[0][0]) + abs(next[1][0] - first[1][0]);
-}
 
 void MainWindow::configureButtons(bool linB, bool poiB, bool polB){ //Could just set to reset later
     ui->lineButton->setDisabled(linB);
@@ -74,21 +64,9 @@ void MainWindow::configureButtons(bool linB, bool poiB, bool polB){ //Could just
 
 void MainWindow::finishObject(){
     ui->drawArea->endNewObject();
-    i = false;
-    option = 9;
     configureButtons(false, false, false);
 
     ui->statusbar->showMessage("");
-}
-
-int MainWindow::normalizeX(int x, double Xwmin, double Xvpmin, double Xwmax, double Xvpmax)
-{
-    return Xwmin + ( (x - Xvpmin) / (Xvpmax - Xvpmin) ) * (Xwmax - Xwmin);
-}
-
-int MainWindow::normalizeY(int y, double Ywmin, double Yvpmin, double Ywmax, double Yvpmax)
-{
-    return Ywmin + ( (Yvpmax - y) / (Yvpmax - Yvpmin) ) * (Ywmax - Ywmin);
 }
 
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
@@ -97,70 +75,20 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     ui->X1Label->setText(QString::number(x));
     ui->Y1Label->setText(QString::number(y));
 
-    // Calcula as coordenadas de Mundo para a criação de objetos
-    int worldX = normalizeX( x, ui->drawArea->getXwmin(), ui->drawArea->getXvpmin(), ui->drawArea->getXwmax(), ui->drawArea->getXvpmax() );
-    int worldY = normalizeY( y, ui->drawArea->getYwmin(), ui->drawArea->getYvpmin(), ui->drawArea->getYwmax(), ui->drawArea->getYvpmax() );
-    //int worldX = normalizeX( x, ui->w_xmin->value(), ui->vp_xmin->value(), ui->w_xmax->value(), ui->vp_xmax->value() );
-    //int worldY = normalizeY( y, ui->w_ymin->value(), ui->vp_ymin->value(), ui->w_ymax->value(), ui->vp_ymax->value() );
-
     // Calcula as coordenadas NDC [-1, 1] para exibição na UI
     double ndcX = -1.0 + 2.0 * (x - ui->vp_xmin->value()) / (ui->vp_xmax->value() - ui->vp_xmin->value());
     double ndcY = 1.0 - 2.0 * (y - ui->vp_ymin->value()) / (ui->vp_ymax->value() - ui->vp_ymin->value()); // Eixo Y invertido
 
     ui->X1Label_Normalized->setText(QString::number(ndcX, 'f', 2)); // Exibe como float com 2 casas decimais
     ui->Y1Label_Normalized->setText(QString::number(ndcY, 'f', 2));
-
-    switch (option){
-
-    case 0:{    //Drawing point
-        ui->drawArea->addPointToCurrentObject(worldX, worldY, lastObj);
-        finishObject();
-        break;
-    }
-
-    case 1:{
-        if(i == true){
-            Point *next = new Point(worldX, worldY);
-            ui->drawArea->addLineToCurrentObject(previous, next, lastObj);
-            previous = next;
-            i = false;
-            finishObject();
-        }
-        else{
-            previous = new Point(worldX, worldY);
-            i = true;
-        }
-        break;
-    }
-
-    case 2:{    //Drawing polygon
-        if(i == true){
-            Point *next = new Point(worldX, worldY);
-            if(pointDistance(*next, *first) < 30){
-                ui->drawArea->closePolygonObject();
-                i = false;
-                finishObject();
-                break;
-            }
-            ui->drawArea->addVertexToCurrentObject(previous, next, lastObj);
-            previous = next;
-        }
-        else{
-            previous = new Point(worldX, worldY);
-            first = previous;
-            i = true;
-        }
-        break;
-    }
-        //default :
-        //break;
-    }
 }
 
 void MainWindow::on_pointButton_clicked()
 {
     bool ok;
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
+    if (!ok || name.isEmpty())
+        return;
 
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
     int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
@@ -174,6 +102,9 @@ void MainWindow::on_lineButton_clicked()
 {
     bool ok;
     QString name = QInputDialog::getText(this, "Add New Line", "Object Name:", QLineEdit::Normal, "", &ok);
+    if (!ok || name.isEmpty())
+        return;
+
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
     int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
@@ -188,7 +119,8 @@ void MainWindow::on_polygonButton_clicked()
 {
     bool ok;
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
-    if (!ok || name.isEmpty()) return;
+    if (!ok || name.isEmpty())
+        return;
 
     int sides = ui->polygonSides->value();
     double step = 360.0 / sides;
@@ -222,6 +154,85 @@ void MainWindow::on_polygonButton_clicked()
     finishObject();
 }
 
+void MainWindow::drawCustomShape(QList<Obj*> pointList, QString name)
+{
+    for (int i = 0; i < pointList.size() - 1; ++i) {
+        ui->drawArea->addVertexToCurrentObject(
+            static_cast<Point*>(pointList[i]),
+            static_cast<Point*>(pointList[i + 1]),
+            name
+            );
+    }
+
+    ui->drawArea->addVertexToCurrentObject(
+        static_cast<Point*>(pointList.last()),
+        static_cast<Point*>(pointList.first()),
+        name
+        );
+
+    finishObject();
+}
+
+void MainWindow::on_treeButton_clicked()
+{
+    int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
+    int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
+
+    QList<Obj*> pointList;
+
+    pointList   << new Point(xp - 25, yp - 40)
+                << new Point(xp - 25, yp)
+                << new Point(xp - 100, yp)
+                << new Point(xp - 40, yp + 80)
+                << new Point(xp - 90, yp + 80)
+                << new Point(xp, yp + 200)
+                << new Point(xp + 90, yp + 80)
+                << new Point(xp + 40, yp + 80)
+                << new Point(xp + 100, yp)
+                << new Point(xp + 25, yp)
+                << new Point(xp + 25, yp - 40)
+        ;
+
+    drawCustomShape(pointList, "Tree");
+}
+
+
+void MainWindow::on_houseButton_clicked()
+{
+    int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
+    int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
+
+    QList<Obj*> houseList;
+
+    //House Shape
+    houseList   << new Point(xp - 100, yp - 40)
+                << new Point(xp - 100, yp + 50)
+                << new Point(xp - 120, yp + 50)
+                << new Point(xp, yp + 120)
+                << new Point(xp + 120, yp + 50)
+                << new Point(xp + 100, yp + 50)
+                << new Point(xp + 100, yp - 40)
+    ;
+    drawCustomShape(houseList, "House structure");
+
+    QList<Obj*> doorList;
+    //Door Shape
+    doorList    << new Point(xp - 20, yp - 40)
+                << new Point(xp - 20, yp + 40)
+                << new Point(xp + 20, yp + 40)
+                << new Point(xp + 20, yp - 40)
+    ;
+    drawCustomShape(doorList, "House door");
+
+    QList<Obj*> windowList;
+    //Window Shape
+    windowList  << new Point(xp - 40, yp)
+                << new Point(xp - 40, yp + 40)
+                << new Point(xp - 85, yp + 40)
+                << new Point(xp - 85, yp)
+        ;
+    drawCustomShape(windowList, "House window");
+}
 
 void MainWindow::on_objectAdded(const QString &name, int id, const QString &type)
 {
