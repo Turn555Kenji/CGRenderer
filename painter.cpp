@@ -4,6 +4,7 @@
 #include "point.h"
 #include "line.h"
 #include "polygon.h"
+#include "matrixmath.h"
 
 const int INSIDE = 0;
 const int LEFT   = 1;
@@ -280,4 +281,15 @@ bool PainterWidget::clipplingCohen(double& x1, double& y1, double& x2, double& y
         }
     }
     return accept;
+}
+
+void PainterWidget::rotateScene(int angle, int xpivot, int ypivot) {
+    // Itera sobre todos os objetos no displayFile
+    for (Obj* obj : displayFile) {
+        // Aplica a rotação a todos, exceto à própria window
+        if (obj->getId() != -1) {
+            MatrixMath::rotateObject(obj, angle, xpivot, ypivot);
+        }
+    }
+    update(); // Força o widget a se redesenhar com as novas posições
 }

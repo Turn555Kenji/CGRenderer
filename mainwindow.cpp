@@ -348,14 +348,17 @@ void MainWindow::on_rotateButton_clicked()
     if(!target)
         return;
 
-    // Desabilita rotação para a Window
-    if (target->getId() == -1) {
-        statusBar()->showMessage("Rotation is not supported for the Window object.");
-        return;
-    }
+    int angle = ui->rotateValue->value();
+    int xpivot = ui->rotateXValue->value();
+    int ypivot = ui->rotateYValue->value();
 
-    MatrixMath::rotateObject(target, ui->rotateValue->value(), ui->rotateXValue->value(), ui->rotateYValue->value());
-    ui->drawArea->update();
+    if (target->getId() == -1) {
+        ui->drawArea->rotateScene(-angle, xpivot, ypivot);
+        statusBar()->showMessage("Scene rotated around pivot.");
+    } else {
+        MatrixMath::rotateObject(target, angle, xpivot, ypivot);
+        ui->drawArea->update();
+    }
 }
 
 

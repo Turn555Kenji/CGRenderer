@@ -5,7 +5,7 @@
 #include "point.h"
 #include "line.h"
 #include "polygon.h"
-#include <cmath>
+
 
 class MatrixMath
 {
@@ -17,6 +17,7 @@ public:
     static void scaleObject(Obj *target, double sx, double sy);
     static Point getObjectPivot(Obj* obj);
     static Point getObjectCenter(Obj* obj);
+    static Matrix rotateWindow(double angleDegrees, double cx, double cy);
 };
 
 #endif // MATRIXMATH_H

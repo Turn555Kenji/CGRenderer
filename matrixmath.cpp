@@ -1,6 +1,7 @@
 #include "matrixmath.h"
+#include <cmath>
 #include <QDebug>
-
+#define DEG2RAD(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 MatrixMath::MatrixMath() {}
 
 void MatrixMath::translateObject(Obj *target, int dx, int dy){
