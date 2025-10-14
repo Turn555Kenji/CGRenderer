@@ -162,16 +162,10 @@ void MainWindow::on_pointButton_clicked()
     bool ok;
     QString name = QInputDialog::getText(this, "Add New Point", "Object Name:", QLineEdit::Normal, "", &ok);
 
-    //Gotta figure out a way to draw at center ! ! !
-    //Using vmax/vmin instead of wmax/wmin might work?
-    //int xp = ui->xCoord->value();
-    //int yp = ui->yCoord->value();
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
     int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
-    int worldX = normalizeX( xp, ui->drawArea->getXwmin(), ui->drawArea->getXvpmin(), ui->drawArea->getXwmax(), ui->drawArea->getXvpmax() );
-    int worldY = normalizeY( yp, ui->drawArea->getYwmin(), ui->drawArea->getYvpmin(), ui->drawArea->getYwmax(), ui->drawArea->getYvpmax() );
-    ui->drawArea->addPointToCurrentObject(worldX, worldY, name);
+    ui->drawArea->addPointToCurrentObject(xp, yp, name);
     finishObject();
 }
 
@@ -183,7 +177,6 @@ void MainWindow::on_lineButton_clicked()
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
     int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
-    //change to normalized coords!!!
     Point *p1 = new Point(xp - 50, yp);
     Point *p2 = new Point(xp + 50, yp);
     ui->drawArea->addLineToCurrentObject(p1, p2, name);
@@ -193,62 +186,40 @@ void MainWindow::on_lineButton_clicked()
 
 void MainWindow::on_polygonButton_clicked()
 {
-    int sides = ui->polygonSides->value();
-    double step = 360 / sides;
-
-    for(int i = 0; i != sides-1; i++){
-        double angle = i * step;
-        double angle_rad = angle * (M_PI/180);
-    }
-
-
-    /*Function DrawPolygon(sides, radius):
-    # Check if the number of sides is valid
-    If sides < 3:
-        Print "Polygon must have at least 3 sides"
-        Return
-
-    # Initialize the angle between each vertex
-    angle_step = 360 / sides
-
-    # Loop through each vertex and calculate its coordinates
-    For i from 0 to sides - 1:
-        # Calculate the angle for the current vertex
-        angle = i * angle_step
-
-        # Convert angle to radians
-        angle_rad = angle * (π / 180)
-
-        # Calculate the (x, y) position of the vertex
-        x = radius * Cos(angle_rad)
-        y = radius * Sin(angle_rad)
-
-        # Draw a line from the previous vertex to the current vertex
-        If i > 0:
-            DrawLine(last_x, last_y, x, y)
-
-        # Save the current vertex as the last vertex
-        last_x = x
-        last_y = y
-
-    # Connect the last vertex to the first vertex to complete the polygon
-    DrawLine(last_x, last_y, 0, radius)
-    */
-
-
-
-
-    option = 2;
     bool ok;
-    i = false;
-    configureButtons(true, true, true);
-
     QString name = QInputDialog::getText(this, "Add New Polygon", "Object Name:", QLineEdit::Normal, "", &ok);
-    lastObj=name;
+    if (!ok || name.isEmpty()) return;
 
-    if (ok && !name.isEmpty()) {
-        statusBar()->showMessage("Drawing new polygon: '" + name + "'. Click 'Finish Object' when done.");
+    int sides = ui->polygonSides->value();
+    double step = 360.0 / sides;
+    double radius = 50.0;
+
+    int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
+    int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
+
+    Point* first = nullptr;
+    Point* previous = nullptr;
+
+    for (int i = 0; i < sides; ++i) {
+        double angle = i * step * M_PI / 180.0;
+        int x = static_cast<int>(xp + radius * std::cos(angle));
+        int y = static_cast<int>(yp + radius * std::sin(angle));
+
+        Point* current = new Point(x, y);
+
+        if (previous) {
+            ui->drawArea->addVertexToCurrentObject(previous, current, name);
+        } else {
+            first = current;
+        }
+
+        previous = current;
     }
+
+    if (first && previous)
+        ui->drawArea->addVertexToCurrentObject(previous, first, name);
+
+    finishObject();
 }
 
 
