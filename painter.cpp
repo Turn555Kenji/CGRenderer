@@ -5,6 +5,11 @@
 #include "line.h"
 #include "polygon.h"
 
+const int INSIDE = 0;
+const int LEFT   = 1;
+const int RIGHT  = 2;
+const int BOTTOM = 4;
+const int TOP    = 8;
 
 PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
@@ -132,21 +137,32 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    for (Obj *obj : displayFile) {
-        // Lógica para desenhar a window com estilo diferente
-        if (obj->getId() == -1) {
-            QPen windowPen(Qt::white, 1);
-            windowPen.setStyle(Qt::DashLine);
-            painter.setPen(windowPen);
-        } else {
-            painter.setPen(QPen(Qt::red, 5));
-        }
-        obj->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+    if (m_windowObject) {
+        QPen windowPen(Qt::white, 1);
+        windowPen.setStyle(Qt::DashLine);
+        painter.setPen(windowPen);
+        m_windowObject->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
+
+
+    int vpWidth = Xvpmax - Xvpmin;
+    int vpHeight = Yvpmax - Yvpmin;
+
+    //onde cortar a window
+    painter.setClipRect(Xvpmin, Yvpmin, vpWidth, vpHeight);
+
+    for (Obj *obj : displayFile) {
+        if (obj->getId() != -1) {
+            painter.setPen(QPen(Qt::red, 5));
+            obj->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        }
+    }
+
     if (m_currentObject) {
         painter.setPen(QPen(Qt::cyan, 5));
         m_currentObject->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
+
 }
 
 void PainterWidget::mousePressEvent(QMouseEvent *event){
@@ -192,4 +208,76 @@ void PainterWidget::setViewPort(int newXvpmax, int newXvpmin, int newYvpmax, int
     Yvpmax = newYvpmax;
     Yvpmin = newYvpmin;
     update();
+}
+
+int PainterWidget::Regiao(double x, double y)
+{
+    int code = INSIDE;
+
+    if (x < Xwmin)
+        code |= LEFT;
+    else if (x > Xwmax)
+        code |= RIGHT;
+
+    if (y < Ywmin)
+        code |= BOTTOM;
+    else if (y > Ywmax)
+        code |= TOP;
+
+    return code;
+}
+
+
+bool PainterWidget::clipplingCohen(double& x1, double& y1, double& x2, double& y2)
+{
+    int code1 = Regiao(x1, y1);
+    int code2 = Regiao(x2, y2);
+    bool accept = false;
+
+    while (true) {
+        if ((code1 == 0) && (code2 == 0)) { //dentro da window
+            accept = true;
+            break;
+        } else if (code1 & code2) {
+            // Caso2 os dois estão fora
+            accept = false;
+            break;
+        } else {
+            // Caso 3 segmento de reta
+            double x, y;
+            int codeOut;
+            // seleciona a parte da reta que está pra fora
+            if (code1 != 0) {
+                codeOut = code1;
+            } else {
+                codeOut = code2;
+            }
+
+            // interseção.
+            if (codeOut & TOP) { //acima
+                x = x1 + (x2 - x1) * (Ywmax - y1) / (y2 - y1);
+                y = Ywmax;
+            } else if (codeOut & BOTTOM) {//abaixo
+                x = x1 + (x2 - x1) * (Ywmin - y1) / (y2 - y1);
+                y = Ywmin;
+            } else if (codeOut & RIGHT) {//direita
+                y = y1 + (y2 - y1) * (Xwmax - x1) / (x2 - x1);
+                x = Xwmax;
+            } else if (codeOut & LEFT) {   //esquerda
+                y = y1 + (y2 - y1) * (Xwmin - x1) / (x2 - x1);
+                x = Xwmin;
+            }
+
+            if (codeOut == code1) {
+                x1 = x;
+                y1 = y;
+                code1 = Regiao(x1, y1);
+            } else {
+                x2 = x;
+                y2 = y;
+                code2 = Regiao(x2, y2);
+            }
+        }
+    }
+    return accept;
 }

@@ -27,7 +27,7 @@ void Point::draw(QPainter *painter,
                  double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
 
-    QPen pen (Qt ::blue, 5);
+    QPen pen (Qt ::cyan, 5);
     pen.setCapStyle(Qt::RoundCap); // Crucial para o ponto parecer redondo
     painter->setPen(pen);
 
@@ -55,4 +55,10 @@ Point Point::normalize(double Xwmin, double Ywmin, double Xwmax, double Ywmax)
     double ndcY = -1.0 + 2.0 * ((*this)[1][0] - Ywmin) / (Ywmax - Ywmin);
 
     return Point(ndcX, ndcY);
+}
+double Point :: getX()const{
+    return x1;
+}
+double Point :: getY()const{
+    return y1;
 }
