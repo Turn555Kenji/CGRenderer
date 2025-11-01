@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QInputDialog>
+#include <QFileDialog>
 #include <cmath>
+
 
 /*
 Kenji Henrique Ueyama Yashinishi
@@ -68,7 +70,33 @@ void MainWindow::finishObject(){
 
     ui->statusbar->showMessage("");
 }
+void MainWindow::on_openfile_clicked()
+{
+    bool ok;
+    int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
+    int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
+    QString fileName1 = QFileDialog::getOpenFileName(this,tr("Open Text File"), "", tr("Text Files (*.obj)"));
+    QFile file1(fileName1);
+    if(!file1.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QTextStream in(&file1);
+    QList <Obj*> pointList;
+    while(!in.atEnd()){
+        QString line = in.readLine();
+        QStringList splitLine=line.split(" ");
+        int i=0;
+        while(i!=splitLine.size()){
+            if(splitLine[0]=="v"){
+                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10)));
+                }
+            i=i+1;
+        }
+    }
+
+    drawCustomShape(pointList, "Charmander");
+
+}
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
 
@@ -76,8 +104,8 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     ui->Y1Label->setText(QString::number(y));
 
     // Calcula as coordenadas NDC [-1, 1] para exibição na UI
-    double ndcX = -1.0 + 2.0 * (x - ui->vp_xmin->value()) / (ui->vp_xmax->value() - ui->vp_xmin->value());
-    double ndcY = 1.0 - 2.0 * (y - ui->vp_ymin->value()) / (ui->vp_ymax->value() - ui->vp_ymin->value()); // Eixo Y invertido
+    double ndcX =  (ui->vp_xmax->value() - ui->vp_xmin->value()) * (x - ui->vp_xmin->value()) / (ui->vp_xmax->value() - ui->vp_xmin->value());
+    double ndcY = (1.0 - (y - ui->vp_ymin->value()) / (ui->vp_ymax->value() - ui->vp_ymin->value()))*(ui->vp_ymax->value() - ui->vp_ymin->value()); // Eixo Y invertido
 
     ui->X1Label_Normalized->setText(QString::number(ndcX, 'f', 2)); // Exibe como float com 2 casas decimais
     ui->Y1Label_Normalized->setText(QString::number(ndcY, 'f', 2));
