@@ -40,6 +40,8 @@ private slots:
     void on_deleteObjectButton_clicked();
     void on_objectTableWidget_itemClicked();
     void on_objectTableWidget_itemClicked(QTableWidgetItem *item);
+    void on_openfile_clicked();
+
 
     void on_translateButton_clicked();
     void on_rotateButton_clicked();
