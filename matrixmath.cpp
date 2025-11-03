@@ -45,25 +45,28 @@ void MatrixMath::rotateObject(Obj *target, int angle, int xpivot, int ypivot){
     target->transform(compositeTransform);
 }
 
-void MatrixMath::scaleObject(Obj *target, double sx, double sy){
+void MatrixMath::scaleObject(Obj *target, double sx, double sy, double sz){
     if (!target || target->getType() == "Point") {
         return;
     }
 
     Point pivot = getObjectCenter(target);
 
-    Matrix toOrigin(3, 3), scale(3, 3), fromOrigin(3, 3);
-    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = -pivot[0][0];
-    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = -pivot[1][0];
-    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1;
+    Matrix toOrigin(4, 4), scale(4, 4), fromOrigin(4, 4);
+    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = 0; toOrigin[0][3] = -pivot[0][3];
+    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = 0; toOrigin[1][3] = -pivot[1][3];
+    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1; toOrigin[2][3] = -pivot[2][3];
+    toOrigin[3][0] = 0; toOrigin[3][1] = 0; toOrigin[3][2] = 0; toOrigin[3][3] = 1;
 
-    scale[0][0] = sx; scale[0][1] = 0;  scale[0][2] = 0;
-    scale[1][0] = 0;  scale[1][1] = sy; scale[1][2] = 0;
-    scale[2][0] = 0;  scale[2][1] = 0;  scale[2][2] = 1;
+    scale[0][0] = sx; scale[0][1] = 0;  scale[0][2] = 0;  scale[0][3] = 0;
+    scale[1][0] = 0;  scale[1][1] = sy; scale[1][2] = 0;  scale[1][3] = 0;
+    scale[2][0] = 0;  scale[2][1] = 0;  scale[2][2] = sz; scale[2][3] = 0;
+    scale[3][0] = 0;  scale[3][1] = 0;  scale[3][2] = 0;  scale[3][3] = 1;
 
-    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = pivot[0][0];
-    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = pivot[1][0];
-    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1;
+    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = 0; fromOrigin[0][3] = pivot[0][3];
+    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = 0; fromOrigin[1][3] = pivot[1][3];
+    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1; fromOrigin[2][3] = pivot[2][3];
+    fromOrigin[3][0] = 0; fromOrigin[3][1] = 0; fromOrigin[3][2] = 0; fromOrigin[3][3] = 1;
 
     Matrix compositeTransform = fromOrigin * scale * toOrigin;
 
@@ -97,7 +100,7 @@ Point MatrixMath::getObjectCenter(Obj* obj) {
         Line* ln = dynamic_cast<Line*>(obj);
         Point p1 = ln->getP1();
         Point p2 = ln->getP2();
-        return Point((p1[0][0] + p2[0][0]) / 2.0, (p1[1][0] + p2[1][0]) / 2.0);
+        return Point((p1[0][0] + p2[0][0]) / 2.0, (p1[1][0] + p2[1][0]) / 2.0, (p1[2][0] + p2[2][0]) / 2.0);
     }
     else if (obj->getType() == "Polygon") {
         Polygon* poly = dynamic_cast<Polygon*>(obj);
@@ -105,15 +108,17 @@ Point MatrixMath::getObjectCenter(Obj* obj) {
 
         if (pts.empty()) return Point(0, 0);
 
-        double cx = 0, cy = 0;
+        double cx = 0, cy = 0, cz = 0;
         for (const auto& p : pts) {
             cx += p[0][0];
             cy += p[1][0];
+            cz += p[2][0];
         }
         cx /= pts.size();
         cy /= pts.size();
+        cz /= pts.size();
 
-        return Point(cx, cy); // <-- centroid (average of vertices)
+        return Point(cx, cy, cz); // <-- centroid (average of vertices)
     }
 
     return Point(0, 0);

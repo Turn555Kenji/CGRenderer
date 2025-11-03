@@ -425,7 +425,7 @@ void MainWindow::on_scaleButton_clicked()
         ui->drawArea->setWindow(new_xwmax, new_xwmin, new_ywmax, new_ywmin);
 
     } else { // Lógica normal para outros objetos
-        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
+        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value(), 1); //2 is just a test!!!
         ui->drawArea->update();
     }
 }

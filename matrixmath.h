@@ -14,7 +14,7 @@ public:
 
     static void translateObject(Obj *target, int dx, int dy, int dz);
     static void rotateObject(Obj *target, int angle, int xpivot, int ypivot);
-    static void scaleObject(Obj *target, double sx, double sy);
+    static void scaleObject(Obj *target, double sx, double sy, double sz);
     static Point getObjectPivot(Obj* obj);
     static Point getObjectCenter(Obj* obj);
     static Matrix rotateWindow(double angleDegrees, double cx, double cy);
