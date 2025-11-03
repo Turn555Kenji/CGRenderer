@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->objectTableWidget->setColumnCount(3);
     ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Type"});
     ui->objectTableWidget->setColumnWidth(0, 30);
-    ui->objectTableWidget->setColumnWidth(1, 180);
+    ui->objectTableWidget->setColumnWidth(1, 100);
     ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -355,7 +355,8 @@ void MainWindow::on_translateButton_clicked()
     if (target->getId() == -1) { // Lógica de PAN para o objeto Window
         int dx = ui->translateXvalue->value();
         int dy = ui->translateYvalue->value();
-
+        int dz = 2; //TEST ONLY!!! ADD NEW VALUE TO UI, ADD THESE VARIABLES TO TRANSLATE CALL TO ELIMINATE ->VALUE()
+                    //inside an if so maybe not needed?
         double current_xwmin = ui->drawArea->getXwmin();
         double current_ywmin = ui->drawArea->getYwmin();
         double current_xwmax = ui->drawArea->getXwmax();
@@ -364,7 +365,7 @@ void MainWindow::on_translateButton_clicked()
         ui->drawArea->setWindow(current_xwmax + dx, current_xwmin + dx, current_ywmax + dy, current_ywmin + dy);
 
     } else { // Lógica normal para outros objetos
-        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
+        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value(), 2);
         ui->drawArea->update();
     }
 }

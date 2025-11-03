@@ -12,7 +12,7 @@ class MatrixMath
 public:
     MatrixMath();
 
-    static void translateObject(Obj *target, int dx, int dy);
+    static void translateObject(Obj *target, int dx, int dy, int dz);
     static void rotateObject(Obj *target, int angle, int xpivot, int ypivot);
     static void scaleObject(Obj *target, double sx, double sy);
     static Point getObjectPivot(Obj* obj);

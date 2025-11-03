@@ -4,11 +4,12 @@
 #define DEG2RAD(angleDegrees) ((angleDegrees) * M_PI / 180.0)
 MatrixMath::MatrixMath() {}
 
-void MatrixMath::translateObject(Obj *target, int dx, int dy){
-    Matrix t(3, 3);
-    t[0][0] = 1; t[0][1] = 0; t[0][2] = dx;
-    t[1][0] = 0; t[1][1] = 1; t[1][2] = dy;
-    t[2][0] = 0; t[2][1] = 0; t[2][2] = 1;
+void MatrixMath::translateObject(Obj *target, int dx, int dy, int dz){
+    Matrix t(4, 4);
+    t[0][0] = 1; t[0][1] = 0; t[0][2] = 0; t[0][3] = dx;
+    t[1][0] = 0; t[1][1] = 1; t[1][2] = 0; t[1][3] = dy;
+    t[2][0] = 0; t[2][1] = 0; t[2][2] = 1; t[2][3] = dz;
+    t[3][0] = 0; t[3][1] = 0; t[3][2] = 0; t[3][3] = 1;
 
     target->transform(t);
 }

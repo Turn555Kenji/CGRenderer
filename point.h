@@ -8,12 +8,16 @@ class Point : public Obj, public Matrix
 private:
     double x1;
     double y1;
+    double z1;
 public:
+    Point(double x, double y, double z, int id, QString name);
+    Point(double x, double y, double z);
     Point(double x, double y, int id, QString name);
     Point(double x, double y);
     Point(Point *p);
     double getX() const;
-    double getY()const;
+    double getY() const;
+    double getZ() const;
     Point normalize(double Xwmin, double Ywmin, double Xwmax, double Ywmax);
 
     void draw(QPainter *painter,
