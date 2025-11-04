@@ -32,8 +32,8 @@ Obj* Line::transform(Matrix m){
     Matrix result_p1 = m * p1;
     Matrix result_p2 = m * p2;
 
-    this->p1 = Point(result_p1[0][0], result_p1[1][0]);
-    this->p2 = Point(result_p2[0][0], result_p2[1][0]);
+    this->p1 = Point(result_p1[0][0], result_p1[1][0], result_p1[2][0]);
+    this->p2 = Point(result_p2[0][0], result_p2[1][0], result_p2[2][0]);
 
     return this;
 }

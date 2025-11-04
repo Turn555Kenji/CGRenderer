@@ -26,7 +26,7 @@ public:
     void setWindow(int newXwmax, int newXwmin, int newYwmax, int newYwmin);
     void setViewPort(int newXvpmax, int newXvpmin, int newYvpmax, int newYvpmin);
     void resetWindowViewPort();
-    void rotateScene(int angle, int xpivot, int ypivot);
+    void rotateScene(int angle, int xpivot, int ypivot, int zpivot);
 
     double getXwmin() const { return Xwmin; }
     double getYwmin() const { return Ywmin; }

@@ -14,31 +14,62 @@ void MatrixMath::translateObject(Obj *target, int dx, int dy, int dz){
     target->transform(t);
 }
 
-void MatrixMath::rotateObject(Obj *target, int angle, int xpivot, int ypivot){
+void MatrixMath::rotateObject(Obj *target, int angle, int axis, int xpivot, int ypivot, int zpivot){
     if (!target || target->getType() == "Point") {
         return;
     }
 
-    Point pivot = Point(xpivot, ypivot);
+    Point pivot = getObjectPivot(target);//Point(xpivot, ypivot, zpivot);
     qDebug() << pivot;
 
     double rad = angle * M_PI / 180.0;
     double c = std::cos(rad);
     double s = std::sin(rad);
 
-    Matrix toOrigin(3, 3), rotation(3, 3), fromOrigin(3, 3);
+    Matrix toOrigin(4, 4), rotation(4, 4), fromOrigin(4, 4);
 
-    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = -pivot[0][0];
-    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = -pivot[1][0];
-    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1;
+    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = 0; toOrigin[0][3] = -pivot[0][3];
+    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = 0; toOrigin[1][3] = -pivot[1][3];
+    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1; toOrigin[2][3] = -pivot[2][3];
+    toOrigin[3][0] = 0; toOrigin[3][1] = 0; toOrigin[3][2] = 0; toOrigin[3][3] = 1;
 
-    rotation[0][0] = c;  rotation[0][1] = -s; rotation[0][2] = 0;
-    rotation[1][0] = s;  rotation[1][1] = c;  rotation[1][2] = 0;
-    rotation[2][0] = 0;  rotation[2][1] = 0;  rotation[2][2] = 1;
+    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = 0; fromOrigin[0][3] = pivot[0][3];
+    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = 0; fromOrigin[1][3] = pivot[1][3];
+    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1; fromOrigin[2][3] = pivot[2][3];
+    fromOrigin[3][0] = 0; fromOrigin[3][1] = 0; fromOrigin[3][2] = 0; fromOrigin[3][3] = 1;
 
-    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = pivot[0][0];
-    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = pivot[1][0];
-    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1;
+    switch(axis){
+        case 0:{ //X
+
+            rotation[0][0] = c;  rotation[0][1] = -s; rotation[0][2] = 0;  rotation[0][3] = 0;
+            rotation[1][0] = s;  rotation[1][1] = c;  rotation[1][2] = 0;  rotation[1][3] = 0;
+            rotation[2][0] = 0;  rotation[2][1] = 0;  rotation[2][2] = 1;  rotation[2][3] = 0;
+            rotation[3][0] = 0;  rotation[3][1] = 0;  rotation[3][2] = 0;  rotation[3][3] = 1;
+
+            break;
+        }
+        case 1:{ //Y
+
+            rotation[0][0] = 1;  rotation[0][1] = 0; rotation[0][2] = 0;   rotation[0][3] = 0;
+            rotation[1][0] = 0;  rotation[1][1] = c;  rotation[1][2] = -s; rotation[1][3] = 0;
+            rotation[2][0] = 0;  rotation[2][1] = s;  rotation[2][2] = c;  rotation[2][3] = 0;
+            rotation[3][0] = 0;  rotation[3][1] = 0;  rotation[3][2] = 0;  rotation[3][3] = 1;
+
+            break;
+        }
+        case 2:{ //Z
+
+            rotation[0][0] = c;  rotation[0][1] = 0;  rotation[0][2] = s;  rotation[0][3] = 0;
+            rotation[1][0] = 0;  rotation[1][1] = 1;  rotation[1][2] = 0;  rotation[1][3] = 0;
+            rotation[2][0] = -s; rotation[2][1] = 0;  rotation[2][2] = c;  rotation[2][3] = 0;
+            rotation[3][0] = 0;  rotation[3][1] = 0;  rotation[3][2] = 0;  rotation[3][3] = 1;
+
+            break;
+        }
+        default:
+            break;
+
+    }
 
     Matrix compositeTransform = fromOrigin * rotation * toOrigin;
 

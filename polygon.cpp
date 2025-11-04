@@ -52,7 +52,7 @@ Obj* Polygon::transform(Matrix m) {
         // Multiplica a matriz de transformação (m) por cada ponto (p)
         Matrix result = m * p;
         // Cria um novo ponto com o resultado da transformação
-        transformedVertices.append(Point(result[0][0], result[1][0]));
+        transformedVertices.append(Point(result[0][0], result[1][0], result[2][0]));
     }
     // Atualiza os vértices do polígono com os novos pontos transformados
     this->vertices = transformedVertices;

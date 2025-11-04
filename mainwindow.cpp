@@ -88,7 +88,7 @@ void MainWindow::on_openfile_clicked()
         int i=0;
         while(i!=splitLine.size()){
             if(splitLine[0]=="v"){
-                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10)));
+                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ));
                 }
             i=i+1;
         }
@@ -97,6 +97,7 @@ void MainWindow::on_openfile_clicked()
     drawCustomShape(pointList, "Charmander");
 
 }
+
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
 
@@ -355,8 +356,7 @@ void MainWindow::on_translateButton_clicked()
     if (target->getId() == -1) { // Lógica de PAN para o objeto Window
         int dx = ui->translateXvalue->value();
         int dy = ui->translateYvalue->value();
-        int dz = 2; //TEST ONLY!!! ADD NEW VALUE TO UI, ADD THESE VARIABLES TO TRANSLATE CALL TO ELIMINATE ->VALUE()
-                    //inside an if so maybe not needed?
+
         double current_xwmin = ui->drawArea->getXwmin();
         double current_ywmin = ui->drawArea->getYwmin();
         double current_xwmax = ui->drawArea->getXwmax();
@@ -365,7 +365,7 @@ void MainWindow::on_translateButton_clicked()
         ui->drawArea->setWindow(current_xwmax + dx, current_xwmin + dx, current_ywmax + dy, current_ywmin + dy);
 
     } else { // Lógica normal para outros objetos
-        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value(), 2);
+        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value(), ui->translateZvalue->value());
         ui->drawArea->update();
     }
 }
@@ -378,14 +378,16 @@ void MainWindow::on_rotateButton_clicked()
         return;
 
     int angle = ui->rotateValue->value();
+    int axis = ui->rotateAxis->currentIndex(); //0 = X, 1 = Y, 2 = Z
     int xpivot = ui->rotateXValue->value();
     int ypivot = ui->rotateYValue->value();
+    int zpivot = ui->rotateZValue->value();
 
     if (target->getId() == -1) {
-        ui->drawArea->rotateScene(-angle, xpivot, ypivot);
+        ui->drawArea->rotateScene(-angle, xpivot, ypivot, zpivot);
         statusBar()->showMessage("Scene rotated around pivot.");
     } else {
-        MatrixMath::rotateObject(target, angle, xpivot, ypivot);
+        MatrixMath::rotateObject(target, angle, axis, xpivot, ypivot, zpivot);
         ui->drawArea->update();
     }
 }
@@ -425,7 +427,7 @@ void MainWindow::on_scaleButton_clicked()
         ui->drawArea->setWindow(new_xwmax, new_xwmin, new_ywmax, new_ywmin);
 
     } else { // Lógica normal para outros objetos
-        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value(), 1); //2 is just a test!!!
+        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value(), ui->zFactorValue->value());
         ui->drawArea->update();
     }
 }

@@ -64,6 +64,7 @@ Obj* Point::transform(Matrix m) {
     Matrix result = m * (*this);
     (*this)[0][0] = result[0][0];
     (*this)[1][0] = result[1][0];
+    (*this)[2][0] = result[2][0];
     return this;
 }
 
