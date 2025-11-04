@@ -88,7 +88,7 @@ void MainWindow::on_openfile_clicked()
         int i=0;
         while(i!=splitLine.size()){
             if(splitLine[0]=="v"){
-                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ));
+                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), (splitLine[3].toDouble()*10));
                 }
             i=i+1;
         }
