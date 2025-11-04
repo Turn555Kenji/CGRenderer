@@ -41,15 +41,6 @@ void MatrixMath::rotateObject(Obj *target, int angle, int axis, int xpivot, int 
     switch(axis){
         case 0:{ //X
 
-            rotation[0][0] = c;  rotation[0][1] = -s; rotation[0][2] = 0;  rotation[0][3] = 0;
-            rotation[1][0] = s;  rotation[1][1] = c;  rotation[1][2] = 0;  rotation[1][3] = 0;
-            rotation[2][0] = 0;  rotation[2][1] = 0;  rotation[2][2] = 1;  rotation[2][3] = 0;
-            rotation[3][0] = 0;  rotation[3][1] = 0;  rotation[3][2] = 0;  rotation[3][3] = 1;
-
-            break;
-        }
-        case 1:{ //Y
-
             rotation[0][0] = 1;  rotation[0][1] = 0; rotation[0][2] = 0;   rotation[0][3] = 0;
             rotation[1][0] = 0;  rotation[1][1] = c;  rotation[1][2] = -s; rotation[1][3] = 0;
             rotation[2][0] = 0;  rotation[2][1] = s;  rotation[2][2] = c;  rotation[2][3] = 0;
@@ -57,11 +48,20 @@ void MatrixMath::rotateObject(Obj *target, int angle, int axis, int xpivot, int 
 
             break;
         }
-        case 2:{ //Z
+        case 1:{ //Y
 
             rotation[0][0] = c;  rotation[0][1] = 0;  rotation[0][2] = s;  rotation[0][3] = 0;
             rotation[1][0] = 0;  rotation[1][1] = 1;  rotation[1][2] = 0;  rotation[1][3] = 0;
             rotation[2][0] = -s; rotation[2][1] = 0;  rotation[2][2] = c;  rotation[2][3] = 0;
+            rotation[3][0] = 0;  rotation[3][1] = 0;  rotation[3][2] = 0;  rotation[3][3] = 1;
+
+            break;
+        }
+        case 2:{ //Z
+
+            rotation[0][0] = c;  rotation[0][1] = -s; rotation[0][2] = 0;  rotation[0][3] = 0;
+            rotation[1][0] = s;  rotation[1][1] = c;  rotation[1][2] = 0;  rotation[1][3] = 0;
+            rotation[2][0] = 0;  rotation[2][1] = 0;  rotation[2][2] = 1;  rotation[2][3] = 0;
             rotation[3][0] = 0;  rotation[3][1] = 0;  rotation[3][2] = 0;  rotation[3][3] = 1;
 
             break;
