@@ -17,7 +17,8 @@ SOURCES += \
     object.cpp \
     painter.cpp \
     point.cpp \
-    polygon.cpp
+    polygon.cpp \
+    typeobj.cpp
 
 HEADERS += \
     line.h \
@@ -27,7 +28,8 @@ HEADERS += \
     object.h \
     painter.h \
     point.h \
-    polygon.h
+    polygon.h \
+    typeobj.h
 
 FORMS += \
     mainwindow.ui
