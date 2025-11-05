@@ -9,6 +9,8 @@
 class Polygon : public Obj {
 public:
     Polygon(const QList<Point>& vertices, int id, QString name);
+    Polygon(const QList<Point>& vertices);
+
 
     void draw(QPainter *painter,
               double Xwmin, double Ywmin, double Xwmax, double Ywmax,

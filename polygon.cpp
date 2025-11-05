@@ -7,7 +7,9 @@
 Polygon::Polygon(const QList<Point>& vertices, int id, QString name)
     : Obj(id, name, Type::Polygon), vertices(vertices) {
 }
-
+Polygon::Polygon(const QList<Point>& vertices): Obj(), vertices(vertices)
+{
+}
 // Método para desenhar o polígono na tela
 void Polygon::draw(QPainter *painter,
                    double Xwmin, double Ywmin, double Xwmax, double Ywmax,
