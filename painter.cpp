@@ -94,22 +94,17 @@ void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2, const QString n
 
 void PainterWidget::addPolygon(const QList<Point>& vertices, const QString& name, bool closed)
 {
-    Polygon* poly = new Polygon(vertices, m_nextObjectId++, name);
-
-    if (closed) {
-        poly->setClosed();
-    }
-
-    displayFile.append(poly);
+   m_currentObject = new Polygon(vertices, m_nextObjectId++, name);
+    displayFile.append(m_currentObject);
     update();
 }
 
 
 void PainterWidget::addTypeObject(const QList<Polygon>& faces, const QString& name)
 {
-    TypeObj* compObj = new TypeObj(faces, m_nextObjectId++, name);
+   m_currentObject = new TypeObj(faces, m_nextObjectId++, name);
 
-    displayFile.append(compObj);
+    displayFile.append(   m_currentObject);
     update();
 }
 void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString name)

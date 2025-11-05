@@ -143,10 +143,8 @@ void MainWindow::on_openfile_clicked()
         }
     }
 
-    if (!polygonList.isEmpty()) {
+    ui->drawArea->addTypeObject(polygonList, name);
 
-        ui->drawArea->addTypeObject(polygonList, name);
-    }
 
     pointList.clear();
     finishObject();
