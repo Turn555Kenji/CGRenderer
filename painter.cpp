@@ -5,6 +5,7 @@
 #include "line.h"
 #include "polygon.h"
 #include "matrixmath.h"
+#include "typeobj.h"
 
 const int INSIDE = 0;
 const int LEFT   = 1;
@@ -90,6 +91,27 @@ void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2, const QString n
     update();
 }
 
+
+void PainterWidget::addPolygon(const QList<Point>& vertices, const QString& name, bool closed)
+{
+    Polygon* poly = new Polygon(vertices, m_nextObjectId++, name);
+
+    if (closed) {
+        poly->setClosed();
+    }
+
+    displayFile.append(poly);
+    update();
+}
+
+
+void PainterWidget::addTypeObject(const QList<Polygon>& faces, const QString& name)
+{
+    TypeObj* compObj = new TypeObj(faces, m_nextObjectId++, name);
+
+    displayFile.append(compObj);
+    update();
+}
 void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString name)
 {
     if (m_currentObject) {

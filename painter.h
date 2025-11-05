@@ -20,6 +20,7 @@ public:
     void addLineToCurrentObject(Point* p1, Point* p2,const QString name);
     void addPointToCurrentObject( int x,  int y ,const QString &name);
     void addVertexToCurrentObject(Point *p1, Point *p2, const QString name);
+    void addPolygon(const QList<Point>& vertices, const QString& name, bool closed);
     void closePolygonObject();
     void endNewObject();
     Obj* getObject(int id);
@@ -27,6 +28,8 @@ public:
     void setViewPort(int newXvpmax, int newXvpmin, int newYvpmax, int newYvpmin);
     void resetWindowViewPort();
     void rotateScene(int angle, int xpivot, int ypivot, int zpivot);
+
+    void addTypeObject(const QList<Polygon>& faces, const QString& name);
 
     double getXwmin() const { return Xwmin; }
     double getYwmin() const { return Ywmin; }
