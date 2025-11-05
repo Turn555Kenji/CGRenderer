@@ -78,6 +78,9 @@ void MainWindow::finishObject(){
 void MainWindow::on_openfile_clicked()
 {
     bool ok;
+    QString name = QInputDialog::getText(this, "pokemon Objcet", "Nome:", QLineEdit::Normal, " ", &ok);
+    if (!ok || name.isEmpty())
+        return;
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
     int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
@@ -96,7 +99,7 @@ void MainWindow::on_openfile_clicked()
         int i=0;
         while(i!=splitLine.size()){
             if(splitLine[0]=="v"){
-                if(splitLine.size()<4){
+                if(splitLine.size()<=4){//aqui estava o erro
                     pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), (splitLine[3].toDouble()*10));
                     }
                 }
@@ -106,7 +109,10 @@ void MainWindow::on_openfile_clicked()
                 QStringList coordinateEdge= splitLine[1].split("/");
                 v1_idx =(coordinateEdge[0].toInt())-1;
 
+                qDebug() << splitLine[1].split("/");
 
+                qDebug() << v1_idx;
+                qDebug() << pointList.size();
 
                 coordinateEdge= splitLine[2].split("/");
                 v2_idx =(coordinateEdge[1].toInt())-1;
@@ -114,8 +120,11 @@ void MainWindow::on_openfile_clicked()
                 coordinateEdge= splitLine[3].split("/");
 
                 v3_idx =(coordinateEdge[2].toInt())-1;
+
+
+
                 if(v1_idx >= pointList.size() || v2_idx >= pointList.size() || v3_idx >= pointList.size()){
-                    qWarning() << "Erro";
+                    qWarning() << " ";
                     continue;
                 }
                 Point* p1 = dynamic_cast<Point*>(pointList[v1_idx]);
@@ -135,13 +144,13 @@ void MainWindow::on_openfile_clicked()
     }
 
     if (!polygonList.isEmpty()) {
-        QString objectName = "Pokemon";
 
-        ui->drawArea->addTypeObject(polygonList, objectName);
+        ui->drawArea->addTypeObject(polygonList, name);
     }
 
-    qDeleteAll(pointList);
     pointList.clear();
+    finishObject();
+
 }
 
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
