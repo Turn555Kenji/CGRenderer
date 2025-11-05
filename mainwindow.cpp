@@ -2,7 +2,12 @@
 #include "ui_mainwindow.h"
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QDebug>
 #include <cmath>
+#include "point.h"
+#include "polygon.h"
+#include "typeobj.h"
+
 
 
 /*
@@ -82,20 +87,61 @@ void MainWindow::on_openfile_clicked()
         return;
     QTextStream in(&file1);
     QList <Obj*> pointList;
+    QList <Polygon> polygonList;
+    QList<Point> pontoP;
+
     while(!in.atEnd()){
         QString line = in.readLine();
         QStringList splitLine=line.split(" ");
         int i=0;
         while(i!=splitLine.size()){
             if(splitLine[0]=="v"){
-                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), (splitLine[3].toDouble()*10));
+                if(splitLine.size()<4){
+                    pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), (splitLine[3].toDouble()*10));
+                    }
                 }
+            if (splitLine[0]=="f"){
+                int v1_idx,v2_idx,v3_idx;
+                qDebug() << "______________________________________________________________";
+                QStringList coordinateEdge= splitLine[1].split("/");
+                v1_idx =(coordinateEdge[0].toInt())-1;
+
+
+
+                coordinateEdge= splitLine[2].split("/");
+                v2_idx =(coordinateEdge[1].toInt())-1;
+
+                coordinateEdge= splitLine[3].split("/");
+
+                v3_idx =(coordinateEdge[2].toInt())-1;
+                if(v1_idx >= pointList.size() || v2_idx >= pointList.size() || v3_idx >= pointList.size()){
+                    qWarning() << "Erro";
+                    continue;
+                }
+                Point* p1 = dynamic_cast<Point*>(pointList[v1_idx]);
+                Point* p2 = dynamic_cast<Point*>(pointList[v2_idx]);
+                Point* p3 = dynamic_cast<Point*>(pointList[v3_idx]);
+
+                if (!p1 || !p2 || !p3){
+
+                    continue;}
+                Polygon tri(QList<Point>{*p1, *p2, *p3});
+                tri.setClosed();
+                polygonList.append(tri);
+
+            }
             i=i+1;
         }
     }
 
-    drawCustomShape(pointList, "Charmander");
+    if (!polygonList.isEmpty()) {
+        QString objectName = "Pokemon";
 
+        ui->drawArea->addTypeObject(polygonList, objectName);
+    }
+
+    qDeleteAll(pointList);
+    pointList.clear();
 }
 
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
