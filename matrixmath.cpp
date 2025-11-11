@@ -28,14 +28,14 @@ void MatrixMath::rotateObject(Obj *target, int angle, int axis, int xpivot, int 
 
     Matrix toOrigin(4, 4), rotation(4, 4), fromOrigin(4, 4);
 
-    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = 0; toOrigin[0][3] = -pivot[0][3];
-    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = 0; toOrigin[1][3] = -pivot[1][3];
-    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1; toOrigin[2][3] = -pivot[2][3];
+    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = 0; toOrigin[0][3] = -pivot[0][0];
+    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = 0; toOrigin[1][3] = -pivot[1][0];
+    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1; toOrigin[2][3] = -pivot[2][0];
     toOrigin[3][0] = 0; toOrigin[3][1] = 0; toOrigin[3][2] = 0; toOrigin[3][3] = 1;
 
-    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = 0; fromOrigin[0][3] = pivot[0][3];
-    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = 0; fromOrigin[1][3] = pivot[1][3];
-    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1; fromOrigin[2][3] = pivot[2][3];
+    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = 0; fromOrigin[0][3] = pivot[0][0];
+    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = 0; fromOrigin[1][3] = pivot[1][0];
+    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1; fromOrigin[2][3] = pivot[2][0];
     fromOrigin[3][0] = 0; fromOrigin[3][1] = 0; fromOrigin[3][2] = 0; fromOrigin[3][3] = 1;
 
     switch(axis){
@@ -84,9 +84,9 @@ void MatrixMath::scaleObject(Obj *target, double sx, double sy, double sz){
     Point pivot = getObjectCenter(target);
 
     Matrix toOrigin(4, 4), scale(4, 4), fromOrigin(4, 4);
-    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = 0; toOrigin[0][3] = -pivot[0][3];
-    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = 0; toOrigin[1][3] = -pivot[1][3];
-    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1; toOrigin[2][3] = -pivot[2][3];
+    toOrigin[0][0] = 1; toOrigin[0][1] = 0; toOrigin[0][2] = 0; toOrigin[0][3] = -pivot[0][0];
+    toOrigin[1][0] = 0; toOrigin[1][1] = 1; toOrigin[1][2] = 0; toOrigin[1][3] = -pivot[1][0];
+    toOrigin[2][0] = 0; toOrigin[2][1] = 0; toOrigin[2][2] = 1; toOrigin[2][3] = -pivot[2][0];
     toOrigin[3][0] = 0; toOrigin[3][1] = 0; toOrigin[3][2] = 0; toOrigin[3][3] = 1;
 
     scale[0][0] = sx; scale[0][1] = 0;  scale[0][2] = 0;  scale[0][3] = 0;
@@ -94,9 +94,9 @@ void MatrixMath::scaleObject(Obj *target, double sx, double sy, double sz){
     scale[2][0] = 0;  scale[2][1] = 0;  scale[2][2] = sz; scale[2][3] = 0;
     scale[3][0] = 0;  scale[3][1] = 0;  scale[3][2] = 0;  scale[3][3] = 1;
 
-    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = 0; fromOrigin[0][3] = pivot[0][3];
-    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = 0; fromOrigin[1][3] = pivot[1][3];
-    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1; fromOrigin[2][3] = pivot[2][3];
+    fromOrigin[0][0] = 1; fromOrigin[0][1] = 0; fromOrigin[0][2] = 0; fromOrigin[0][3] = pivot[0][0];
+    fromOrigin[1][0] = 0; fromOrigin[1][1] = 1; fromOrigin[1][2] = 0; fromOrigin[1][3] = pivot[1][0];
+    fromOrigin[2][0] = 0; fromOrigin[2][1] = 0; fromOrigin[2][2] = 1; fromOrigin[2][3] = pivot[2][0];
     fromOrigin[3][0] = 0; fromOrigin[3][1] = 0; fromOrigin[3][2] = 0; fromOrigin[3][3] = 1;
 
     Matrix compositeTransform = fromOrigin * scale * toOrigin;

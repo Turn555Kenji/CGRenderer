@@ -91,7 +91,6 @@ void MainWindow::on_openfile_clicked()
     QTextStream in(&file1);
     QList <Obj*> pointList;
     QList <Polygon> polygonList;
-    QList<Point> pontoP;
 
     while(!in.atEnd()){
         QString line = in.readLine();
@@ -99,42 +98,40 @@ void MainWindow::on_openfile_clicked()
         int i=0;
         while(i!=splitLine.size()){
             if(splitLine[0]=="v"){
-                if(splitLine.size()<=4){//aqui estava o erro
-                    pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), (splitLine[3].toDouble()*10));
-                    }
+                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), xp+(splitLine[3].toDouble()*10));
+
                 }
             if (splitLine[0]=="f"){
-                int v1_idx,v2_idx,v3_idx;
-                qDebug() << "______________________________________________________________";
-                QStringList coordinateEdge= splitLine[1].split("/");
-                v1_idx =(coordinateEdge[0].toInt())-1;
+                QList <int> vertices;
+                int qtdSplit=1;
 
-                qDebug() << splitLine[1].split("/");
+                while(qtdSplit<splitLine.size()){
+                    QStringList coordinateEdge= splitLine[qtdSplit].split("/");
+                    vertices.append((coordinateEdge[0].toInt())-1);
+                    qtdSplit=qtdSplit+1;
 
-                qDebug() << v1_idx;
-                qDebug() << pointList.size();
-
-                coordinateEdge= splitLine[2].split("/");
-                v2_idx =(coordinateEdge[1].toInt())-1;
-
-                coordinateEdge= splitLine[3].split("/");
-
-                v3_idx =(coordinateEdge[2].toInt())-1;
-
-
-
-                if(v1_idx >= pointList.size() || v2_idx >= pointList.size() || v3_idx >= pointList.size()){
-                    qWarning() << " ";
-                    continue;
                 }
-                Point* p1 = dynamic_cast<Point*>(pointList[v1_idx]);
-                Point* p2 = dynamic_cast<Point*>(pointList[v2_idx]);
-                Point* p3 = dynamic_cast<Point*>(pointList[v3_idx]);
+                qtdSplit=0;
 
-                if (!p1 || !p2 || !p3){
+                while(qtdSplit<vertices.size()){
+                    if (vertices[qtdSplit]>= pointList.size()){
+                        qWarning() << " ";
+                        continue;
+                    }
+                    qtdSplit=qtdSplit+1;
+                }
+                qtdSplit=0;
+                QList<Point> forma;
+                Point* p;
 
-                    continue;}
-                Polygon tri(QList<Point>{*p1, *p2, *p3});
+                while(qtdSplit<vertices.size()){
+                    p=dynamic_cast<Point*>(pointList[vertices[qtdSplit]]);
+                    forma.append(*p);
+                    qtdSplit=qtdSplit+1;
+                }
+                qDebug()<<forma.size();
+
+                Polygon tri(forma);
                 tri.setClosed();
                 polygonList.append(tri);
 
@@ -142,7 +139,7 @@ void MainWindow::on_openfile_clicked()
             i=i+1;
         }
     }
-
+    qDebug()<<polygonList.size();
     ui->drawArea->addTypeObject(polygonList, name);
 
 
