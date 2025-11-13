@@ -91,23 +91,33 @@ void MainWindow::on_openfile_clicked()
     QTextStream in(&file1);
     QList <Obj*> pointList;
     QList <Polygon> polygonList;
-
+    bool ctrl;
     while(!in.atEnd()){
         QString line = in.readLine();
-        QStringList splitLine=line.split(" ");
-        int i=0;
+        QStringList splitLine=line.split(" ", Qt::SkipEmptyParts);
+        int i=0, coordenadaPonto;
         while(i!=splitLine.size()){
             if(splitLine[0]=="v"){
-                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10) ), xp+(splitLine[3].toDouble()*10));
+                pointList<<new Point( (xp+(splitLine[1].toDouble()*20)), (yp+(splitLine[2].toDouble()*20) ), xp+(splitLine[3].toDouble()*20));
 
                 }
             if (splitLine[0]=="f"){
-                QList <int> vertices;
+                QList <int> vertices;//LISTA DOS PONTOS EM POSIÇÕES DO VETOR EX: PONTO 1, O PONTO 1 ESTÁ NA POS 0 DO VETOR pointList
                 int qtdSplit=1;
 
                 while(qtdSplit<splitLine.size()){
-                    QStringList coordinateEdge= splitLine[qtdSplit].split("/");
-                    vertices.append((coordinateEdge[0].toInt())-1);
+                    QStringList coordinateEdge= splitLine[qtdSplit].split("/", Qt::SkipEmptyParts);
+                    qDebug()<<coordinateEdge;
+                    coordenadaPonto=coordinateEdge[0].toInt(&ctrl);// COORDENADAS DO MODELO 1/1/1 2/2/2, pos 0/ pos 1/ pos 2 só a pos 0 é a que quero, as outras são luz e sombra
+                    coordenadaPonto=coordenadaPonto-1;
+
+                    if(ctrl){//se ctrl é true ent temos um int
+                        vertices.append(coordenadaPonto);
+                    }
+                    else{
+                        continue;
+                    }
+
                     qtdSplit=qtdSplit+1;
 
                 }
@@ -123,7 +133,6 @@ void MainWindow::on_openfile_clicked()
                 qtdSplit=0;
                 QList<Point> forma;
                 Point* p;
-
                 while(qtdSplit<vertices.size()){
                     p=dynamic_cast<Point*>(pointList[vertices[qtdSplit]]);
                     forma.append(*p);
