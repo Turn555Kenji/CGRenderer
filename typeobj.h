@@ -19,7 +19,9 @@ public:
     void addFace(Polygon p); // Passando por valor para espelhar addPoint(Point p)
     void setFaces(const QList<Polygon>& newFaces);
 
-    QList<Polygon> getFaces() const;
+    QList<Polygon> getFaces() const { return faces; }
+
+    //QList<Polygon> getFaces() const;
 
 
 private:

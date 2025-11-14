@@ -11,6 +11,7 @@ QString Obj::getType() const{
     case Obj::Type::Point:   return "Point";
     case Obj::Type::Line:    return "Line";
     case Obj::Type::Polygon: return "Polygon";
+    case Obj::Type::TypeObj: return "TypeObj";
     default:                 return "Unknown";
     }
 }

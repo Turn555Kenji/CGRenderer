@@ -14,13 +14,18 @@ void MatrixMath::translateObject(Obj *target, int dx, int dy, int dz){
     target->transform(t);
 }
 
-void MatrixMath::rotateObject(Obj *target, int angle, int axis, int xpivot, int ypivot, int zpivot){
+void MatrixMath::rotateObject(Obj *target, int angle, int axis, int pivotOption, int xpivot, int ypivot, int zpivot){
     if (!target || target->getType() == "Point") {
         return;
     }
 
-    Point pivot = getObjectPivot(target);//Point(xpivot, ypivot, zpivot);
-    qDebug() << pivot;
+    Point pivot = Point(0, 0);
+    if (pivotOption == 0)
+        pivot = getObjectCenter(target);
+    else if (pivotOption == 1)
+        pivot = getObjectPivot(target);
+    else if (pivotOption == 2)
+        pivot = Point(xpivot, ypivot, zpivot);
 
     double rad = angle * M_PI / 180.0;
     double c = std::cos(rad);
@@ -104,7 +109,7 @@ void MatrixMath::scaleObject(Obj *target, double sx, double sy, double sz){
     target->transform(compositeTransform);
 }
 
-Point MatrixMath::getObjectPivot(Obj* obj) {    //Legacy code
+Point MatrixMath::getObjectPivot(Obj* obj) {
     if (!obj) return Point(0, 0);
 
     if (obj->getType() == "Point") {
@@ -116,6 +121,10 @@ Point MatrixMath::getObjectPivot(Obj* obj) {    //Legacy code
     } else if (obj->getType() == "Polygon") {
         Polygon *pt = dynamic_cast<Polygon*>(obj);
         return pt->getP1();
+    } else if (obj->getType() == "TypeObj") {
+        QList<Polygon> polygonList = dynamic_cast<TypeObj*>(obj)->getFaces();
+        Polygon pt = polygonList[0];
+        return pt.getP1();
     }
 
     return Point(0, 0);
@@ -125,16 +134,19 @@ Point MatrixMath::getObjectCenter(Obj* obj) {
     if (!obj) return Point(0, 0);
 
     if (obj->getType() == "Point") {
+        qDebug() << "point";
         return *(dynamic_cast<Point*>(obj));
     }
     else if (obj->getType() == "Line") {
+        qDebug() << "line";
         Line* ln = dynamic_cast<Line*>(obj);
         Point p1 = ln->getP1();
         Point p2 = ln->getP2();
         return Point((p1[0][0] + p2[0][0]) / 2.0, (p1[1][0] + p2[1][0]) / 2.0, (p1[2][0] + p2[2][0]) / 2.0);
     }
     else if (obj->getType() == "Polygon") {
-        Polygon* poly = dynamic_cast<Polygon*>(obj);
+        qDebug() << "polygon";
+        Polygon *poly = dynamic_cast<Polygon*>(obj);
         const QList<Point>& pts = poly->getVertices();
 
         if (pts.empty()) return Point(0, 0);
@@ -151,6 +163,28 @@ Point MatrixMath::getObjectCenter(Obj* obj) {
 
         return Point(cx, cy, cz); // <-- centroid (average of vertices)
     }
+    else if (obj->getType() == "TypeObj") {
+        TypeObj *pt = dynamic_cast<TypeObj*>(obj);
+        QList<Polygon> polygonList = pt->getFaces();
+        QList<Point> pointList;
+        double cx = 0, cy = 0, cz = 0;
+        int i = 0;
 
+        for (i = 0 ; i<polygonList.size() ; i++){
+            Polygon poly = polygonList[i];
+            pointList.append(poly.getVertices());
+        }
+        for (i = 0 ; i<pointList.size() ; i++){
+            Point p = pointList[i];
+            cx += p[0][0];
+            cy += p[1][0];
+            cz += p[2][0];
+        }
+        cx /= pointList.size();
+        cy /= pointList.size();
+        cz /= pointList.size();
+
+        return Point(cx, cy, cz);
+    }
     return Point(0, 0);
 }

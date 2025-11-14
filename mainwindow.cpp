@@ -75,6 +75,7 @@ void MainWindow::finishObject(){
 
     ui->statusbar->showMessage("");
 }
+
 void MainWindow::on_openfile_clicked()
 {
     bool ok;
@@ -95,19 +96,16 @@ void MainWindow::on_openfile_clicked()
     while(!in.atEnd()){
         QString line = in.readLine();
         QStringList splitLine=line.split(" ", Qt::SkipEmptyParts);
-        int i=0, coordenadaPonto;
-        while(i!=splitLine.size()){
+        int coordenadaPonto;
+        if(!line.isEmpty()){
             if(splitLine[0]=="v"){
                 pointList<<new Point( (xp+(splitLine[1].toDouble()*20)), (yp+(splitLine[2].toDouble()*20) ), xp+(splitLine[3].toDouble()*20));
-
                 }
             if (splitLine[0]=="f"){
                 QList <int> vertices;//LISTA DOS PONTOS EM POSIÇÕES DO VETOR EX: PONTO 1, O PONTO 1 ESTÁ NA POS 0 DO VETOR pointList
                 int qtdSplit=1;
-
                 while(qtdSplit<splitLine.size()){
                     QStringList coordinateEdge= splitLine[qtdSplit].split("/", Qt::SkipEmptyParts);
-                    qDebug()<<coordinateEdge;
                     coordenadaPonto=coordinateEdge[0].toInt(&ctrl);// COORDENADAS DO MODELO 1/1/1 2/2/2, pos 0/ pos 1/ pos 2 só a pos 0 é a que quero, as outras são luz e sombra
                     coordenadaPonto=coordenadaPonto-1;
 
@@ -122,7 +120,6 @@ void MainWindow::on_openfile_clicked()
 
                 }
                 qtdSplit=0;
-
                 while(qtdSplit<vertices.size()){
                     if (vertices[qtdSplit]>= pointList.size()){
                         qWarning() << " ";
@@ -138,19 +135,14 @@ void MainWindow::on_openfile_clicked()
                     forma.append(*p);
                     qtdSplit=qtdSplit+1;
                 }
-                qDebug()<<forma.size();
-
                 Polygon tri(forma);
                 tri.setClosed();
                 polygonList.append(tri);
 
             }
-            i=i+1;
         }
     }
-    qDebug()<<polygonList.size();
     ui->drawArea->addTypeObject(polygonList, name);
-
 
     pointList.clear();
     finishObject();
@@ -373,17 +365,27 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
         QString objType = obj->getType();
         if(objType == "Point"){
             Point *pt = dynamic_cast<Point*>(obj);
-            QString pointStr = QString("(%1, %2)").arg((*pt)[0][0]).arg((*pt)[1][0]);
+            QString pointStr = QString("(%1, %2, %3)").arg((*pt)[0][0]).arg((*pt)[1][0]).arg((*pt)[2][0]);
             ui->pointListWidget->addItem(pointStr);
         } else if (objType == "Line"){
             Line *pt = dynamic_cast<Line*>(obj);
-            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt->getP1()[0][0]).arg(pt->getP1()[1][0]).arg(pt->getP2()[0][0]).arg(pt->getP2()[1][0]);
+            QString lineStr = QString("(%1, %2, %3)\n(%4, %5, %6)").arg(pt->getP1()[0][0]).arg(pt->getP1()[1][0]).arg(pt->getP1()[2][0]).arg(pt->getP2()[0][0]).arg(pt->getP2()[1][0]).arg(pt->getP2()[2][0]);
             ui->pointListWidget->addItem(lineStr);
         } else if (objType == "Polygon"){
             Polygon *pt = dynamic_cast<Polygon*>(obj);
             for (const Point& it : pt->getVertices()) {
-                QString polygonStr = QString("(%1, %2)").arg(it[0][0]).arg(it[1][0]);
+                QString polygonStr = QString("(%1, %2, %3)").arg(it[0][0]).arg(it[1][0]).arg(it[2][0]);
                 ui->pointListWidget->addItem(polygonStr);
+            }
+        } else if (objType == "TypeObj"){
+            TypeObj *pt = dynamic_cast<TypeObj*>(obj);
+            QList<Polygon> polygonList = pt->getFaces();
+            for (int i = 0 ; i<polygonList.size() ; i++){
+                Polygon pt_2 = polygonList[i];
+                for (const Point& it : pt_2.getVertices()) {
+                    QString polygonStr = QString("(%1, %2, %3)").arg(it[0][0]).arg(it[1][0]).arg(it[2][0]);
+                    ui->pointListWidget->addItem(polygonStr);
+                }
             }
         }
     }
@@ -438,6 +440,7 @@ void MainWindow::on_rotateButton_clicked()
 
     int angle = ui->rotateValue->value();
     int axis = ui->rotateAxis->currentIndex(); //0 = X, 1 = Y, 2 = Z
+    int pivotOption = ui->rotatePivot->currentIndex(); //0 = Center, 1 = First point, 2 = Custom value
     int xpivot = ui->rotateXValue->value();
     int ypivot = ui->rotateYValue->value();
     int zpivot = ui->rotateZValue->value();
@@ -446,7 +449,7 @@ void MainWindow::on_rotateButton_clicked()
         ui->drawArea->rotateScene(-angle, xpivot, ypivot, zpivot);
         statusBar()->showMessage("Scene rotated around pivot.");
     } else {
-        MatrixMath::rotateObject(target, angle, axis, xpivot, ypivot, zpivot);
+        MatrixMath::rotateObject(target, angle, axis, pivotOption, xpivot, ypivot, zpivot);
         ui->drawArea->update();
     }
 }
