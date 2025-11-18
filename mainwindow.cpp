@@ -2,7 +2,12 @@
 #include "ui_mainwindow.h"
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QDebug>
 #include <cmath>
+#include "point.h"
+#include "polygon.h"
+#include "typeobj.h"
+
 
 
 /*
@@ -38,7 +43,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->objectTableWidget->setColumnCount(3);
     ui->objectTableWidget->setHorizontalHeaderLabels({"ID", "Name", "Type"});
     ui->objectTableWidget->setColumnWidth(0, 30);
-    ui->objectTableWidget->setColumnWidth(1, 180);
+    ui->objectTableWidget->setColumnWidth(1, 100);
     ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -70,9 +75,13 @@ void MainWindow::finishObject(){
 
     ui->statusbar->showMessage("");
 }
+
 void MainWindow::on_openfile_clicked()
 {
     bool ok;
+    QString name = QInputDialog::getText(this, "pokemon Objcet", "Nome:", QLineEdit::Normal, " ", &ok);
+    if (!ok || name.isEmpty())
+        return;
     int xp = ( ui->drawArea->getXwmax() + ui->drawArea->getXwmin()) / 2 ;
     int yp = ( ui->drawArea->getYwmax() + ui->drawArea->getYwmin()) / 2 ;
 
@@ -82,21 +91,64 @@ void MainWindow::on_openfile_clicked()
         return;
     QTextStream in(&file1);
     QList <Obj*> pointList;
+    QList <Polygon> polygonList;
+    bool ctrl;
     while(!in.atEnd()){
         QString line = in.readLine();
-        QStringList splitLine=line.split(" ");
-        int i=0;
-        while(i!=splitLine.size()){
+        QStringList splitLine=line.split(" ", Qt::SkipEmptyParts);
+        int coordenadaPonto;
+        if(!line.isEmpty()){
             if(splitLine[0]=="v"){
-                pointList<<new Point( (xp+(splitLine[1].toDouble()*10)), (yp+(splitLine[2].toDouble()*10)));
+                pointList<<new Point( (xp+(splitLine[1].toDouble()*20)), (yp+(splitLine[2].toDouble()*20) ), xp+(splitLine[3].toDouble()*20));
                 }
-            i=i+1;
+            if (splitLine[0]=="f"){
+                QList <int> vertices;//LISTA DOS PONTOS EM POSIÇÕES DO VETOR EX: PONTO 1, O PONTO 1 ESTÁ NA POS 0 DO VETOR pointList
+                int qtdSplit=1;
+                while(qtdSplit<splitLine.size()){
+                    QStringList coordinateEdge= splitLine[qtdSplit].split("/", Qt::SkipEmptyParts);
+                    coordenadaPonto=coordinateEdge[0].toInt(&ctrl);// COORDENADAS DO MODELO 1/1/1 2/2/2, pos 0/ pos 1/ pos 2 só a pos 0 é a que quero, as outras são luz e sombra
+                    coordenadaPonto=coordenadaPonto-1;
+
+                    if(ctrl){//se ctrl é true ent temos um int
+                        vertices.append(coordenadaPonto);
+                    }
+                    else{
+                        continue;
+                    }
+
+                    qtdSplit=qtdSplit+1;
+
+                }
+                qtdSplit=0;
+                while(qtdSplit<vertices.size()){
+                    if (vertices[qtdSplit]>= pointList.size()){
+                        qWarning() << " ";
+                        continue;
+                    }
+                    qtdSplit=qtdSplit+1;
+                }
+                qtdSplit=0;
+                QList<Point> forma;
+                Point* p;
+                while(qtdSplit<vertices.size()){
+                    p=dynamic_cast<Point*>(pointList[vertices[qtdSplit]]);
+                    forma.append(*p);
+                    qtdSplit=qtdSplit+1;
+                }
+                Polygon tri(forma);
+                tri.setClosed();
+                polygonList.append(tri);
+
+            }
         }
     }
+    ui->drawArea->addTypeObject(polygonList, name);
 
-    drawCustomShape(pointList, "Charmander");
+    pointList.clear();
+    finishObject();
 
 }
+
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
 
@@ -313,17 +365,27 @@ void MainWindow::on_objectTableWidget_itemClicked(QTableWidgetItem *item)
         QString objType = obj->getType();
         if(objType == "Point"){
             Point *pt = dynamic_cast<Point*>(obj);
-            QString pointStr = QString("(%1, %2)").arg((*pt)[0][0]).arg((*pt)[1][0]);
+            QString pointStr = QString("(%1, %2, %3)").arg((*pt)[0][0]).arg((*pt)[1][0]).arg((*pt)[2][0]);
             ui->pointListWidget->addItem(pointStr);
         } else if (objType == "Line"){
             Line *pt = dynamic_cast<Line*>(obj);
-            QString lineStr = QString("(%1, %2)\n(%3, %4)").arg(pt->getP1()[0][0]).arg(pt->getP1()[1][0]).arg(pt->getP2()[0][0]).arg(pt->getP2()[1][0]);
+            QString lineStr = QString("(%1, %2, %3)\n(%4, %5, %6)").arg(pt->getP1()[0][0]).arg(pt->getP1()[1][0]).arg(pt->getP1()[2][0]).arg(pt->getP2()[0][0]).arg(pt->getP2()[1][0]).arg(pt->getP2()[2][0]);
             ui->pointListWidget->addItem(lineStr);
         } else if (objType == "Polygon"){
             Polygon *pt = dynamic_cast<Polygon*>(obj);
             for (const Point& it : pt->getVertices()) {
-                QString polygonStr = QString("(%1, %2)").arg(it[0][0]).arg(it[1][0]);
+                QString polygonStr = QString("(%1, %2, %3)").arg(it[0][0]).arg(it[1][0]).arg(it[2][0]);
                 ui->pointListWidget->addItem(polygonStr);
+            }
+        } else if (objType == "TypeObj"){
+            TypeObj *pt = dynamic_cast<TypeObj*>(obj);
+            QList<Polygon> polygonList = pt->getFaces();
+            for (int i = 0 ; i<polygonList.size() ; i++){
+                Polygon pt_2 = polygonList[i];
+                for (const Point& it : pt_2.getVertices()) {
+                    QString polygonStr = QString("(%1, %2, %3)").arg(it[0][0]).arg(it[1][0]).arg(it[2][0]);
+                    ui->pointListWidget->addItem(polygonStr);
+                }
             }
         }
     }
@@ -364,7 +426,7 @@ void MainWindow::on_translateButton_clicked()
         ui->drawArea->setWindow(current_xwmax + dx, current_xwmin + dx, current_ywmax + dy, current_ywmin + dy);
 
     } else { // Lógica normal para outros objetos
-        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value());
+        MatrixMath::translateObject(target, ui->translateXvalue->value(), ui->translateYvalue->value(), ui->translateZvalue->value());
         ui->drawArea->update();
     }
 }
@@ -377,14 +439,17 @@ void MainWindow::on_rotateButton_clicked()
         return;
 
     int angle = ui->rotateValue->value();
+    int axis = ui->rotateAxis->currentIndex(); //0 = X, 1 = Y, 2 = Z
+    int pivotOption = ui->rotatePivot->currentIndex(); //0 = Center, 1 = First point, 2 = Custom value
     int xpivot = ui->rotateXValue->value();
     int ypivot = ui->rotateYValue->value();
+    int zpivot = ui->rotateZValue->value();
 
     if (target->getId() == -1) {
-        ui->drawArea->rotateScene(-angle, xpivot, ypivot);
+        ui->drawArea->rotateScene(-angle, xpivot, ypivot, zpivot);
         statusBar()->showMessage("Scene rotated around pivot.");
     } else {
-        MatrixMath::rotateObject(target, angle, xpivot, ypivot);
+        MatrixMath::rotateObject(target, angle, axis, pivotOption, xpivot, ypivot, zpivot);
         ui->drawArea->update();
     }
 }
@@ -424,7 +489,7 @@ void MainWindow::on_scaleButton_clicked()
         ui->drawArea->setWindow(new_xwmax, new_xwmin, new_ywmax, new_ywmin);
 
     } else { // Lógica normal para outros objetos
-        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value());
+        MatrixMath::scaleObject(target, ui->xFactorValue->value(), ui->yFactorValue->value(), ui->zFactorValue->value());
         ui->drawArea->update();
     }
 }

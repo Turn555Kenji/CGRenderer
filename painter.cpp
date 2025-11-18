@@ -5,6 +5,7 @@
 #include "line.h"
 #include "polygon.h"
 #include "matrixmath.h"
+#include "typeobj.h"
 
 const int INSIDE = 0;
 const int LEFT   = 1;
@@ -90,6 +91,22 @@ void PainterWidget::addLineToCurrentObject(Point* p1, Point* p2, const QString n
     update();
 }
 
+
+void PainterWidget::addPolygon(const QList<Point>& vertices, const QString& name, bool closed)
+{
+   m_currentObject = new Polygon(vertices, m_nextObjectId++, name);
+    displayFile.append(m_currentObject);
+    update();
+}
+
+
+void PainterWidget::addTypeObject(const QList<Polygon>& faces, const QString& name)
+{
+   m_currentObject = new TypeObj(faces, m_nextObjectId++, name);
+
+    displayFile.append(   m_currentObject);
+    update();
+}
 void PainterWidget::addVertexToCurrentObject(Point *p1, Point *p2, const QString name)
 {
     if (m_currentObject) {
@@ -283,12 +300,12 @@ bool PainterWidget::clipplingCohen(double& x1, double& y1, double& x2, double& y
     return accept;
 }
 
-void PainterWidget::rotateScene(int angle, int xpivot, int ypivot) {
+void PainterWidget::rotateScene(int angle, int xpivot, int ypivot, int zpivot) {
     // Itera sobre todos os objetos no displayFile
     for (Obj* obj : displayFile) {
         // Aplica a rotação a todos, exceto à própria window
         if (obj->getId() != -1) {
-            MatrixMath::rotateObject(obj, angle, xpivot, ypivot);
+            MatrixMath::rotateObject(obj, angle, 0, 3, xpivot, ypivot, zpivot);
         }
     }
     update(); // Força o widget a se redesenhar com as novas posições

@@ -10,7 +10,8 @@ public:
     enum class Type {   //Point = 0, Line = 1, Polygon = 2
         Point = 0,
         Line,
-        Polygon
+        Polygon,
+        TypeObj,
     };
 
     Obj(int initId, const QString &initName, Type initType);
