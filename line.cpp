@@ -9,7 +9,7 @@ Line::Line(const Point& p1, const Point& p2, int id, QString name)
 }
 
 // Método para desenhar a linha na tela
-void Line::draw(QPainter *painter,
+void Line::draw(QPainter *painter, double dist,
                 double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                 double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {

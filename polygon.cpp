@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QVector>
 #include <QDebug>
+#include "matrixmath.h"
 
 // Construtor: inicializa o objeto e copia a lista de vértices recebida
 Polygon::Polygon(const QList<Point>& vertices, int id, QString name)
@@ -11,19 +12,48 @@ Polygon::Polygon(const QList<Point>& vertices): Obj(), vertices(vertices)
 {
 }
 // Método para desenhar o polígono na tela
-void Polygon::draw(QPainter *painter,
+void Polygon::draw(QPainter *painter, double dist,
                    double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                    double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
     if (vertices.size() > 1) {
         for (int i = 0; i < vertices.size() - 1; ++i) {
+            Matrix P1 = vertices[i];
+            Point P2 = vertices[i+1];
+
+            Matrix p(4, 4);
+            p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+            p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+            p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+            p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0;
+
+            Matrix m = p * P1;
+            P1[0][0] = m[0][0];
+            P1[1][0] = m[1][0];
+            P1[2][0] = m[2][0];
+            P1[3][0] = m[3][0];
+
+            P1[0][0] = P1[0][0] / P1[3][0];
+            P1[1][0] = P1[1][0] / P1[3][0];
+            P1[2][0] = P1[2][0] / P1[3][0];
+
+            m = p * P2;
+            P2[0][0] = m[0][0];
+            P2[1][0] = m[1][0];
+            P2[2][0] = m[2][0];
+            P2[3][0] = m[3][0];
+
+            P2[0][0] = P2[0][0] / ( P2[2][0]/dist);
+            P2[1][0] = P2[1][0] / ( P2[2][0]/dist);
+            P2[2][0] = dist;
+
             // Ponto 1: Mundo -> NDC -> Viewport
-            Point P1_ndc = vertices[i].normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+            Point P1_ndc = P1.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
             double x1 = Xvpmin + (P1_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
             double y1 = Yvpmin + (1.0 - P1_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
             // Ponto 2: Mundo -> NDC -> Viewport
-            Point P2_ndc = vertices[i+1].normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+            Point P2_ndc = P2.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
             double x2 = Xvpmin + (P2_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
             double y2 = Yvpmin + (1.0 - P2_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 

@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    ui->camDistance->setValue( ( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2);
+    ui->drawArea->setDistance(( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2);
+
     // Adiciona manualmente o objeto Window à tabela da UI
     Obj* windowObj = ui->drawArea->getObject(-1);
     if (windowObj) {
