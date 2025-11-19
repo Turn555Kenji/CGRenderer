@@ -55,6 +55,8 @@ private slots:
     void on_treeButton_clicked();
     void on_houseButton_clicked();
 
+    void on_camDistanceApply_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

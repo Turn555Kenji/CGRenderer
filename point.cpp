@@ -47,11 +47,29 @@ void Point::draw(QPainter *painter, double dist,
 {
 
     QPen pen (Qt ::cyan, 5);
-    pen.setCapStyle(Qt::RoundCap); // Crucial para o ponto parecer redondo
+    pen.setCapStyle(Qt::RoundCap);
     painter->setPen(pen);
 
-    // 1. Converte as coordenadas do Mundo para NDC [-1, 1]
-    Point P_ndc = normalize(Xwmin, Ywmin, Xwmax, Ywmax);
+    // --- INÍCIO LÓGICA DE PROJEÇÃO ---
+    // Copia para não alterar o ponto original permanentemente
+    Point P_proj = *this;
+
+    Matrix p(4, 4);
+    p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+    p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+    p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+    p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+
+    Matrix m = p * P_proj;
+    if (m[3][0] != 0) {
+        P_proj[0][0] = m[0][0] / m[3][0];
+        P_proj[1][0] = m[1][0] / m[3][0];
+        P_proj[2][0] = m[2][0] / m[3][0];
+    }
+    // --- FIM LÓGICA DE PROJEÇÃO ---
+
+    // 1. Converte as coordenadas do Mundo para NDC [-1, 1] (usando P_proj)
+    Point P_ndc = P_proj.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
 
     // 2. Converte as coordenadas NDC para o Viewport (tela)
     double screenX = Xvpmin + (P_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
