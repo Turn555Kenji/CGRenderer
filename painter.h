@@ -42,6 +42,7 @@ public:
     double getYvpmax() const { return Yvpmax; }
 
     void setDistance(double value);
+    void setProjection(bool value);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -62,6 +63,7 @@ private:
     double Xvpmin, Yvpmin, Xvpmax, Yvpmax;
 
     double dist;
+    bool perspectFlag;
 
     Polygon* m_windowObject = nullptr;
 

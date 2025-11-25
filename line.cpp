@@ -8,7 +8,7 @@ Line::Line(const Point& p1, const Point& p2, int id, QString name)
 }
 
 // Método para desenhar a linha na tela
-void Line::draw(QPainter *painter, double dist,
+void Line::draw(QPainter *painter, double dist, bool perspectflag,
                 double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                 double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
@@ -16,29 +16,30 @@ void Line::draw(QPainter *painter, double dist,
     Point P1_proj = p1;
     Point P2_proj = p2;
 
-    // Matriz de projeção
-    Matrix p(4, 4);
-    p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-    p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
-    p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-    p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+    if(perspectflag){
+        // Matriz de projeção
+        Matrix p(4, 4);
+        p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+        p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+        p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
-    // Aplica em P1
-    Matrix m = p * P1_proj;
-    if (m[3][0] != 0) {
-        P1_proj[0][0] = m[0][0] / m[3][0];
-        P1_proj[1][0] = m[1][0] / m[3][0];
-        P1_proj[2][0] = m[2][0] / m[3][0];
+        // Aplica em P1
+        Matrix m = p * P1_proj;
+        if (m[3][0] != 0) {
+            P1_proj[0][0] = m[0][0] / m[3][0];
+            P1_proj[1][0] = m[1][0] / m[3][0];
+            P1_proj[2][0] = m[2][0] / m[3][0];
+        }
+
+        // Aplica em P2
+        m = p * P2_proj;
+        if (m[3][0] != 0) {
+            P2_proj[0][0] = m[0][0] / m[3][0];
+            P2_proj[1][0] = m[1][0] / m[3][0];
+            P2_proj[2][0] = m[2][0] / m[3][0];
+        }
     }
-
-    // Aplica em P2
-    m = p * P2_proj;
-    if (m[3][0] != 0) {
-        P2_proj[0][0] = m[0][0] / m[3][0];
-        P2_proj[1][0] = m[1][0] / m[3][0];
-        P2_proj[2][0] = m[2][0] / m[3][0];
-    }
-
     // Ponto 1: Mundo -> NDC -> Viewport (Usando P1_proj)
     Point P1_ndc = P1_proj.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
     double x1 = Xvpmin + (P1_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);

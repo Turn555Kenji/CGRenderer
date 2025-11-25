@@ -41,7 +41,7 @@ Point::Point(Point *p )
     *this = p;
 }
 
-void Point::draw(QPainter *painter, double dist,
+void Point::draw(QPainter *painter, double dist, bool perspectflag,
                  double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                  double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
@@ -53,21 +53,22 @@ void Point::draw(QPainter *painter, double dist,
     // --- INÍCIO LÓGICA DE PROJEÇÃO ---
     // Copia para não alterar o ponto original permanentemente
     Point P_proj = *this;
+    if(perspectflag){
 
-    Matrix p(4, 4);
-    p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-    p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
-    p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-    p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+        Matrix p(4, 4);
+        p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+        p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+        p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
-    Matrix m = p * P_proj;
-    if (m[3][0] != 0) {
-        P_proj[0][0] = m[0][0] / m[3][0];
-        P_proj[1][0] = m[1][0] / m[3][0];
-        P_proj[2][0] = m[2][0] / m[3][0];
+        Matrix m = p * P_proj;
+        if (m[3][0] != 0) {
+            P_proj[0][0] = m[0][0] / m[3][0];
+            P_proj[1][0] = m[1][0] / m[3][0];
+            P_proj[2][0] = m[2][0] / m[3][0];
+        }
+        // --- FIM LÓGICA DE PROJEÇÃO ---
     }
-    // --- FIM LÓGICA DE PROJEÇÃO ---
-
     // 1. Converte as coordenadas do Mundo para NDC [-1, 1] (usando P_proj)
     Point P_ndc = P_proj.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1260</width>
-    <height>668</height>
+    <height>691</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>0</x>
       <y>0</y>
       <width>761</width>
-      <height>621</height>
+      <height>641</height>
      </rect>
     </property>
    </widget>
@@ -375,7 +375,7 @@
     <property name="geometry">
      <rect>
       <x>780</x>
-      <y>480</y>
+      <y>500</y>
       <width>221</width>
       <height>141</height>
      </rect>
@@ -488,7 +488,7 @@
     <property name="geometry">
      <rect>
       <x>780</x>
-      <y>220</y>
+      <y>240</y>
       <width>221</width>
       <height>241</height>
      </rect>
@@ -727,7 +727,7 @@
     <property name="geometry">
      <rect>
       <x>780</x>
-      <y>60</y>
+      <y>80</y>
       <width>221</width>
       <height>141</height>
      </rect>
@@ -878,12 +878,12 @@
      <rect>
       <x>780</x>
       <y>0</y>
-      <width>16</width>
+      <width>121</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>d</string>
+     <string>Camera Distance</string>
     </property>
    </widget>
    <widget class="QPushButton" name="camDistanceApply">
@@ -899,6 +899,19 @@
      <string>Apply</string>
     </property>
    </widget>
+   <widget class="QCheckBox" name="PerspectiveBox">
+    <property name="geometry">
+     <rect>
+      <x>780</x>
+      <y>60</y>
+      <width>201</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Perspective Projection</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -906,7 +919,7 @@
      <x>0</x>
      <y>0</y>
      <width>1260</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

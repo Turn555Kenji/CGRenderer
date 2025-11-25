@@ -521,3 +521,11 @@ void MainWindow::on_camDistanceApply_clicked()
     ui->drawArea->update();
 }
 
+
+void MainWindow::on_PerspectiveBox_stateChanged(int arg1)
+{
+    bool v = arg1;
+    ui->drawArea->setProjection(v);
+    ui->drawArea->update();
+}
+
