@@ -47,6 +47,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
+    ui->camDistance->setValue( ( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2);
+    ui->drawArea->setDistance(( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2);
+
     // Adiciona manualmente o objeto Window à tabela da UI
     Obj* windowObj = ui->drawArea->getObject(-1);
     if (windowObj) {
@@ -511,3 +514,18 @@ void MainWindow::on_resetButton_clicked()
     ui->vp_xmin->setValue(0);
     ui->vp_ymin->setValue(0);
 }
+
+void MainWindow::on_camDistanceApply_clicked()
+{
+    ui->drawArea->setDistance(ui->camDistance->value());
+    ui->drawArea->update();
+}
+
+
+void MainWindow::on_PerspectiveBox_stateChanged(int arg1)
+{
+    bool v = arg1;
+    ui->drawArea->setProjection(v);
+    ui->drawArea->update();
+}
+

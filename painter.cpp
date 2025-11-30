@@ -20,6 +20,8 @@ PainterWidget::PainterWidget(QWidget *parent)
 }
 
 void PainterWidget::setupCoordinates(){
+    dist = 0;
+
     OGXwmin = 0;
     OGYwmin = 0;
     OGXwmax = width();
@@ -159,7 +161,7 @@ void PainterWidget::paintEvent(QPaintEvent *event)
         QPen windowPen(Qt::white, 1);
         windowPen.setStyle(Qt::DashLine);
         painter.setPen(windowPen);
-        m_windowObject->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        m_windowObject->draw(&painter, dist, perspectFlag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
 
 
@@ -171,14 +173,14 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 
     for (Obj *obj : displayFile) {
         if (obj->getId() != -1) {
-            painter.setPen(QPen(Qt::red, 5));
-            obj->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+            painter.setPen(QPen(Qt::white, 1));
+            obj->draw(&painter, dist, perspectFlag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
         }
     }
 
     if (m_currentObject) {
         painter.setPen(QPen(Qt::cyan, 5));
-        m_currentObject->draw(&painter, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        m_currentObject->draw(&painter, dist, perspectFlag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
 
 }
@@ -309,4 +311,13 @@ void PainterWidget::rotateScene(int angle, int xpivot, int ypivot, int zpivot) {
         }
     }
     update(); // Força o widget a se redesenhar com as novas posições
+}
+
+void PainterWidget::setDistance(double value){
+    dist = value;
+}
+
+
+void PainterWidget::setProjection(bool value){
+    perspectFlag = value;
 }

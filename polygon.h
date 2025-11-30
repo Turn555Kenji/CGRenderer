@@ -12,7 +12,7 @@ public:
     Polygon(const QList<Point>& vertices);
 
 
-    void draw(QPainter *painter,
+    void draw(QPainter *painter, double dist, bool perspectflag,
               double Xwmin, double Ywmin, double Xwmax, double Ywmax,
               double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) override;
     Obj* transform(Matrix m) override;

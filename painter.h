@@ -41,6 +41,9 @@ public:
     double getXvpmax() const { return Xvpmax; }
     double getYvpmax() const { return Yvpmax; }
 
+    void setDistance(double value);
+    void setProjection(bool value);
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
@@ -58,6 +61,9 @@ private:
 
     double Xwmin, Ywmin, Xwmax, Ywmax;
     double Xvpmin, Yvpmin, Xvpmax, Yvpmax;
+
+    double dist;
+    bool perspectFlag;
 
     Polygon* m_windowObject = nullptr;
 

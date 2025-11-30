@@ -55,6 +55,10 @@ private slots:
     void on_treeButton_clicked();
     void on_houseButton_clicked();
 
+    void on_camDistanceApply_clicked();
+
+    void on_PerspectiveBox_stateChanged(int arg1);
+
 private:
     Ui::MainWindow *ui;
 };
