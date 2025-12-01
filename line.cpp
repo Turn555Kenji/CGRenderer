@@ -17,6 +17,8 @@ void Line::draw(QPainter *painter, double dist, bool perspectflag,
     Point P2_proj = p2;
 
     if(perspectflag){
+        double centerX = (Xwmin + Xwmax) / 2.0;
+        double centerY = (Ywmin + Ywmax) / 2.0;
         // Matriz de projeção
         Matrix p(4, 4);
         p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
@@ -25,7 +27,10 @@ void Line::draw(QPainter *painter, double dist, bool perspectflag,
         p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
         // Aplica em P1
-        Matrix m = p * P1_proj;
+        Point auxP = P1_proj;
+        auxP[0][0] -= centerX;
+        auxP[1][0] -= centerY;
+        Matrix m = p * auxP;
         if (m[3][0] != 0) {
             P1_proj[0][0] = m[0][0] / m[3][0];
             P1_proj[1][0] = m[1][0] / m[3][0];
@@ -33,7 +38,10 @@ void Line::draw(QPainter *painter, double dist, bool perspectflag,
         }
 
         // Aplica em P2
-        m = p * P2_proj;
+        auxP = P2_proj;
+        auxP[0][0] -= centerX;
+        auxP[1][0] -= centerY;
+        m = p * auxP;
         if (m[3][0] != 0) {
             P2_proj[0][0] = m[0][0] / m[3][0];
             P2_proj[1][0] = m[1][0] / m[3][0];

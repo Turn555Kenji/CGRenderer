@@ -47,8 +47,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->objectTableWidget->setColumnWidth(2, 65);
     ui->objectTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    ui->camDistance->setValue( ( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2);
-    ui->drawArea->setDistance(( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2);
+    ui->camDistance->setValue( 2 * (( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2));
+    ui->drawArea->setDistance( 2 * (( (ui->drawArea->getXwmax()) - (ui->drawArea->getXwmin()) )/ 2));
+    ui->PerspectiveBox->setChecked(true);
 
     // Adiciona manualmente o objeto Window à tabela da UI
     Obj* windowObj = ui->drawArea->getObject(-1);
@@ -152,6 +153,7 @@ void MainWindow::on_openfile_clicked()
 
 }
 
+int m = 0;
 void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left clicked, use x and y for implementation
 {
 
@@ -159,11 +161,17 @@ void MainWindow::on_PainterMouseClicked(int x, int y)//Called when mouse is left
     ui->Y1Label->setText(QString::number(y));
 
     // Calcula as coordenadas NDC [-1, 1] para exibição na UI
-    double ndcX =  (ui->vp_xmax->value() - ui->vp_xmin->value()) * (x - ui->vp_xmin->value()) / (ui->vp_xmax->value() - ui->vp_xmin->value());
-    double ndcY = (1.0 - (y - ui->vp_ymin->value()) / (ui->vp_ymax->value() - ui->vp_ymin->value()))*(ui->vp_ymax->value() - ui->vp_ymin->value()); // Eixo Y invertido
+    double ndcX = 2.0 * (x - ui->vp_xmin->value()) / (ui->vp_xmax->value() - ui->vp_xmin->value()) - 1.0;
+
+    double ndcY = -(2.0 * (y - ui->vp_ymin->value()) / (ui->vp_ymax->value() - ui->vp_ymin->value()) - 1.0);
+
 
     ui->X1Label_Normalized->setText(QString::number(ndcX, 'f', 2)); // Exibe como float com 2 casas decimais
     ui->Y1Label_Normalized->setText(QString::number(ndcY, 'f', 2));
+
+    //ui->X1Label_Normalized->setText(QString::number(m)); // Exibe como float com 2 casas decimais
+    //ui->Y1Label_Normalized->setText(QString::number(m));
+    m++;
 }
 
 void MainWindow::on_pointButton_clicked()

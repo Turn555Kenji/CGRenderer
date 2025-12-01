@@ -54,6 +54,10 @@ void Point::draw(QPainter *painter, double dist, bool perspectflag,
     // Copia para não alterar o ponto original permanentemente
     Point P_proj = *this;
     if(perspectflag){
+        double centerX = (Xwmin + Xwmax) / 2.0;
+        double centerY = (Ywmin + Ywmax) / 2.0;
+        P_proj[0][0] -= centerX;
+        P_proj[1][0] -= centerY;
 
         Matrix p(4, 4);
         p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
@@ -67,6 +71,9 @@ void Point::draw(QPainter *painter, double dist, bool perspectflag,
             P_proj[1][0] = m[1][0] / m[3][0];
             P_proj[2][0] = m[2][0] / m[3][0];
         }
+
+        P_proj[0][0] += centerX;
+        P_proj[1][0] += centerY;
         // --- FIM LÓGICA DE PROJEÇÃO ---
     }
     // 1. Converte as coordenadas do Mundo para NDC [-1, 1] (usando P_proj)
