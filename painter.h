@@ -53,8 +53,6 @@ private:
     Obj* m_currentObject = nullptr;
     int m_nextObjectId = 0;
 
-    int Regiao(double x, double y);
-    bool clipplingCohen(double& x1, double& y1, double& x2, double& y2);
     // LINHA ABAIXO CORRIGIDA (OGYmax -> OGYwmax)
     double OGXwmin, OGYwmin, OGXwmax, OGYwmax;
     double OGXvpmin, OGYvpmin, OGXvpmax, OGYvpmax;
