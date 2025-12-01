@@ -7,13 +7,13 @@ TypeObj::TypeObj(const QList<Polygon>& faces, int id, QString name)
 
 
 
-void TypeObj::draw(QPainter *painter, double dist, bool perspectflag,
+void TypeObj::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
                            double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                            double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
 
     for (Polygon& face : this->faces) {
-        face.draw(painter, dist, perspectflag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        face.draw(painter, dist, perspectflag, viewMatrix, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
 }
 

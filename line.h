@@ -12,7 +12,7 @@ public:
 
     // Métodos virtuais da classe Obj que precisam ser implementados
 
-    void draw(QPainter *painter, double dist, bool perspectflag,
+    void draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
               double Xwmin, double Ywmin, double Xwmax, double Ywmax,
               double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) override;
     Obj* transform(const Matrix m) override;

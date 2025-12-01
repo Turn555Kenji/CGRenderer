@@ -41,7 +41,7 @@ Point::Point(Point *p )
     *this = p;
 }
 
-void Point::draw(QPainter *painter, double dist, bool perspectflag,
+void Point::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
                  double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                  double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {

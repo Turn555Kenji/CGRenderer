@@ -47,6 +47,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     QList<Obj*> displayFile;
@@ -64,6 +65,10 @@ private:
 
     double dist;
     bool perspectFlag;
+
+    double camX;
+    double camY;
+    double camZ;
 
     Polygon* m_windowObject = nullptr;
 

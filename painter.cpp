@@ -6,6 +6,8 @@
 #include "polygon.h"
 #include "matrixmath.h"
 #include "typeobj.h"
+#include <QKeyEvent>
+#include <QDebug>
 
 const int INSIDE = 0;
 const int LEFT   = 1;
@@ -17,6 +19,10 @@ PainterWidget::PainterWidget(QWidget *parent)
     : QWidget{parent}
 {
     setFocusPolicy(Qt::StrongFocus);
+
+    camX = width() / 2.0;  // Centro da tela horizontal
+    camY = height() / 2.0; // Centro da tela vertical
+    camZ = 500.0;          // Afastado para trás
 }
 
 void PainterWidget::setupCoordinates(){
@@ -157,11 +163,17 @@ void PainterWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
+    Point eye(camX, camY, camZ);
+    Point target(camX, camY, 0); // Olha para o fundo da tela na mesma altura
+    Point up(0, 1, 0);
+
+    Matrix viewMatrix = MatrixMath::lookAt(eye, target, up);
+
     if (m_windowObject) {
         QPen windowPen(Qt::white, 1);
         windowPen.setStyle(Qt::DashLine);
         painter.setPen(windowPen);
-        m_windowObject->draw(&painter, dist, perspectFlag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        m_windowObject->draw(&painter, dist, perspectFlag, viewMatrix, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
 
 
@@ -174,13 +186,13 @@ void PainterWidget::paintEvent(QPaintEvent *event)
     for (Obj *obj : displayFile) {
         if (obj->getId() != -1) {
             painter.setPen(QPen(Qt::white, 1));
-            obj->draw(&painter, dist, perspectFlag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+            obj->draw(&painter, dist, perspectFlag, viewMatrix, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
         }
     }
 
     if (m_currentObject) {
         painter.setPen(QPen(Qt::cyan, 5));
-        m_currentObject->draw(&painter, dist, perspectFlag, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        m_currentObject->draw(&painter, dist, perspectFlag, viewMatrix, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
 
 }
@@ -320,4 +332,39 @@ void PainterWidget::setDistance(double value){
 
 void PainterWidget::setProjection(bool value){
     perspectFlag = value;
+}
+
+void PainterWidget::keyPressEvent(QKeyEvent *event)
+{
+    qDebug() << "Tecla:" << event->key();
+
+    double step = 20.0; // Velocidade da câmera
+
+    switch (event->key()) {
+    case Qt::Key_A:
+        camX -= step; // Move para esquerda
+        break;
+    case Qt::Key_D:
+        camX += step; // Move para direita
+        break;
+    case Qt::Key_W:
+        camY += step; // Sobe (lembre que no seu mundo Y cresce pra cima ou baixo dependendo da config)
+        break;
+    case Qt::Key_S:
+        camY -= step; // Desce
+        break;
+    case Qt::Key_Q:
+        camZ += step; // Afasta (Zoom Out)
+        break;
+    case Qt::Key_E:
+        camZ -= step; // Aproxima (Zoom In)
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+        return;
+    }
+
+    qDebug() << "Nova Camera:" << camX << camY << camZ;
+    // Força o redesenho da tela com a nova posição
+    update();
 }

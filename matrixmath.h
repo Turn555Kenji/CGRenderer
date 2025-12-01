@@ -21,6 +21,12 @@ public:
     static Point getObjectPivot(Obj* obj);
     static Point getObjectCenter(Obj* obj);
     static Matrix rotateWindow(double angleDegrees, double cx, double cy);
+
+    static Matrix lookAt(Point eye, Point target, Point up);
+    static Point subtract(Point a, Point b);
+    static Point normalize(Point a);
+    static double dotProduct(Point a, Point b);
+    static Point crossProduct(Point a, Point b);
 };
 
 #endif // MATRIXMATH_H

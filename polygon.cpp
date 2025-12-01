@@ -13,7 +13,7 @@ Polygon::Polygon(const QList<Point>& vertices): Obj(), vertices(vertices)
 }
 
 // Método para desenhar o polígono na tela
-void Polygon::draw(QPainter *painter, double dist, bool perspectflag,
+void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
                    double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                    double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
