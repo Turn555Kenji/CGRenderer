@@ -18,52 +18,54 @@ void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix vie
                    double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
     if (vertices.size() > 1) {
+        // Loop pelos vértices
         for (int i = 0; i < vertices.size() - 1; ++i) {
-            // CORREÇÃO AQUI: Alterado de Matrix para Point
             Point P1 = vertices[i];
             Point P2 = vertices[i+1];
 
+            Matrix camOffSet = viewMatrix * P1;
+            P1[0][0] = camOffSet[0][0];
+            P1[1][0] = camOffSet[1][0];
+            P1[2][0] = camOffSet[2][0];
+
+            camOffSet = viewMatrix * P2;
+            P2[0][0] = camOffSet[0][0];
+            P2[1][0] = camOffSet[1][0];
+            P2[2][0] = camOffSet[2][0];
+
             if(perspectflag){
-                // Matriz de projeção corrigida
-
-                double centerX = (Xwmin + Xwmax) / 2.0;
-                double centerY = (Ywmin + Ywmax) / 2.0;
-
+                // 1. Configura a Projeção
                 Matrix p(4, 4);
                 p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
                 p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
                 p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0; // Use 0 aqui para corrigir a distorção
 
-                // Aplica projeção em P1
-                Point auxP = P1;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                Matrix m = p * auxP;
-                // Normalização Homogênea (Divide por W)
+                // 2. A MÁGICA ACONTECE AQUI: Combina Projeção com Câmera
+                Matrix pv = p * viewMatrix;
+
+                // 3. Aplica no Ponto 1 (sem variáveis auxiliares)
+                Matrix m = pv * P1;
                 if (m[3][0] != 0) {
-                    P1[0][0] = m[0][0] / m[3][0] + centerX;
-                    P1[1][0] = m[1][0] / m[3][0] + centerY;
+                    P1[0][0] = m[0][0] / m[3][0];
+                    P1[1][0] = m[1][0] / m[3][0];
                     P1[2][0] = m[2][0] / m[3][0];
                 }
 
-                // Aplica projeção em P2
-                auxP = P2;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                m = p * auxP;
+                // 4. Aplica no Ponto 2
+                m = pv * P2;
                 if (m[3][0] != 0) {
-                    P2[0][0] = m[0][0] / m[3][0] + centerX;
-                    P2[1][0] = m[1][0] / m[3][0] + centerY;
+                    P2[0][0] = m[0][0] / m[3][0];
+                    P2[1][0] = m[1][0] / m[3][0];
                     P2[2][0] = m[2][0] / m[3][0];
                 }
             }
-            // Ponto 1: Mundo -> NDC -> Viewport
+
+            // Desenha na tela (Viewport)
             Point P1_ndc = P1.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
             double x1 = Xvpmin + (P1_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
             double y1 = Yvpmin + (1.0 - P1_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-            // Ponto 2: Mundo -> NDC -> Viewport
             Point P2_ndc = P2.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
             double x2 = Xvpmin + (P2_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
             double y2 = Yvpmin + (1.0 - P2_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
@@ -71,45 +73,45 @@ void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix vie
             painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
         }
 
-        // Se o polígono for fechado, desenha a linha do último ao primeiro ponto
+        // Fechamento do Polígono (Mesma lógica do loop acima)
         if(this->closed) {
-            // CORREÇÃO AQUI: Alterado de Matrix para Point
             Point P_last = vertices.last();
             Point P_first = vertices.first();
 
-            if(perspectflag){
-                double centerX = (Xwmin + Xwmax) / 2.0;
-                double centerY = (Ywmin + Ywmax) / 2.0;
+            Matrix camOffSet = viewMatrix * P_last;
+            P_last[0][0] = camOffSet[0][0];
+            P_last[1][0] = camOffSet[1][0];
+            P_last[2][0] = camOffSet[2][0];
 
+            camOffSet = viewMatrix * P_first;
+            P_first[0][0] = camOffSet[0][0];
+            P_first[1][0] = camOffSet[1][0];
+            P_first[2][0] = camOffSet[2][0];
+
+            if(perspectflag){
                 Matrix p(4, 4);
                 p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
                 p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
                 p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0;
 
-                // Projeção Último
-                Point auxP = P_last;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                Matrix m = p * auxP;
+                Matrix pv = p * viewMatrix; // <--- MUITO IMPORTANTE
+
+                Matrix m = pv * P_last;
                 if (m[3][0] != 0) {
-                    P_last[0][0] = m[0][0] / m[3][0] + centerX;
-                    P_last[1][0] = m[1][0] / m[3][0] + centerY;
+                    P_last[0][0] = m[0][0] / m[3][0];
+                    P_last[1][0] = m[1][0] / m[3][0];
                     P_last[2][0] = m[2][0] / m[3][0];
                 }
 
-                // Projeção Primeiro
-                auxP = P_first;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                m = p * auxP;
+                m = pv * P_first;
                 if (m[3][0] != 0) {
-                    P_first[0][0] = m[0][0] / m[3][0] + centerX;
-                    P_first[1][0] = m[1][0] / m[3][0] + centerY;
+                    P_first[0][0] = m[0][0] / m[3][0];
+                    P_first[1][0] = m[1][0] / m[3][0];
                     P_first[2][0] = m[2][0] / m[3][0];
                 }
             }
-            // Viewport transform
+
             Point P_last_ndc = P_last.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
             double x1 = Xvpmin + (P_last_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
             double y1 = Yvpmin + (1.0 - P_last_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);

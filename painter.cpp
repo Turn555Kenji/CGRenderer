@@ -173,7 +173,7 @@ void PainterWidget::paintEvent(QPaintEvent *event)
         QPen windowPen(Qt::white, 1);
         windowPen.setStyle(Qt::DashLine);
         painter.setPen(windowPen);
-        m_windowObject->draw(&painter, dist, perspectFlag, viewMatrix, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        painter.drawRect(Xvpmin, Yvpmin, Xvpmax - Xvpmin, Yvpmax - Yvpmin);
     }
 
 

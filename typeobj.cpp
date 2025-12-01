@@ -8,12 +8,15 @@ TypeObj::TypeObj(const QList<Polygon>& faces, int id, QString name)
 
 
 void TypeObj::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
-                           double Xwmin, double Ywmin, double Xwmax, double Ywmax,
-                           double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
+                   double Xwmin, double Ywmin, double Xwmax, double Ywmax,
+                   double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
-
+    // Percorre todas as faces (que são objetos Polygon)
     for (Polygon& face : this->faces) {
-        face.draw(painter, dist, perspectflag, viewMatrix, Xwmin, Ywmin, Xwmax, Ywmax, Xvpmin, Yvpmin, Xvpmax, Yvpmax);
+        // Apenas REPASSA a 'viewMatrix' para que o Polígono faça a conta
+        face.draw(painter, dist, perspectflag, viewMatrix,
+                  Xwmin, Ywmin, Xwmax, Ywmax,
+                  Xvpmin, Yvpmin, Xvpmax, Yvpmax);
     }
 }
 

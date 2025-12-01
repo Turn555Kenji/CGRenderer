@@ -45,14 +45,18 @@ void Point::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewM
                  double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                  double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
-
     QPen pen (Qt ::cyan, 5);
     pen.setCapStyle(Qt::RoundCap);
     painter->setPen(pen);
 
-    // --- INÍCIO LÓGICA DE PROJEÇÃO ---
-    // Copia para não alterar o ponto original permanentemente
+    // Copia para não alterar o ponto original
     Point P_proj = *this;
+
+    Matrix camOffSet = viewMatrix * P_proj;
+    P_proj[0][0] = camOffSet[0][0];
+    P_proj[1][0] = camOffSet[1][0];
+    P_proj[2][0] = camOffSet[2][0];
+
     if(perspectflag){
         double centerX = (Xwmin + Xwmax) / 2.0;
         double centerY = (Ywmin + Ywmax) / 2.0;
@@ -63,25 +67,25 @@ void Point::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewM
         p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
         p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
         p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0; // Use 0 aqui
 
-        Matrix m = p * P_proj;
+        // 2. COMBINA AS MATRIZES
+        Matrix pv = p * viewMatrix;
+
+        // 3. Aplica no Ponto (pv * P_proj)
+        Matrix m = pv * P_proj;
         if (m[3][0] != 0) {
             P_proj[0][0] = m[0][0] / m[3][0];
             P_proj[1][0] = m[1][0] / m[3][0];
             P_proj[2][0] = m[2][0] / m[3][0];
         }
-
-        P_proj[0][0] += centerX;
-        P_proj[1][0] += centerY;
-        // --- FIM LÓGICA DE PROJEÇÃO ---
     }
-    // 1. Converte as coordenadas do Mundo para NDC [-1, 1] (usando P_proj)
+
+    // Viewport Transform
     Point P_ndc = P_proj.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
 
-    // 2. Converte as coordenadas NDC para o Viewport (tela)
     double screenX = Xvpmin + (P_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-    double screenY = Yvpmin + (1.0 - P_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin); // Eixo Y invertido
+    double screenY = Yvpmin + (1.0 - P_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
     painter->drawPoint(static_cast<int>(screenX), static_cast<int>(screenY));
 }
