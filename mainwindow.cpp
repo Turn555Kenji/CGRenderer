@@ -228,7 +228,7 @@ void MainWindow::on_polygonButton_clicked()
         int x = static_cast<int>(xp + radius * std::cos(angle));
         int y = static_cast<int>(yp + radius * std::sin(angle));
 
-        Point* current = new Point(x, y);
+        Point* current = new Point(x, y, 0);
 
         if (previous) {
             ui->drawArea->addVertexToCurrentObject(previous, current, name);
