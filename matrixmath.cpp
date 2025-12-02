@@ -198,3 +198,62 @@ Point MatrixMath::getObjectCenter(Obj* obj) {
     }
     return Point(0, 0);
 }
+
+Point MatrixMath::subtract(Point a, Point b) {
+    // Subtrai b de a (a - b)
+    return Point(a[0][0] - b[0][0], a[1][0] - b[1][0], a[2][0] - b[2][0]);
+}
+
+Point MatrixMath::normalize(Point a) {
+    // Normaliza o vetor (deixa com tamanho 1)
+    double length = std::sqrt(a[0][0]*a[0][0] + a[1][0]*a[1][0] + a[2][0]*a[2][0]);
+    if (length == 0) return Point(0,0,0);
+    return Point(a[0][0]/length, a[1][0]/length, a[2][0]/length);
+}
+
+double MatrixMath::dotProduct(Point a, Point b) {
+    // Produto escalar
+    return (a[0][0] * b[0][0]) + (a[1][0] * b[1][0]) + (a[2][0] * b[2][0]);
+}
+
+Point MatrixMath::crossProduct(Point a, Point b) {
+    // Produto vetorial
+    return Point(
+        a[1][0] * b[2][0] - a[2][0] * b[1][0], // x
+        a[2][0] * b[0][0] - a[0][0] * b[2][0], // y
+        a[0][0] * b[1][0] - a[1][0] * b[0][0]  // z
+        );
+}
+
+// A implementação da Câmera (View Matrix)
+Matrix MatrixMath::lookAt(Point eye, Point center, Point up) {
+    // 1. Calcular vetor Z (direção da câmera, invertido: eye - center)
+    Point f = subtract(eye, center);
+    f = normalize(f);
+
+    // 2. Calcular vetor X (Right) - Produto vetorial de UP com Z
+    Point u = normalize(up);
+    Point s = crossProduct(u, f);
+    s = normalize(s);
+
+    // 3. Calcular vetor Y (Up local) - Produto vetorial de Z com X
+    Point v = crossProduct(f, s);
+
+    Matrix res(4, 4);
+
+    // Rotação (transposta da base da câmera)
+    res[0][0] = s[0][0];  res[0][1] = s[1][0];  res[0][2] = s[2][0];  res[0][3] = 0;
+    res[1][0] = v[0][0];  res[1][1] = v[1][0];  res[1][2] = v[2][0];  res[1][3] = 0;
+    res[2][0] = f[0][0];  res[2][1] = f[1][0];  res[2][2] = f[2][0];  res[2][3] = 0;
+    res[3][0] = 0;        res[3][1] = 0;        res[3][2] = 0;        res[3][3] = 1;
+
+    // Translação (-eye)
+    Matrix trans(4, 4);
+    trans[0][0] = 1; trans[0][1] = 0; trans[0][2] = 0; trans[0][3] = -eye[0][0];
+    trans[1][0] = 0; trans[1][1] = 1; trans[1][2] = 0; trans[1][3] = -eye[1][0];
+    trans[2][0] = 0; trans[2][1] = 0; trans[2][2] = 1; trans[2][3] = -eye[2][0];
+    trans[3][0] = 0; trans[3][1] = 0; trans[3][2] = 0; trans[3][3] = 1;
+
+    // Retorna a matriz combinada (Rotação * Translação)
+    return res * trans;
+}

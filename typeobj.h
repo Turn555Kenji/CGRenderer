@@ -10,7 +10,7 @@ class TypeObj : public Obj {
 public:
 
     TypeObj(const QList<Polygon>& faces, int id, QString name);
-    virtual void draw(QPainter *painter, double dist, bool perspectflag,
+    virtual void draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
                       double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                       double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) override;
 

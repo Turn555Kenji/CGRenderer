@@ -4,6 +4,11 @@
 #include <QDebug>
 #include "matrixmath.h"
 
+const int INSIDE = 0;
+const int LEFT   = 1;
+const int RIGHT  = 2;
+const int BOTTOM = 4;
+const int TOP    = 8;
 // Construtor: inicializa o objeto e copia a lista de vértices recebida
 Polygon::Polygon(const QList<Point>& vertices, int id, QString name)
     : Obj(id, name, Type::Polygon), vertices(vertices) {
@@ -13,114 +18,277 @@ Polygon::Polygon(const QList<Point>& vertices): Obj(), vertices(vertices)
 }
 
 // Método para desenhar o polígono na tela
-void Polygon::draw(QPainter *painter, double dist, bool perspectflag,
+void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
                    double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                    double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
-    if (vertices.size() > 1) {
-        for (int i = 0; i < vertices.size() - 1; ++i) {
-            // CORREÇÃO AQUI: Alterado de Matrix para Point
-            Point P1 = vertices[i];
-            Point P2 = vertices[i+1];
+    if (vertices.size() <2)return;
 
-            if(perspectflag){
-                // Matriz de projeção corrigida
+    double centerX = (Xwmin + Xwmax) / 2.0;
+    double centerY = (Ywmin + Ywmax) / 2.0;
+    //centro da window
+    double wMin = 0.001;//distancia minima da camera para o clipping funcionar
+    if (dist == 0) dist = 1.0;//se a distancia for 0 seta para um para não haver div/0
+        // Loop pelos vértices
 
-                double centerX = (Xwmin + Xwmax) / 2.0;
-                double centerY = (Ywmin + Ywmax) / 2.0;
+    //se o poligo
+    for (int i = 0; i < vertices.size() - 1; ++i) {
+        Point P1 = vertices[i];
+        Point P2 = vertices[i+1];
 
-                Matrix p(4, 4);
-                p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-                p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
-                p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+        Matrix camOffSet = viewMatrix * P1;
+        P1[0][0] = camOffSet[0][0];
+        P1[1][0] = camOffSet[1][0];
+        P1[2][0] = camOffSet[2][0];
 
-                // Aplica projeção em P1
-                Point auxP = P1;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                Matrix m = p * auxP;
-                // Normalização Homogênea (Divide por W)
-                if (m[3][0] != 0) {
-                    P1[0][0] = m[0][0] / m[3][0] + centerX;
-                    P1[1][0] = m[1][0] / m[3][0] + centerY;
-                    P1[2][0] = m[2][0] / m[3][0];
-                }
+        camOffSet = viewMatrix * P2;
+        P2[0][0] = camOffSet[0][0];
+        P2[1][0] = camOffSet[1][0];
+        P2[2][0] = camOffSet[2][0];
 
-                // Aplica projeção em P2
-                auxP = P2;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                m = p * auxP;
-                if (m[3][0] != 0) {
-                    P2[0][0] = m[0][0] / m[3][0] + centerX;
-                    P2[1][0] = m[1][0] / m[3][0] + centerY;
-                    P2[2][0] = m[2][0] / m[3][0];
+        if(perspectflag){
+
+            Matrix p(4, 4);
+            p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+            p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+            p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+            p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+
+            Point auxP = P1;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m1 = p * auxP;
+
+            auxP = P2;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m2 = p * auxP;
+
+
+            //clipping
+            double w1 = m1[3][0];
+            double w2 = m2[3][0];
+
+            bool p1Valid = w1 > wMin;
+            bool p2Valid = w2 > wMin;
+            if (!p1Valid && !p2Valid) continue;
+            double x1_final = m1[0][0], y1_final = m1[1][0], w1_final = w1;
+            double x2_final = m2[0][0], y2_final = m2[1][0], w2_final = w2;
+            if (p1Valid != p2Valid) {
+                // calcula novo ponto
+                double t = (wMin - w1) / (w2 - w1);
+                //X Y nas coordenadas homogêneas
+                double x_cut = m1[0][0] + (m2[0][0] - m1[0][0]) * t;
+                double y_cut = m1[1][0] + (m2[1][0] - m1[1][0]) * t;
+                double w_cut = wMin;
+
+                if (p1Valid) { // P1 dentro corta P2
+                    x2_final = x_cut; y2_final = y_cut; w2_final = w_cut;
+                } else {
+                    x1_final = x_cut; y1_final = y_cut; w1_final = w_cut;
                 }
             }
-            // Ponto 1: Mundo -> NDC -> Viewport
-            Point P1_ndc = P1.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
-            double x1 = Xvpmin + (P1_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y1 = Yvpmin + (1.0 - P1_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
+            //com certeza esse valores são >0 pq ocorreu o clipping para garantir
+            P1[0][0] = (x1_final / w1_final) + centerX;
+            P1[1][0] = (y1_final / w1_final) + centerY;
 
-            // Ponto 2: Mundo -> NDC -> Viewport
-            Point P2_ndc = P2.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
-            double x2 = Xvpmin + (P2_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y2 = Yvpmin + (1.0 - P2_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
-
-            painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+            P2[0][0] = (x2_final / w2_final) + centerX;
+            P2[1][0] = (y2_final / w2_final) + centerY;
         }
 
-        // Se o polígono for fechado, desenha a linha do último ao primeiro ponto
-        if(this->closed) {
-            // CORREÇÃO AQUI: Alterado de Matrix para Point
-            Point P_last = vertices.last();
-            Point P_first = vertices.first();
+        // Ponto 1: Mundo -> NDC -> Viewport
+        double wx1 = P1[0][0];
+        double wy1 = P1[1][0];
+        double wx2 = P2[0][0];
+        double wy2 = P2[1][0];
 
-            if(perspectflag){
-                double centerX = (Xwmin + Xwmax) / 2.0;
-                double centerY = (Ywmin + Ywmax) / 2.0;
 
-                Matrix p(4, 4);
-                p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-                p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
-                p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+        bool visible = clippingCohen(wx1, wy1, wx2, wy2, Xwmin, Ywmin, Xwmax, Ywmax);
+        if (!visible) {
+            qDebug()<<"saiu da are poligono";
+            return;
+        }
 
-                // Projeção Último
-                Point auxP = P_last;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                Matrix m = p * auxP;
-                if (m[3][0] != 0) {
-                    P_last[0][0] = m[0][0] / m[3][0] + centerX;
-                    P_last[1][0] = m[1][0] / m[3][0] + centerY;
-                    P_last[2][0] = m[2][0] / m[3][0];
-                }
+        double ndcX1 = -1.0 + 2.0 * (wx1 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY1 = -1.0 + 2.0 * (wy1 - Ywmin) / (Ywmax - Ywmin);
 
-                // Projeção Primeiro
-                auxP = P_first;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                m = p * auxP;
-                if (m[3][0] != 0) {
-                    P_first[0][0] = m[0][0] / m[3][0] + centerX;
-                    P_first[1][0] = m[1][0] / m[3][0] + centerY;
-                    P_first[2][0] = m[2][0] / m[3][0];
+        double x1 = Xvpmin + (ndcX1 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y1 = Yvpmin + (1.0 - ndcY1) / 2.0 * (Yvpmax - Yvpmin);
+
+        // Ponto 2: Mundo -> NDC -> Viewport
+        double ndcX2 = -1.0 + 2.0 * (wx2 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY2 = -1.0 + 2.0 * (wy2 - Ywmin) / (Ywmax - Ywmin);
+
+        double x2 = Xvpmin + (ndcX2 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y2 = Yvpmin + (1.0 - ndcY2) / 2.0 * (Yvpmax - Yvpmin);
+        painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+    }
+
+    // Fechamento do Polígono (Mesma lógica do loop acima)
+    if(this->closed) {
+        Point P_last = vertices.last();
+        Point P_first = vertices.first();
+
+        Matrix camOffSet = viewMatrix * P_last;
+        P_last[0][0] = camOffSet[0][0];
+        P_last[1][0] = camOffSet[1][0];
+        P_last[2][0] = camOffSet[2][0];
+
+        camOffSet = viewMatrix * P_first;
+        P_first[0][0] = camOffSet[0][0];
+        P_first[1][0] = camOffSet[1][0];
+        P_first[2][0] = camOffSet[2][0];
+
+        if(perspectflag){
+            if (dist == 0) dist = 1;
+
+
+            Matrix p(4, 4);
+            p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+            p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+            p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+            p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+
+            Point auxP = P_last;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m1 = p * auxP;
+
+
+            auxP = P_first;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m2 = p * auxP;
+            double w1 = m1[3][0];
+            double w2 = m2[3][0];
+
+            bool p1Valid = w1 > wMin;
+            bool p2Valid = w2 > wMin;
+
+            if (!p1Valid && !p2Valid) return;
+
+            double x1_final = m1[0][0], y1_final = m1[1][0], w1_final = w1;
+            double x2_final = m2[0][0], y2_final = m2[1][0], w2_final = w2;
+
+            if (p1Valid != p2Valid) {
+                double t = (wMin - w1) / (w2 - w1);
+                double x_cut = m1[0][0] + (m2[0][0] - m1[0][0]) * t;
+                double y_cut = m1[1][0] + (m2[1][0] - m1[1][0]) * t;
+                double w_cut = wMin;
+
+                if (p1Valid) {
+                    x2_final = x_cut; y2_final = y_cut; w2_final = w_cut;
+                } else {
+                    x1_final = x_cut; y1_final = y_cut; w1_final = w_cut;
                 }
             }
-            // Viewport transform
-            Point P_last_ndc = P_last.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
-            double x1 = Xvpmin + (P_last_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y1 = Yvpmin + (1.0 - P_last_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-            Point P_first_ndc = P_first.normalize(Xwmin, Ywmin, Xwmax, Ywmax);
-            double x2 = Xvpmin + (P_first_ndc[0][0] + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y2 = Yvpmin + (1.0 - P_first_ndc[1][0]) / 2.0 * (Yvpmax - Yvpmin);
 
-            painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+            P_last[0][0]  = (x1_final / w1_final) + centerX;
+            P_last[1][0]  = (y1_final / w1_final) + centerY;
+            P_first[0][0] = (x2_final / w2_final) + centerX;
+            P_first[1][0] = (y2_final / w2_final) + centerY;
+        }
+
+        double wx1 = P_last[0][0];
+        double wy1 = P_last[1][0];
+        double wx2 = P_first[0][0];
+        double wy2 = P_first[1][0];
+        // Viewport transform
+        bool visible = clippingCohen(wx1, wy1, wx2, wy2, Xwmin, Ywmin, Xwmax, Ywmax);
+        if (!visible) {
+            qDebug()<<"saiu da are poligono";
+
+            return;
+        }
+
+        double ndcX1 = -1.0 + 2.0 * (wx1 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY1 = -1.0 + 2.0 * (wy1 - Ywmin) / (Ywmax - Ywmin);
+
+        double x1 = Xvpmin + (ndcX1 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y1 = Yvpmin + (1.0 - ndcY1) / 2.0 * (Yvpmax - Yvpmin);
+
+        // Ponto 2: Mundo -> NDC -> Viewport
+        double ndcX2 = -1.0 + 2.0 * (wx2 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY2 = -1.0 + 2.0 * (wy2 - Ywmin) / (Ywmax - Ywmin);
+
+        double x2 = Xvpmin + (ndcX2 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y2 = Yvpmin + (1.0 - ndcY2) / 2.0 * (Yvpmax - Yvpmin);
+
+        painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+    }
+
+}
+int Polygon::Regiao(double x, double y, double Xwmin, double Ywmin, double Xwmax, double Ywmax)
+{
+    int code = INSIDE;
+
+    if (x < Xwmin)
+        code |= LEFT;
+    else if (x > Xwmax)
+        code |= RIGHT;
+
+    if (y < Ywmin)
+        code |= BOTTOM;
+    else if (y > Ywmax)
+        code |= TOP;
+
+    return code;
+}
+
+
+bool Polygon::clippingCohen(double& x1, double& y1, double& x2, double& y2, double Xwmin, double Ywmin, double Xwmax, double Ywmax)
+{
+    int code1 = Regiao(x1, y1, Xwmin, Ywmin,Xwmax,Ywmax);
+    int code2 = Regiao(x2, y2, Xwmin, Ywmin,Xwmax,Ywmax);
+    bool accept = false;
+
+    while (true) {
+        if ((code1 == 0) && (code2 == 0)) { //dentro da window
+            accept = true;
+            break;
+        } else if (code1 & code2) {
+            // Caso2 os dois estão fora
+            accept = false;
+            break;
+        } else {
+            // Caso 3 segmento de reta
+            double x, y;
+            int codeOut;
+            // seleciona a parte da reta que está pra fora
+            if (code1 != 0) {
+                codeOut = code1;
+            } else {
+                codeOut = code2;
+            }
+
+            // interseção.
+            if (codeOut & TOP) { //acima
+                x = x1 + (x2 - x1) * (Ywmax - y1) / (y2 - y1);
+                y = Ywmax;
+            } else if (codeOut & BOTTOM) {//abaixo
+                x = x1 + (x2 - x1) * (Ywmin - y1) / (y2 - y1);
+                y = Ywmin;
+            } else if (codeOut & RIGHT) {//direita
+                y = y1 + (y2 - y1) * (Xwmax - x1) / (x2 - x1);
+                x = Xwmax;
+            } else if (codeOut & LEFT) {   //esquerda
+                y = y1 + (y2 - y1) * (Xwmin - x1) / (x2 - x1);
+                x = Xwmin;
+            }
+
+            if (codeOut == code1) {
+                x1 = x;
+                y1 = y;
+                code1 = Regiao(x1, y1, Xwmin, Ywmin,Xwmax,Ywmax);
+            } else {
+                x2 = x;
+                y2 = y;
+                code2 = Regiao(x2, y2, Xwmin, Ywmin,Xwmax,Ywmax);
+            }
         }
     }
+    return accept;
 }
 
 // Método para aplicar uma transformação matricial a todos os vértices

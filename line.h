@@ -12,7 +12,7 @@ public:
 
     // Métodos virtuais da classe Obj que precisam ser implementados
 
-    void draw(QPainter *painter, double dist, bool perspectflag,
+    void draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMatrix,
               double Xwmin, double Ywmin, double Xwmax, double Ywmax,
               double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax) override;
     Obj* transform(const Matrix m) override;
@@ -22,6 +22,8 @@ public:
 
 private:
     // Pontos inicial e final da linha
+    int Regiao(double x, double y, double Xwmin, double Ywmin, double Xwmax, double Ywmax);
+    bool clippingCohen(double& x1, double& y1, double& x2, double& y2, double Xwmin, double Ywmin, double Xwmax, double Ywmax);
     Point p1;
     Point p2;
 };
