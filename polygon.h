@@ -25,6 +25,8 @@ public:
     Point getP1() const { return vertices.first(); }
 
 private:
+    int Regiao(double x, double y, double Xwmin, double Ywmin, double Xwmax, double Ywmax);
+    bool clippingCohen(double& x1, double& y1, double& x2, double& y2, double Xwmin, double Ywmin, double Xwmax, double Ywmax);
     QList<Point> vertices;
     bool closed = false;
 };

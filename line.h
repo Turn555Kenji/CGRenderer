@@ -22,6 +22,8 @@ public:
 
 private:
     // Pontos inicial e final da linha
+    int Regiao(double x, double y, double Xwmin, double Ywmin, double Xwmax, double Ywmax);
+    bool clippingCohen(double& x1, double& y1, double& x2, double& y2, double Xwmin, double Ywmin, double Xwmax, double Ywmax);
     Point p1;
     Point p2;
 };
