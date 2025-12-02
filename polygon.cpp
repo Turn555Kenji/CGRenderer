@@ -43,43 +43,31 @@ void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix vie
 
                 double centerX = (Xwmin + Xwmax) / 2.0;
                 double centerY = (Ywmin + Ywmax) / 2.0;
-                // 1. Configura a Projeção
+
                 Matrix p(4, 4);
                 p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
                 p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
                 p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0; // Use 0 aqui para corrigir a distorção
+                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
-                // 2. A MÁGICA ACONTECE AQUI: Combina Projeção com Câmera
-                Matrix pv = p * viewMatrix;
-
-                Point auxP1 = P1;
-                auxP1[0][0] -= centerX;
-                auxP1[1][0] -= centerY;
-                // 3. Aplica no Ponto 1 (sem variáveis auxiliares)
-                Matrix m = pv * P1;
+                Point auxP = P1;
+                auxP[0][0] -= centerX;
+                auxP[1][0] -= centerY;
+                Matrix m = p * auxP;
                 if (m[3][0] != 0) {
-                    P1[0][0] = m[0][0] / m[3][0];
-                    P1[1][0] = m[1][0] / m[3][0];
+                    P1[0][0] = m[0][0] / m[3][0] + centerX;
+                    P1[1][0] = m[1][0] / m[3][0] + centerY;
                     P1[2][0] = m[2][0] / m[3][0];
-
-                    // voltar oara coordenada de munda
-                    P1[0][0] += centerX;
-                    P1[1][0] += centerY;
                 }
 
-                // 4. Aplica no Ponto 2
-                m = pv * P2;
-                Point auxP2 = P2;
-                auxP2[0][0] -= centerX;
-                auxP2[1][0] -= centerY;
+                auxP = P2;
+                auxP[0][0] -= centerX;
+                auxP[1][0] -= centerY;
+                m = p * auxP;
                 if (m[3][0] != 0) {
-                    P2[0][0] = m[0][0] / m[3][0];
-                    P2[1][0] = m[1][0] / m[3][0];
+                    P2[0][0] = m[0][0] / m[3][0] + centerX;
+                    P2[1][0] = m[1][0] / m[3][0] + centerY;
                     P2[2][0] = m[2][0] / m[3][0];
-
-                    P2[0][0] += centerX;
-                    P2[1][0] += centerY;
                 }
             }
 
@@ -135,36 +123,26 @@ void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix vie
                 p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
                 p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
                 p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0;
+                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
-                Matrix pv = p * viewMatrix; // <--- MUITO IMPORTANTE
-
-                Point auxP1 = P_last;
-                auxP1[0][0] -= centerX;
-                auxP1[1][0] -= centerY;
-                Matrix m = pv * P_last;
+                Point auxP = P_last;
+                auxP[0][0] -= centerX;
+                auxP[1][0] -= centerY;
+                Matrix m = p * auxP;
                 if (m[3][0] != 0) {
-                    P_last[0][0] = m[0][0] / m[3][0];
-                    P_last[1][0] = m[1][0] / m[3][0];
+                    P_last[0][0] = m[0][0] / m[3][0] + centerX;
+                    P_last[1][0] = m[1][0] / m[3][0] + centerY;
                     P_last[2][0] = m[2][0] / m[3][0];
-
-                    P_last[0][0] += centerX;
-                    P_last[1][0] += centerY;
                 }
 
-                m = pv * P_first;
-
-                Point auxPfirst = P_first;
-                auxPfirst[0][0] -= centerX;
-                auxPfirst[1][0] -= centerY;
-
+                auxP = P_first;
+                auxP[0][0] -= centerX;
+                auxP[1][0] -= centerY;
+                m = p * auxP;
                 if (m[3][0] != 0) {
-                    P_first[0][0] = m[0][0] / m[3][0];
-                    P_first[1][0] = m[1][0] / m[3][0];
+                    P_first[0][0] = m[0][0] / m[3][0] + centerX;
+                    P_first[1][0] = m[1][0] / m[3][0] + centerY;
                     P_first[2][0] = m[2][0] / m[3][0];
-
-                    P_first[0][0] += centerX;
-                    P_first[1][0] += centerY;
                 }
             }
 

@@ -36,45 +36,32 @@ void Line::draw(QPainter *painter, double dist, bool perspectflag, Matrix viewMa
 
         double centerX = (Xwmin + Xwmax) / 2.0;
         double centerY = (Ywmin + Ywmax) / 2.0;
-        // 1. Matriz de projeção
+
         Matrix p(4, 4);
         p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
         p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
         p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 0; // Use 0 aqui
+        p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
-        // 2. COMBINA AS MATRIZES (Projeção * Câmera)
-        Matrix pv = p * viewMatrix;
-        Point auxP1 = P1_proj;
-        auxP1[0][0] -= centerX;
-        auxP1[1][0] -= centerY;
 
-        // 3. Aplica em P1 (pv * P1)
-        Matrix m = pv * P1_proj;
+        Point auxP = P1_proj;
+        auxP[0][0] -= centerX;
+        auxP[1][0] -= centerY;
+        Matrix m = p * auxP;
         if (m[3][0] != 0) {
-            P1_proj[0][0] = m[0][0] / m[3][0];
-            P1_proj[1][0] = m[1][0] / m[3][0];
+            P1_proj[0][0] = m[0][0] / m[3][0] + centerX;
+            P1_proj[1][0] = m[1][0] / m[3][0] + centerY;
             P1_proj[2][0] = m[2][0] / m[3][0];
-
-            // voltar oara coordenada de munda
-            P1_proj[0][0] += centerX;
-            P1_proj[1][0] += centerY;
         }
 
-        // 4. Aplica em P2 (pv * P2)
-        Point auxP2 = P2_proj;
-        auxP2[0][0] -= centerX;
-        auxP2[1][0] -= centerY;
-
-        Matrix m2 = pv * P2_proj;
+        auxP = P2_proj;
+        auxP[0][0] -= centerX;
+        auxP[1][0] -= centerY;
+        m = p * auxP;
         if (m[3][0] != 0) {
-            P2_proj[0][0] = m[0][0] / m[3][0];
-            P2_proj[1][0] = m[1][0] / m[3][0];
+            P2_proj[0][0] = m[0][0] / m[3][0] + centerX;
+            P2_proj[1][0] = m[1][0] / m[3][0] + centerY;
             P2_proj[2][0] = m[2][0] / m[3][0];
-
-
-            P2_proj[0][0] += centerX;
-            P2_proj[1][0] += centerY;
         }
     }
     double wx1 = P1_proj[0][0];
