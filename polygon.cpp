@@ -22,158 +22,202 @@ void Polygon::draw(QPainter *painter, double dist, bool perspectflag, Matrix vie
                    double Xwmin, double Ywmin, double Xwmax, double Ywmax,
                    double Xvpmin, double Yvpmin, double Xvpmax, double Yvpmax)
 {
-    if (vertices.size() > 1) {
+    if (vertices.size() <2)return;
+
+    double centerX = (Xwmin + Xwmax) / 2.0;
+    double centerY = (Ywmin + Ywmax) / 2.0;
+    //centro da window
+    double wMin = 0.001;//distancia minima da camera para o clipping funcionar
+    if (dist == 0) dist = 1.0;//se a distancia for 0 seta para um para não haver div/0
         // Loop pelos vértices
-        for (int i = 0; i < vertices.size() - 1; ++i) {
-            Point P1 = vertices[i];
-            Point P2 = vertices[i+1];
 
-            Matrix camOffSet = viewMatrix * P1;
-            P1[0][0] = camOffSet[0][0];
-            P1[1][0] = camOffSet[1][0];
-            P1[2][0] = camOffSet[2][0];
+    //se o poligo
+    for (int i = 0; i < vertices.size() - 1; ++i) {
+        Point P1 = vertices[i];
+        Point P2 = vertices[i+1];
 
-            camOffSet = viewMatrix * P2;
-            P2[0][0] = camOffSet[0][0];
-            P2[1][0] = camOffSet[1][0];
-            P2[2][0] = camOffSet[2][0];
+        Matrix camOffSet = viewMatrix * P1;
+        P1[0][0] = camOffSet[0][0];
+        P1[1][0] = camOffSet[1][0];
+        P1[2][0] = camOffSet[2][0];
 
-            if(perspectflag){
-                if (dist == 0) dist = 1;
+        camOffSet = viewMatrix * P2;
+        P2[0][0] = camOffSet[0][0];
+        P2[1][0] = camOffSet[1][0];
+        P2[2][0] = camOffSet[2][0];
 
-                double centerX = (Xwmin + Xwmax) / 2.0;
-                double centerY = (Ywmin + Ywmax) / 2.0;
+        if(perspectflag){
 
-                Matrix p(4, 4);
-                p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-                p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
-                p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+            Matrix p(4, 4);
+            p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+            p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+            p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+            p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
 
-                Point auxP = P1;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                Matrix m = p * auxP;
-                if (m[3][0] != 0) {
-                    P1[0][0] = m[0][0] / m[3][0] + centerX;
-                    P1[1][0] = m[1][0] / m[3][0] + centerY;
-                    P1[2][0] = m[2][0] / m[3][0];
-                }
+            Point auxP = P1;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m1 = p * auxP;
 
-                auxP = P2;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                m = p * auxP;
-                if (m[3][0] != 0) {
-                    P2[0][0] = m[0][0] / m[3][0] + centerX;
-                    P2[1][0] = m[1][0] / m[3][0] + centerY;
-                    P2[2][0] = m[2][0] / m[3][0];
+            auxP = P2;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m2 = p * auxP;
+
+
+            //clipping
+            double w1 = m1[3][0];
+            double w2 = m2[3][0];
+
+            bool p1Valid = w1 > wMin;
+            bool p2Valid = w2 > wMin;
+            if (!p1Valid && !p2Valid) continue;
+            double x1_final = m1[0][0], y1_final = m1[1][0], w1_final = w1;
+            double x2_final = m2[0][0], y2_final = m2[1][0], w2_final = w2;
+            if (p1Valid != p2Valid) {
+                // calcula novo ponto
+                double t = (wMin - w1) / (w2 - w1);
+                //X Y nas coordenadas homogêneas
+                double x_cut = m1[0][0] + (m2[0][0] - m1[0][0]) * t;
+                double y_cut = m1[1][0] + (m2[1][0] - m1[1][0]) * t;
+                double w_cut = wMin;
+
+                if (p1Valid) { // P1 dentro corta P2
+                    x2_final = x_cut; y2_final = y_cut; w2_final = w_cut;
+                } else {
+                    x1_final = x_cut; y1_final = y_cut; w1_final = w_cut;
                 }
             }
+            //com certeza esse valores são >0 pq ocorreu o clipping para garantir
+            P1[0][0] = (x1_final / w1_final) + centerX;
+            P1[1][0] = (y1_final / w1_final) + centerY;
 
-            // Ponto 1: Mundo -> NDC -> Viewport
-            double wx1 = P1[0][0];
-            double wy1 = P1[1][0];
-            double wx2 = P2[0][0];
-            double wy2 = P2[1][0];
-
-
-            bool visible = clippingCohen(wx1, wy1, wx2, wy2, Xwmin, Ywmin, Xwmax, Ywmax);
-            if (!visible) {
-                qDebug()<<"saiu da are poligono";
-                return;
-            }
-
-            double ndcX1 = -1.0 + 2.0 * (wx1 - Xwmin) / (Xwmax - Xwmin);
-            double ndcY1 = -1.0 + 2.0 * (wy1 - Ywmin) / (Ywmax - Ywmin);
-
-            double x1 = Xvpmin + (ndcX1 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y1 = Yvpmin + (1.0 - ndcY1) / 2.0 * (Yvpmax - Yvpmin);
-
-            // Ponto 2: Mundo -> NDC -> Viewport
-            double ndcX2 = -1.0 + 2.0 * (wx2 - Xwmin) / (Xwmax - Xwmin);
-            double ndcY2 = -1.0 + 2.0 * (wy2 - Ywmin) / (Ywmax - Ywmin);
-
-            double x2 = Xvpmin + (ndcX2 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y2 = Yvpmin + (1.0 - ndcY2) / 2.0 * (Yvpmax - Yvpmin);
-            painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+            P2[0][0] = (x2_final / w2_final) + centerX;
+            P2[1][0] = (y2_final / w2_final) + centerY;
         }
 
-        // Fechamento do Polígono (Mesma lógica do loop acima)
-        if(this->closed) {
-            Point P_last = vertices.last();
-            Point P_first = vertices.first();
+        // Ponto 1: Mundo -> NDC -> Viewport
+        double wx1 = P1[0][0];
+        double wy1 = P1[1][0];
+        double wx2 = P2[0][0];
+        double wy2 = P2[1][0];
 
-            Matrix camOffSet = viewMatrix * P_last;
-            P_last[0][0] = camOffSet[0][0];
-            P_last[1][0] = camOffSet[1][0];
-            P_last[2][0] = camOffSet[2][0];
 
-            camOffSet = viewMatrix * P_first;
-            P_first[0][0] = camOffSet[0][0];
-            P_first[1][0] = camOffSet[1][0];
-            P_first[2][0] = camOffSet[2][0];
-
-            if(perspectflag){
-                if (dist == 0) dist = 1;
-
-                double centerX = (Xwmin + Xwmax) / 2.0;
-                double centerY = (Ywmin + Ywmax) / 2.0;
-                Matrix p(4, 4);
-                p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
-                p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
-                p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
-                p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
-
-                Point auxP = P_last;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                Matrix m = p * auxP;
-                if (m[3][0] != 0) {
-                    P_last[0][0] = m[0][0] / m[3][0] + centerX;
-                    P_last[1][0] = m[1][0] / m[3][0] + centerY;
-                    P_last[2][0] = m[2][0] / m[3][0];
-                }
-
-                auxP = P_first;
-                auxP[0][0] -= centerX;
-                auxP[1][0] -= centerY;
-                m = p * auxP;
-                if (m[3][0] != 0) {
-                    P_first[0][0] = m[0][0] / m[3][0] + centerX;
-                    P_first[1][0] = m[1][0] / m[3][0] + centerY;
-                    P_first[2][0] = m[2][0] / m[3][0];
-                }
-            }
-
-            double wx1 = P_last[0][0];
-            double wy1 = P_last[1][0];
-            double wx2 = P_first[0][0];
-            double wy2 = P_first[1][0];
-            // Viewport transform
-            bool visible = clippingCohen(wx1, wy1, wx2, wy2, Xwmin, Ywmin, Xwmax, Ywmax);
-            if (!visible) {
-                qDebug()<<"saiu da are poligono";
-
-                return;
-            }
-
-            double ndcX1 = -1.0 + 2.0 * (wx1 - Xwmin) / (Xwmax - Xwmin);
-            double ndcY1 = -1.0 + 2.0 * (wy1 - Ywmin) / (Ywmax - Ywmin);
-
-            double x1 = Xvpmin + (ndcX1 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y1 = Yvpmin + (1.0 - ndcY1) / 2.0 * (Yvpmax - Yvpmin);
-
-            // Ponto 2: Mundo -> NDC -> Viewport
-            double ndcX2 = -1.0 + 2.0 * (wx2 - Xwmin) / (Xwmax - Xwmin);
-            double ndcY2 = -1.0 + 2.0 * (wy2 - Ywmin) / (Ywmax - Ywmin);
-
-            double x2 = Xvpmin + (ndcX2 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
-            double y2 = Yvpmin + (1.0 - ndcY2) / 2.0 * (Yvpmax - Yvpmin);
-
-            painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+        bool visible = clippingCohen(wx1, wy1, wx2, wy2, Xwmin, Ywmin, Xwmax, Ywmax);
+        if (!visible) {
+            qDebug()<<"saiu da are poligono";
+            return;
         }
+
+        double ndcX1 = -1.0 + 2.0 * (wx1 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY1 = -1.0 + 2.0 * (wy1 - Ywmin) / (Ywmax - Ywmin);
+
+        double x1 = Xvpmin + (ndcX1 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y1 = Yvpmin + (1.0 - ndcY1) / 2.0 * (Yvpmax - Yvpmin);
+
+        // Ponto 2: Mundo -> NDC -> Viewport
+        double ndcX2 = -1.0 + 2.0 * (wx2 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY2 = -1.0 + 2.0 * (wy2 - Ywmin) / (Ywmax - Ywmin);
+
+        double x2 = Xvpmin + (ndcX2 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y2 = Yvpmin + (1.0 - ndcY2) / 2.0 * (Yvpmax - Yvpmin);
+        painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
     }
+
+    // Fechamento do Polígono (Mesma lógica do loop acima)
+    if(this->closed) {
+        Point P_last = vertices.last();
+        Point P_first = vertices.first();
+
+        Matrix camOffSet = viewMatrix * P_last;
+        P_last[0][0] = camOffSet[0][0];
+        P_last[1][0] = camOffSet[1][0];
+        P_last[2][0] = camOffSet[2][0];
+
+        camOffSet = viewMatrix * P_first;
+        P_first[0][0] = camOffSet[0][0];
+        P_first[1][0] = camOffSet[1][0];
+        P_first[2][0] = camOffSet[2][0];
+
+        if(perspectflag){
+            if (dist == 0) dist = 1;
+
+
+            Matrix p(4, 4);
+            p[0][0] = 1; p[0][1] = 0; p[0][2] = 0; p[0][3] = 0;
+            p[1][0] = 0; p[1][1] = 1; p[1][2] = 0; p[1][3] = 0;
+            p[2][0] = 0; p[2][1] = 0; p[2][2] = 1; p[2][3] = 0;
+            p[3][0] = 0; p[3][1] = 0; p[3][2] = 1/dist; p[3][3] = 1;
+
+            Point auxP = P_last;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m1 = p * auxP;
+
+
+            auxP = P_first;
+            auxP[0][0] -= centerX;
+            auxP[1][0] -= centerY;
+            Matrix m2 = p * auxP;
+            double w1 = m1[3][0];
+            double w2 = m2[3][0];
+
+            bool p1Valid = w1 > wMin;
+            bool p2Valid = w2 > wMin;
+
+            if (!p1Valid && !p2Valid) return;
+
+            double x1_final = m1[0][0], y1_final = m1[1][0], w1_final = w1;
+            double x2_final = m2[0][0], y2_final = m2[1][0], w2_final = w2;
+
+            if (p1Valid != p2Valid) {
+                double t = (wMin - w1) / (w2 - w1);
+                double x_cut = m1[0][0] + (m2[0][0] - m1[0][0]) * t;
+                double y_cut = m1[1][0] + (m2[1][0] - m1[1][0]) * t;
+                double w_cut = wMin;
+
+                if (p1Valid) {
+                    x2_final = x_cut; y2_final = y_cut; w2_final = w_cut;
+                } else {
+                    x1_final = x_cut; y1_final = y_cut; w1_final = w_cut;
+                }
+            }
+
+
+            P_last[0][0]  = (x1_final / w1_final) + centerX;
+            P_last[1][0]  = (y1_final / w1_final) + centerY;
+            P_first[0][0] = (x2_final / w2_final) + centerX;
+            P_first[1][0] = (y2_final / w2_final) + centerY;
+        }
+
+        double wx1 = P_last[0][0];
+        double wy1 = P_last[1][0];
+        double wx2 = P_first[0][0];
+        double wy2 = P_first[1][0];
+        // Viewport transform
+        bool visible = clippingCohen(wx1, wy1, wx2, wy2, Xwmin, Ywmin, Xwmax, Ywmax);
+        if (!visible) {
+            qDebug()<<"saiu da are poligono";
+
+            return;
+        }
+
+        double ndcX1 = -1.0 + 2.0 * (wx1 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY1 = -1.0 + 2.0 * (wy1 - Ywmin) / (Ywmax - Ywmin);
+
+        double x1 = Xvpmin + (ndcX1 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y1 = Yvpmin + (1.0 - ndcY1) / 2.0 * (Yvpmax - Yvpmin);
+
+        // Ponto 2: Mundo -> NDC -> Viewport
+        double ndcX2 = -1.0 + 2.0 * (wx2 - Xwmin) / (Xwmax - Xwmin);
+        double ndcY2 = -1.0 + 2.0 * (wy2 - Ywmin) / (Ywmax - Ywmin);
+
+        double x2 = Xvpmin + (ndcX2 + 1.0) / 2.0 * (Xvpmax - Xvpmin);
+        double y2 = Yvpmin + (1.0 - ndcY2) / 2.0 * (Yvpmax - Yvpmin);
+
+        painter->drawLine(static_cast<int>(x1), static_cast<int>(y1), static_cast<int>(x2), static_cast<int>(y2));
+    }
+
 }
 int Polygon::Regiao(double x, double y, double Xwmin, double Ywmin, double Xwmax, double Ywmax)
 {
